@@ -3,8 +3,7 @@ import Hamburger from '../islands/Hamburger.tsx';
 import NavPanel from '../islands/NavPanel.tsx';
 
 /** TODO
-        active link color change to black (black?)
-        hovor color (blue?)
+    active link color change to black (black?)
 **/
 
 export default function Nav() {
@@ -17,7 +16,7 @@ export default function Nav() {
                 <ul class="h-full">
                     <li class="float-left h-full py-1 text-xl">
                         <a
-                            class="block text-2xl sm:text-3xl text-black"
+                            class="block hover:animate-pulse hover:text-blue text-2xl sm:text-3xl text-black"
                             href="/">
                             JUSTIN HARRISON
                         </a>
@@ -28,14 +27,14 @@ export default function Nav() {
                     />
                     <li class="float-right h-full hidden sm:block min-w-12 togglable">
                         <a
-                            class="block px-1 py-2 text-lg text-lightgrey"
+                            class="block hover:animate-pulse hover:text-blue px-1 py-2 text-lg text-lightgrey"
                             href="/greet/resume">
                             resume
                         </a>
                     </li>
                     <li class="float-right h-full hidden sm:block min-w-12 togglable">
                         <a
-                            class="block px-1 py-2 text-lg text-lightgrey"
+                            class="block hover:animate-pulse hover:text-blue px-1 py-2 text-lg text-lightgrey"
                             href="/greet/about">
                             about
                         </a>
