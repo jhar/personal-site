@@ -6,6 +6,7 @@ export default {
     colors: {
       blue: '#4874d4',
       lightgrey: '#676767',
+      medgrey: 'rgb(119, 119, 119)',
       offblack: 'rgb(25, 25, 25)',
       white: 'rgb(255, 255, 255)',
     },

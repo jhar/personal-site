@@ -1,5 +1,6 @@
 import { LayoutProps } from '$fresh/server.ts';
 import { Partial } from '$fresh/runtime.ts';
+import Footer from '../components/Footer.tsx';
 import Nav from '../components/Nav.tsx';
 
 export default function Layout({ Component }: LayoutProps) {
@@ -9,7 +10,7 @@ export default function Layout({ Component }: LayoutProps) {
             <Partial name="main">
                 <Component />
             </Partial>
-            <div class="footer">Footer</div>
+            <Footer />
         </body>
     )
 }
