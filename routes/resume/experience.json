@@ -1,0 +1,80 @@
+{
+    "education": [
+        {
+            "description": "Promising Artist Achievement Award, William Dole Award, Faculty Award of Distinction x2, Dean's Honors x5",
+            "location": "Santa Barbara, CA",
+            "organization": "University of California",
+            "time": "Graduated 2014",
+            "title": "BA in Art with High Honors"
+        },
+        {
+            "description": "",
+            "location": "",
+            "organization": "",
+            "time": "",
+            "title": ""
+        }
+    ],
+    "professionalDevelopment": [
+        {
+            "organization": "MongoDB University",
+            "time": "Completed 2015",
+            "title": "MongoDB for Node.js Developers"
+        },
+        {
+            "organization": "Udacity",
+            "time": "Completed 2015",
+            "title": "Front-End Web Developer Nanodegree"
+        }
+    ],
+    "volunteering": [
+        {
+            "location": "Pasadena, CA",
+            "organization": "Arroyo Food Co-op",
+            "time": "Feb 2016 - May 2016",
+            "title": "Shopify Administrator"
+        },
+        {
+            "location": "Goleta, CA",
+            "organization": "Food Not Bombs",
+            "time": "Jan 2013 - Sep 2014"
+        }
+    ],
+    "work": [
+        {
+            "description": "Developed a third-party JavaScript lead gen app. Wrote back-end integrations for marketing services like ActiveCampaign. Wrote scripts to clean redundancies and errors from a large database, built a web directory service to navigate the data, then incorporated user profiles, a membership service, and InfusionSoft for payment processing.",
+            "location": "Los Angeles, CA",
+            "organization": "Advercalls, Inc",
+            "time": "Feb 2016 - Jul 2016",
+            "title": "Web Engineer"
+        },
+        {
+            "description": "Converted PSD designs to pixel perfect UI with Enyo.js for an enterprise Cisco IoT project.",
+            "location": "Burbank, CA",
+            "organization": "Not That This, LLC",
+            "time": "Nov 2015 - Jan 2016",
+            "title": "Contract Software Developer"
+        },
+        {
+            "description": "Evaluated the relevancy of Microsoft Bing search results.",
+            "location": "Redmond, WA",
+            "organization": "FlexaSoft",
+            "time": "Oct 2014 - Jun 2015",
+            "title": "Web Content Evaluator"
+        },
+        {
+            "description": "Worked on a new website for the UCIRA. Merged their main site and State of the Arts blog. Worked to create a platform for California art researchers to network and display their work. The project was cancelled after funding cuts.",
+            "location": "Santa Barbara, CA",
+            "organization": "University of California Institute for Research in the Arts",
+            "time": "Jul 2014 - Sep 2014",
+            "title": "Web Developer"
+        },
+        {
+            "description": "Provided technical assistance and support related to computer networks, hardware, and software. Responded to calls and emails and tracked issues with JIRA to help diagnose, solve, and document problems. Managed hardware inventory.",
+            "location": "Santa Barbara, CA",
+            "organization": "Davidson Library",
+            "time": "Mar 2013 - Jul 2014",
+            "title": "IT Helpdesk Assistant"
+        }
+    ]
+}

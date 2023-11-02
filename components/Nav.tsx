@@ -28,7 +28,7 @@ export default function Nav() {
                     <li class="float-right h-full hidden sm:block min-w-12 togglable">
                         <a
                             class="block hover:animate-pulse hover:text-blue px-1 py-2 text-lg text-lightgrey"
-                            href="/greet/resume">
+                            href="/resume">
                             resume
                         </a>
                     </li>

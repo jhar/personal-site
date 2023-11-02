@@ -40,7 +40,7 @@ export default function NavPanel({ animated, showPanel }: NavPanelProps) {
                 <li class={`${link} h-12`}>
                     <a
                         class="text-offblack"
-                        href="/greet/resume"
+                        href="/resume"
                         onClick={toggle}>
                         Resume
                     </a>
