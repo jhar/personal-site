@@ -41,6 +41,47 @@
     ],
     "work": [
         {
+            "bullets": [
+                "Designed and developed analytics pipeline with AWS and Snowflake, 95% under monthly budget",
+                "Optimized and refactored Node cron jobs for concurrency, 90-99% reduction in runtimes",
+                "Completed insights dashboard with React charts and new data sources",
+                "Maintained monolith full-stack app with React, Redux, RxJS, Node, Sails, MongoDB, Redis, NGINX",
+                "Implemented UI/UX redesigns, animations, and responsiveness with HTML5, CSS3, SCSS/SASS, and SVG",
+                "Led development of mobile app for brand users with React-Native, React Query, and TypeScript"
+            ],
+            "location": "Culver City, CA",
+            "organization": "Snail Games USA, Eminence Corp DBA",
+            "time": "Jan 2021 - Feb 2023",
+            "title": "Senior Software Engineer"
+        },
+        {
+            "bullets": [
+                "Helped architect/develop new serverless platform with AWS, for > 90% reduction in monthly costs",
+                "Designed and developed streaming video based LMS and CMS with React, Redux, and AWS",
+                "Automated video CC creation with AWS Transcribe, Translate, and WebVTT, cutting > 95% of labor",
+                "Developed custom HLS video player with React and HTML5 for better app integration",
+                "Developed interactive floor plan viewers for web and mobile with SVG, React, and React-Native",
+                "Designed and developed First Responder mobile app with React-Native and AWS Serverless",
+                "Finished mobile app started by another team with Swift, Ruby, Rails, Redis, Sidekiq, ElasticSearch"
+            ],
+            "location": "Pasadena, CA",
+            "organization": "Building Safety Solutions, Inc",
+            "time": "Mar 2018 - Jul 2020",
+            "title": "Technology Consultant"
+        },
+        {
+            "bullets": [
+                "Maintained legacy monolith application with Ruby, Rails, and MSSQL",
+                "Developed several mobile apps with React-Native for ad-hoc deployment to high rise buildings",
+                "Modernized existing front-end video/quiz courseware with React/Redux, helping win contracts with Paramount, Brookfield, and Metro",
+                "Developed standalone LAWA training program with React, Node, and GCP"
+            ],
+            "location": "Pasadena, CA",
+            "organization": "Building Safety Solutions, Inc",
+            "time": "Feb 2017 - Jan 2018",
+            "title": "Junior Front-end Developer"
+        },
+        {
             "description": "Developed a third-party JavaScript lead gen app. Wrote back-end integrations for marketing services like ActiveCampaign. Wrote scripts to clean redundancies and errors from a large database, built a web directory service to navigate the data, then incorporated user profiles, a membership service, and InfusionSoft for payment processing.",
             "location": "Los Angeles, CA",
             "organization": "Advercalls, Inc",
