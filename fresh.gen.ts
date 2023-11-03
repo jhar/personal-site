@@ -10,8 +10,9 @@ import * as $4 from "./routes/greet/[name].tsx";
 import * as $5 from "./routes/index.tsx";
 import * as $6 from "./routes/resume/Experience.tsx";
 import * as $7 from "./routes/resume/index.tsx";
-import * as $$0 from "./islands/Hamburger.tsx";
-import * as $$1 from "./islands/NavPanel.tsx";
+import * as $$0 from "./islands/Nav/Hamburger.tsx";
+import * as $$1 from "./islands/Nav/Mobile.tsx";
+import * as $$2 from "./islands/Nav/index.tsx";
 
 const manifest = {
   routes: {
@@ -25,8 +26,9 @@ const manifest = {
     "./routes/resume/index.tsx": $7,
   },
   islands: {
-    "./islands/Hamburger.tsx": $$0,
-    "./islands/NavPanel.tsx": $$1,
+    "./islands/Nav/Hamburger.tsx": $$0,
+    "./islands/Nav/Mobile.tsx": $$1,
+    "./islands/Nav/index.tsx": $$2,
   },
   baseUrl: import.meta.url,
 };

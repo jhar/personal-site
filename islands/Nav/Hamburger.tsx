@@ -3,14 +3,10 @@ import type { Signal } from "@preact/signals";
 interface HamburgerProps {
     animated: Signal<boolean>;
     showPanel: Signal<boolean>;
+    toggle: () => void;
 }
 
-export default function Hamburger({ animated, showPanel }: HamburgerProps) {
-    const toggle = () => {
-        animated.value = true;
-        showPanel.value = !showPanel.value;
-    }
-
+function Hamburger({ animated, showPanel, toggle }: HamburgerProps) {
     return (
         <li
             class="block float-right h-full sm:hidden mt-2 w-6"
@@ -21,3 +17,5 @@ export default function Hamburger({ animated, showPanel }: HamburgerProps) {
         </li>
     )
 }
+
+export default Hamburger;
