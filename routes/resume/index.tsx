@@ -10,7 +10,6 @@ export default function Resume() {
       <div class="box-border inline-block float-right w-full md:w-[38%] mb-5">
         <span class="font-bold">Burbank, CA</span>
         <br />
-        <span class="font-bold">(626) 491-6947</span>
         <br />
         <a
           class="hover:animate-pulse hover:text-blue"
