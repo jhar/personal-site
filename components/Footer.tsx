@@ -5,13 +5,29 @@ export default function Footer() {
         <span>&copy; {new Date().getFullYear()}</span>
         <a
           class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue dark:text-offwhite"
+          href="https://www.credly.com/users/justin-harrison.19866e97"
+          target="_blank"
+        >
+          credly
+        </a>
+        <a
+          class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue dark:text-offwhite"
           href="https://github.com/jhar"
+          target="_blank"
         >
           github
         </a>
         <a
           class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue dark:text-offwhite"
+          href="https://gitlab.com/justin187"
+          target="_blank"
+        >
+          gitlab
+        </a>
+        <a
+          class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue dark:text-offwhite"
           href="https://www.linkedin.com/in/justinadenharrison"
+          target="_blank"
         >
           linkedin
         </a>
