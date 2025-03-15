@@ -2,35 +2,38 @@
 // This file SHOULD be checked into source version control.
 // This file is automatically updated during development when running `dev.ts`.
 
-import * as $0 from "./routes/_404.tsx";
-import * as $1 from "./routes/_app.tsx";
-import * as $2 from "./routes/_layout.tsx";
-import * as $3 from "./routes/api/joke.ts";
-import * as $4 from "./routes/greet/[name].tsx";
-import * as $5 from "./routes/index.tsx";
-import * as $6 from "./routes/resume/Experience.tsx";
-import * as $7 from "./routes/resume/index.tsx";
-import * as $$0 from "./islands/Nav/Hamburger.tsx";
-import * as $$1 from "./islands/Nav/Mobile.tsx";
-import * as $$2 from "./islands/Nav/index.tsx";
+import * as $_404 from "./routes/_404.tsx";
+import * as $_app from "./routes/_app.tsx";
+import * as $_layout from "./routes/_layout.tsx";
+import * as $about from "./routes/about.tsx";
+import * as $api_joke from "./routes/api/joke.ts";
+import * as $greet_name_ from "./routes/greet/[name].tsx";
+import * as $index from "./routes/index.tsx";
+import * as $resume_Experience from "./routes/resume/Experience.tsx";
+import * as $resume_index from "./routes/resume/index.tsx";
+import * as $Nav_Hamburger from "./islands/Nav/Hamburger.tsx";
+import * as $Nav_Mobile from "./islands/Nav/Mobile.tsx";
+import * as $Nav_index from "./islands/Nav/index.tsx";
+import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
   routes: {
-    "./routes/_404.tsx": $0,
-    "./routes/_app.tsx": $1,
-    "./routes/_layout.tsx": $2,
-    "./routes/api/joke.ts": $3,
-    "./routes/greet/[name].tsx": $4,
-    "./routes/index.tsx": $5,
-    "./routes/resume/Experience.tsx": $6,
-    "./routes/resume/index.tsx": $7,
+    "./routes/_404.tsx": $_404,
+    "./routes/_app.tsx": $_app,
+    "./routes/_layout.tsx": $_layout,
+    "./routes/about.tsx": $about,
+    "./routes/api/joke.ts": $api_joke,
+    "./routes/greet/[name].tsx": $greet_name_,
+    "./routes/index.tsx": $index,
+    "./routes/resume/Experience.tsx": $resume_Experience,
+    "./routes/resume/index.tsx": $resume_index,
   },
   islands: {
-    "./islands/Nav/Hamburger.tsx": $$0,
-    "./islands/Nav/Mobile.tsx": $$1,
-    "./islands/Nav/index.tsx": $$2,
+    "./islands/Nav/Hamburger.tsx": $Nav_Hamburger,
+    "./islands/Nav/Mobile.tsx": $Nav_Mobile,
+    "./islands/Nav/index.tsx": $Nav_index,
   },
   baseUrl: import.meta.url,
-};
+} satisfies Manifest;
 
 export default manifest;

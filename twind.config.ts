@@ -3,19 +3,22 @@ import { Options } from "$fresh/plugins/twind.ts";
 export default {
   selfURL: import.meta.url,
   theme: {
-    colors: {
-      blue: "#4874d4",
-      lightgrey: "#676767",
-      medgrey: "rgb(119, 119, 119)",
-      offblack: "rgb(25, 25, 25)",
-      white: "rgb(255, 255, 255)",
-    },
     extend: {
       animation: {
         fadeIn: "fadeIn 0.618s forwards",
         fadeOut: "fadeOut 0.618s forwards",
         slideDown: "slideDown 0.618s forwards",
         slideUp: "slideUp 0.618s forwards",
+      },
+      colors: {
+        blue: "#4874d4",
+        lightblue: "#0ea5e9",
+        lightgrey: "#676767",
+        medgrey: "rgb(119, 119, 119)",
+        offblack: "rgb(25, 25, 25)",
+        offwhite: "rgb(225, 225, 225)",
+        slate: "#1e293b",
+        white: "rgb(255, 255, 255)",
       },
       keyframes: {
         fadeIn: {

@@ -43,14 +43,14 @@
     {
       "bullets": [
         "Designed and developed analytics pipeline with AWS and Snowflake, 95% under monthly budget",
-        "Optimized and refactored Node cron jobs for concurrency, 90-99% reduction in runtimes",
-        "Completed insights dashboard with React charts and new data sources",
+        "Optimized existing analytics jobs, 90-99% reduction in runtimes",
+        "Completed analytics dashboard with React Charts and Snowflake",
         "Maintained monolith full-stack app with React, Redux, RxJS, Node, Sails, MongoDB, Redis, NGINX",
         "Implemented UI/UX redesigns, animations, and responsiveness with HTML5, CSS3, SCSS/SASS, and SVG",
-        "Led development of mobile app for brand users with React-Native, React Query, and TypeScript"
+        "Developed app with TypeScript, React-Native, and React Query"
       ],
       "location": "Culver City, CA",
-      "organization": "Snail Games USA, Eminence Corp DBA",
+      "organization": "Snail Games USA, Eminence Corp",
       "time": "Jan 2021 - Feb 2023",
       "title": "Senior Software Engineer"
     },
@@ -58,11 +58,11 @@
       "bullets": [
         "Helped architect/develop new serverless platform with AWS, for > 90% reduction in monthly costs",
         "Designed and developed streaming video based LMS and CMS with React, Redux, and AWS",
-        "Automated video CC creation with AWS Transcribe, Translate, and WebVTT, cutting > 95% of labor",
+        "Automated WebVTT creation for videos with AWS S3, Transcribe, and Translate, cutting > 95% of labor",
         "Developed custom HLS video player with React and HTML5 for better app integration",
-        "Developed interactive floor plan viewers for web and mobile with SVG, React, and React-Native",
-        "Designed and developed First Responder mobile app with React-Native and AWS Serverless",
-        "Finished mobile app started by another team with Swift, Ruby, Rails, Redis, Sidekiq, ElasticSearch"
+        "Created interactive floor plan viewers for web and mobile with SVG, React, and React-Native",
+        "Developed First Responder React-Native app with AWS Serverless",
+        "Developed Guardian iOS app with Swift, Ruby, Rails, Redis, Sidekiq, and ElasticSearch"
       ],
       "location": "Pasadena, CA",
       "organization": "Building Safety Solutions, Inc",
@@ -71,10 +71,10 @@
     },
     {
       "bullets": [
-        "Maintained legacy monolith application with Ruby, Rails, and MSSQL",
-        "Developed several mobile apps with React-Native for ad-hoc deployment to high rise buildings",
-        "Modernized existing front-end video/quiz courseware with React/Redux, helping win contracts with Paramount, Brookfield, and Metro",
-        "Developed standalone LAWA training program with React, Node, and GCP"
+        "Maintained legacy apps with Ruby, Rails, and MSSQL",
+        "Developed React-Native apps for deployment to high rise buildings",
+        "Modernized Flash-based video/quiz player React/Redux",
+        "Developed LAWA training program with React, Node, and GCP"
       ],
       "location": "Pasadena, CA",
       "organization": "Building Safety Solutions, Inc",

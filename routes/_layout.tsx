@@ -5,7 +5,7 @@ import Nav from "../islands/Nav/index.tsx";
 
 export default function Layout({ Component }: LayoutProps) {
   return (
-    <body f-client-nav>
+    <body class="h-full w-full" f-client-nav>
       <Nav />
       <Partial name="main">
         <Component />

@@ -20,25 +20,25 @@ function Mobile({ animated, showPanel, toggle }: MobileProps) {
 
   return (
     <div
-      class={`bg-white ${panel} absolute left-0 top-28 right-0 bottom-11 text-3xl z-10`}
+      class={`bg-white dark:bg-slate ${panel} absolute left-0 top-28 right-0 bottom-11 text-3xl z-10`}
     >
       <nav class="mt-[7%] px-[7%]">
         <a
-          class={`block text-offblack ${link} h-12`}
+          class={`block dark:text-offwhite text-offblack ${link} h-12`}
           href="/"
           onClick={toggle}
         >
           Home
         </a>
         <a
-          class={`block text-offblack ${link} h-12`}
+          class={`block dark:text-offwhite text-offblack ${link} h-12`}
           href="/greet/about"
           onClick={toggle}
         >
           About
         </a>
         <a
-          class={`block text-offblack ${link} h-12`}
+          class={`block dark:text-offwhite text-offblack ${link} h-12`}
           href="/resume"
           onClick={toggle}
         >

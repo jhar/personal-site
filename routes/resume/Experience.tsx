@@ -26,7 +26,7 @@ export default function Experience({
       {description ? <p>{description}</p> : null}
       {bullets
         ? (
-          <ul class="list-disc">
+          <ul class="list-disc ml-4">
             {bullets.map((bullet) => <li>{bullet}</li>)}
           </ul>
         )

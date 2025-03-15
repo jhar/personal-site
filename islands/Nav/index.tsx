@@ -28,9 +28,9 @@ export default function Nav() {
   }, [showPanel]);
 
   return (
-    <div class="box-border font-mono mx-0 my-9">
-      <div class="h-12 m-auto max-w-5xl min-w-[230px] w-[86%]">
-        <span class="float-left py-1 text-2xl sm:text-3xl">
+    <div class="box-border font-mono mx-0">
+      <div class="flex justify-between dark:text-white h-32 items-center m-auto max-w-5xl min-w-[230px] w-[86%]">
+        <span class="py-1 text-2xl sm:text-3xl">
           JUSTIN HARRISON
         </span>
         <Hamburger
@@ -38,21 +38,21 @@ export default function Nav() {
           showPanel={showPanel}
           toggle={toggle}
         />
-        <nav class="flex-row float-right h-full hidden items-center sm:flex">
+        <nav class="flex-row h-full hidden items-center sm:flex">
           <a
-            class="hover:animate-pulse hover:text-blue pl-4 text-lg text-lightgrey"
+            class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue pl-4 text-lg text-lightgrey dark:text-offwhite"
             href="/"
           >
             home
           </a>
           <a
-            class="hover:animate-pulse hover:text-blue pl-4 text-lg text-lightgrey"
+            class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue pl-4 text-lg text-lightgrey dark:text-offwhite"
             href="/greet/about"
           >
             about
           </a>
           <a
-            class="hover:animate-pulse hover:text-blue pl-4 text-lg text-lightgrey"
+            class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue pl-4 text-lg text-lightgrey dark:text-offwhite"
             href="/resume"
           >
             resume
