@@ -16,6 +16,21 @@
   ],
   "professionalDevelopment": [
     {
+      "organization": "Amazon Web Services Training and Certification",
+      "time": "Expires Oct 2027",
+      "title": "AWS Certified AI Practitioner - Early Adopter"
+    },
+    {
+      "organization": "Amazon Web Services Training and Certification",
+      "time": "Expires Aug 2027",
+      "title": "AWS Certified Developer - Associate"
+    },
+    {
+      "organization": "Amazon Web Services Training and Certification",
+      "time": "Expires May 2027",
+      "title": "AWS Certified Solutions Architect - Associate"
+    },
+    {
       "organization": "MongoDB University",
       "time": "Completed 2015",
       "title": "MongoDB for Node.js Developers"
@@ -42,6 +57,20 @@
   "work": [
     {
       "bullets": [
+        "Maintained and added to a suite of 140+ e2e and integration tests in TypeScript with Cypress, Playwright, and Jest",
+        "Performed RCA utilizing New Relic, Cypress Cloud, CloudWatch, PSQL, NRQL, and Python",
+        "Generated business simulation data and loaded into training environments with TypeScript, Node, ECS, and Step Functions",
+        "Refactored GHA workflows to more efficiently manage tests over 8 environments with reusable actions and SSM Parameter Store",
+        "Participated in leadership council, recruiting, interviewing, technical assessments, mentorship, and delegation to contractors",
+        "Took point interfacing with stakeholders - clarifying expectations, communicating progress, and managing timelines"
+      ],
+      "location": "Boston, MA - Remote",
+      "organization": "Massachusetts PFML via Last Call Media",
+      "time": "2024 - Present",
+      "title": "TypeScript Engineer, Software Engineer II"
+    },
+    {
+      "bullets": [
         "Designed and developed analytics pipeline with AWS and Snowflake, 95% under monthly budget",
         "Optimized existing analytics jobs, 90-99% reduction in runtimes",
         "Completed analytics dashboard with React Charts and Snowflake",
@@ -49,9 +78,9 @@
         "Implemented UI/UX redesigns, animations, and responsiveness with HTML5, CSS3, SCSS/SASS, and SVG",
         "Developed app with TypeScript, React-Native, and React Query"
       ],
-      "location": "Culver City, CA",
+      "location": "Culver City, CA - Remote",
       "organization": "Snail Games USA, Eminence Corp",
-      "time": "Jan 2021 - Feb 2023",
+      "time": "2021 - 2023",
       "title": "Senior Software Engineer"
     },
     {
@@ -62,58 +91,55 @@
         "Developed custom HLS video player with React and HTML5 for better app integration",
         "Created interactive floor plan viewers for web and mobile with SVG, React, and React-Native",
         "Developed First Responder React-Native app with AWS Serverless",
-        "Developed Guardian iOS app with Swift, Ruby, Rails, Redis, Sidekiq, and ElasticSearch"
-      ],
-      "location": "Pasadena, CA",
-      "organization": "Building Safety Solutions, Inc",
-      "time": "Mar 2018 - Jul 2020",
-      "title": "Technology Consultant"
-    },
-    {
-      "bullets": [
+        "Developed Guardian iOS app with Swift, Ruby, Rails, Redis, Sidekiq, and ElasticSearch",
         "Maintained legacy apps with Ruby, Rails, and MSSQL",
         "Developed React-Native apps for deployment to high rise buildings",
         "Modernized Flash-based video/quiz player React/Redux",
         "Developed LAWA training program with React, Node, and GCP"
       ],
-      "location": "Pasadena, CA",
+      "location": "Pasadena, CA - Hybrid",
       "organization": "Building Safety Solutions, Inc",
-      "time": "Feb 2017 - Jan 2018",
-      "title": "Junior Front-end Developer"
+      "time": "2017 - 2020",
+      "title": "Full Stack Developer"
     },
     {
       "description": "Developed a third-party JavaScript lead gen app. Wrote back-end integrations for marketing services like ActiveCampaign. Wrote scripts to clean redundancies and errors from a large database, built a web directory service to navigate the data, then incorporated user profiles, a membership service, and InfusionSoft for payment processing.",
       "location": "Los Angeles, CA",
       "organization": "Advercalls, Inc",
-      "time": "Feb 2016 - Jul 2016",
+      "time": "2016",
       "title": "Web Engineer"
     },
     {
       "description": "Converted PSD designs to pixel perfect UI with Enyo.js for an enterprise Cisco IoT project.",
       "location": "Burbank, CA",
       "organization": "Not That This, LLC",
-      "time": "Nov 2015 - Jan 2016",
+      "time": "2015",
       "title": "Contract Software Developer"
     },
     {
-      "description": "Evaluated the relevancy of Microsoft Bing search results.",
+      "description": "Phone and email customer support",
+      "location": "Redmond, WA -- On-site",
+      "organization": "Nintendo of America via Parker Staffing",
+      "time": "2015"
+    },
+    {
       "location": "Redmond, WA",
-      "organization": "FlexaSoft",
-      "time": "Oct 2014 - Jun 2015",
+      "organization": "Microsoft via FlexaSoft",
+      "time": "2014 - 2015",
       "title": "Web Content Evaluator"
     },
     {
-      "description": "Worked on a new website for the UCIRA. Merged their main site and State of the Arts blog. Worked to create a platform for California art researchers to network and display their work. The project was cancelled after funding cuts.",
+      "description": "Worked on a new website for the UCIRA. Merged their main site and State of the Arts blog. Created a platform for California art researchers to network and display their work.",
       "location": "Santa Barbara, CA",
       "organization": "University of California Institute for Research in the Arts",
-      "time": "Jul 2014 - Sep 2014",
+      "time": "2014",
       "title": "Web Developer"
     },
     {
       "description": "Provided technical assistance and support related to computer networks, hardware, and software. Responded to calls and emails and tracked issues with JIRA to help diagnose, solve, and document problems. Managed hardware inventory.",
       "location": "Santa Barbara, CA",
       "organization": "Davidson Library",
-      "time": "Mar 2013 - Jul 2014",
+      "time": "2013 - 2014",
       "title": "IT Helpdesk Assistant"
     }
   ]
