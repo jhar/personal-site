@@ -1,6 +1,7 @@
 {
-  "education": [
+  "data": [
     {
+      "category": "Education and Awards",
       "description": "Promising Artist Achievement Award, William Dole Award, Faculty Award of Distinction x2, Dean's Honors x5",
       "location": "Santa Barbara, CA",
       "organization": "University of California",
@@ -8,53 +9,42 @@
       "title": "BA in Art with High Honors"
     },
     {
+      "category": "Education and Awards",
       "description": "Dean's List x3, Hope Scholar",
       "location": "Athens, GA",
       "organization": "University of Georgia",
       "title": "Cognitive Science"
-    }
-  ],
-  "professionalDevelopment": [
+    },
     {
+      "category": "Professional Development",
       "organization": "Amazon Web Services Training and Certification",
       "time": "Expires Oct 2027",
       "title": "AWS Certified AI Practitioner - Early Adopter"
     },
     {
+      "category": "Professional Development",
       "organization": "Amazon Web Services Training and Certification",
       "time": "Expires Aug 2027",
       "title": "AWS Certified Developer - Associate"
     },
     {
+      "category": "Professional Development",
       "organization": "Amazon Web Services Training and Certification",
       "time": "Expires May 2027",
       "title": "AWS Certified Solutions Architect - Associate"
     },
     {
+      "category": "Professional Development",
       "organization": "MongoDB University",
       "time": "Completed 2015",
       "title": "MongoDB for Node.js Developers"
     },
     {
+      "category": "Professional Development",
       "organization": "Udacity",
       "time": "Completed 2015",
       "title": "Front-End Web Developer Nanodegree"
-    }
-  ],
-  "volunteering": [
-    {
-      "location": "Pasadena, CA",
-      "organization": "Arroyo Food Co-op",
-      "time": "2016",
-      "title": "Shopify Administrator"
     },
-    {
-      "location": "Goleta, CA",
-      "organization": "Food Not Bombs",
-      "time": "2013 - 2014"
-    }
-  ],
-  "work": [
     {
       "bullets": [
         "Maintained and added to a suite of 140+ e2e and integration tests in TypeScript with Cypress, Playwright, and Jest",
@@ -64,6 +54,7 @@
         "Participated in leadership council, recruiting, interviewing, technical assessments, mentorship, and delegation to contractors",
         "Took point interfacing with stakeholders - clarifying expectations, communicating progress, and managing timelines"
       ],
+      "category": "Work Experience",
       "location": "Boston, MA - Remote",
       "organization": "Massachusetts PFML via Last Call Media",
       "time": "2024 - Present",
@@ -78,6 +69,7 @@
         "Implemented UI/UX redesigns, animations, and responsiveness with HTML5, CSS3, SCSS/SASS, and SVG",
         "Developed app with TypeScript, React-Native, and React Query"
       ],
+      "category": "Work Experience",
       "location": "Culver City, CA - Remote",
       "organization": "Snail Games USA, Eminence Corp",
       "time": "2021 - 2023",
@@ -97,12 +89,14 @@
         "Modernized Flash-based video/quiz player React/Redux",
         "Developed LAWA training program with React, Node, and GCP"
       ],
+      "category": "Work Experience",
       "location": "Pasadena, CA - Hybrid",
       "organization": "Building Safety Solutions, Inc",
       "time": "2017 - 2020",
       "title": "Full Stack Developer"
     },
     {
+      "category": "Work Experience",
       "description": "Developed a third-party JavaScript lead gen app. Wrote back-end integrations for marketing services like ActiveCampaign. Wrote scripts to clean redundancies and errors from a large database, built a web directory service to navigate the data, then incorporated user profiles, a membership service, and InfusionSoft for payment processing.",
       "location": "Los Angeles, CA",
       "organization": "Advercalls, Inc",
@@ -110,6 +104,7 @@
       "title": "Web Engineer"
     },
     {
+      "category": "Work Experience",
       "description": "Converted PSD designs to pixel perfect UI with Enyo.js for an enterprise Cisco IoT project.",
       "location": "Burbank, CA",
       "organization": "Not That This, LLC",
@@ -117,6 +112,7 @@
       "title": "Contract Software Developer"
     },
     {
+      "category": "Work Experience",
       "description": "Manage inquiries about reward program by email. Troubleshoot hardware and software issues by phone.",
       "location": "Redmond, WA - On-site",
       "organization": "Nintendo of America via Parker Staffing",
@@ -124,12 +120,14 @@
       "title": "Customer Support Representative"
     },
     {
+      "category": "Work Experience",
       "location": "Redmond, WA",
       "organization": "Microsoft via FlexaSoft",
       "time": "2014 - 2015",
       "title": "Web Content Evaluator"
     },
     {
+      "category": "Work Experience",
       "description": "Worked on a new website for the UCIRA. Merged their main site and State of the Arts blog. Created a platform for California art researchers to network and display their work.",
       "location": "Santa Barbara, CA",
       "organization": "University of California Institute for Research in the Arts",
@@ -137,11 +135,29 @@
       "title": "Web Developer"
     },
     {
+      "category": "Work Experience",
       "description": "Provided technical assistance and support related to computer networks, hardware, and software. Responded to calls and emails and tracked issues with JIRA to help diagnose, solve, and document problems. Managed hardware inventory.",
       "location": "Santa Barbara, CA",
       "organization": "Davidson Library",
       "time": "2013 - 2014",
       "title": "IT Helpdesk Assistant"
+    },
+    {
+      "category": "Volunteering",
+      "location": "Pasadena, CA",
+      "organization": "Arroyo Food Co-op",
+      "time": "2016",
+      "title": "Shopify Administrator"
+    },
+    {
+      "category": "Volunteering",
+      "location": "Goleta, CA",
+      "organization": "Food Not Bombs",
+      "time": "2013 - 2014"
+    },
+    {
+      "category": "Technical Skills",
+      "description": "Adobe CS, A-Frame, Ant Design, Amplify, AppSync, Athena, CloudFront, CloudWatch, Cognito, CSS3, Cypress, DigitalOcean, Docker, DynamoDB, EC2, ECS, Elm, EventBridge, HLS, HTML5, IAM, Java, JavaScript (ES6+), Jest, Lambda, LESS, MongoDB, MSSQL, MySQL, Next.js, NewRelic, NGINX, Node.js, PHP, Playwright, PostgreSQL, Python, RDS, React.js, React Flow, React-Native, React Query, Recharts, Redis, Redux, Rails, Ruby, S3, Sails.js, SCORM 2.0, SCSS/SASS, Serverless, Snowflake, SSM, Step Functions, Stripe, Svelte, SVG, Swift, Tailwind, Terraform, Three.js, Transcribe, Translate, TypeScript, VPC, WebGL, WebVTT, WordPress"
     }
   ]
 }
