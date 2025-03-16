@@ -33,10 +33,14 @@ export default function Resume() {
         ))}
         <SectionHeader name="Technical Skills" />
         <p class="mb-5">
-          HTML, CSS, JavaScript, PHP, MySQL, MongoDB, Unix, Bootstrap, jQuery,
-          React, Knockout, Vue, Node, NPM, Express, SASS, LESS, Firebase, AWS,
-          Webpack, Browserify, Gulp, WordPress, p5.js, Processing, Chrome
-          Developer Tools, AJAX, and Google.
+          Adobe CS, A-Frame, Ant Design, Amplify, AppSync, Ahtena, CloudFront, CloudWatch,
+          Cognito, CSS3, Cypress, DigitalOcean, Docker, DynamoDB, EC2, ECS, Elm, EventBridge,
+          HLS, HTML5, IAM, Java, JavaScript (ES6+), Jest, Lambda, LESS, MongoDB, MSSQL, MySQL,
+          Next.js, NewRelic, NGINX, Node.js, PHP, Playwright, PostgreSQL, Python, RDS, React.js,
+          React Flow, React-Native, React Query, Recharts, Redis, Redux, Rails, Ruby, S3, Sails.js,
+          SCORM 2.0, SCSS/SASS, Serverless, Snowflake, SSM, Step Functions, Stripe, Svelte, SVG,
+          Swift, Tailwind, Terraform, Three.js, Transcribe, Translate, TypeScript, VPC, WebGL,
+          WebVTT, WordPress
         </p>
         <SectionHeader name="Volunteering" />
         {experience.volunteering.map((entry) => <Experience {...entry} />)}
