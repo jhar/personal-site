@@ -6,7 +6,7 @@ export default function Resume() {
   return (
     <div class="box-border dark:text-offwhite font-mono h-full mx-auto max-w-5xl pb-15 w-[86%]">
       <div class="box-border inline-block float-left min-h-[57px] pr-10 w-full md:w-[62%] mb-5">
-        <span class="dark:text-slate-200 text-3xl">Full-Stack Developer</span>
+        <span class="dark:text-slate-200 text-3xl">Software Engineer</span>
       </div>
       <div class="box-border inline-block float-right w-full md:w-[38%] mb-5">
         <span class="font-bold">Burbank, CA</span>
