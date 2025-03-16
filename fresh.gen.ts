@@ -9,8 +9,7 @@ import * as $about from "./routes/about.tsx";
 import * as $api_joke from "./routes/api/joke.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
-import * as $resume_Experience from "./routes/resume/Experience.tsx";
-import * as $resume_SectionHeader from "./routes/resume/SectionHeader.tsx";
+import * as $resume_Category from "./routes/resume/Category.tsx";
 import * as $resume_index from "./routes/resume/index.tsx";
 import * as $Nav_Hamburger from "./islands/Nav/Hamburger.tsx";
 import * as $Nav_Mobile from "./islands/Nav/Mobile.tsx";
@@ -26,8 +25,7 @@ const manifest = {
     "./routes/api/joke.ts": $api_joke,
     "./routes/greet/[name].tsx": $greet_name_,
     "./routes/index.tsx": $index,
-    "./routes/resume/Experience.tsx": $resume_Experience,
-    "./routes/resume/SectionHeader.tsx": $resume_SectionHeader,
+    "./routes/resume/Category.tsx": $resume_Category,
     "./routes/resume/index.tsx": $resume_index,
   },
   islands: {

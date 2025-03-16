@@ -1,5 +1,6 @@
-interface ExperienceProps {
+interface Experience {
   bullets?: string[];
+  category: string;
   description?: string;
   location?: string;
   organization?: string;
@@ -7,7 +8,25 @@ interface ExperienceProps {
   title?: string;
 }
 
-export default function Experience({
+interface CategoryProps {
+  experience: Experience[] | undefined;
+}
+
+export default function Category({ experience }: CategoryProps) {
+  if (!experience) return null;
+  return (
+    <>
+      <h3 class="dark:text-lightblue text-blue text-lg">
+        {experience[0]?.category}
+      </h3>
+      {experience.map(exp => <Experience {...exp} />)}
+    </>
+  )
+}
+
+type ExperienceProps = Omit<Experience, 'category'>;
+
+function Experience({
   bullets,
   description,
   location,
