@@ -47,7 +47,7 @@ export default function Nav() {
           </a>
           <a
             class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue pl-4 text-lg text-lightgrey dark:text-offwhite"
-            href="/greet/about"
+            href="/about"
           >
             about
           </a>

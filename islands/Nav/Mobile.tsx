@@ -32,7 +32,7 @@ function Mobile({ animated, showPanel, toggle }: MobileProps) {
         </a>
         <a
           class={`block dark:text-offwhite text-offblack ${link} h-12`}
-          href="/greet/about"
+          href="/about"
           onClick={toggle}
         >
           About
