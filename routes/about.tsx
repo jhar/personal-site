@@ -1,6 +1,6 @@
 export default function About() {
   return (
-    <div class="dark:text-offwhite max-w-5xl pb-11 mx-auto w-[86%]">
+    <div class="dark:text-offwhite max-w-5xl pb-20 mx-auto w-[86%]">
       <p class="mb-8">
         I'm a software engineer experienced with cloud infrastructure, dev ops,
         full stack development for web and mobile, E2E and integration testing,
