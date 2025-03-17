@@ -20,10 +20,10 @@ export default function Resume() {
         </a>
         <br />
       </div>
-      <div class="box-border inline-block float-left min-h-[57px] pr-10 w-full md:w-[62%] md:mb-12">
+      <div class="box-border inline-block float-left min-h-[57px] pr-10 w-full md:w-[62%] md:pb-20">
         <Category experience={data["Work Experience"]} />
       </div>
-      <div class="box-border inline-block float-right w-full md:w-[38%] mb-12">
+      <div class="box-border inline-block float-right w-full md:w-[38%] pb-11">
         <Category experience={data["Education and Awards"]} />
         <Category experience={data["Professional Development"]} />
         <Category experience={data["Technical Skills"]} />
