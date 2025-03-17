@@ -19,12 +19,12 @@ export default function Category({ experience }: CategoryProps) {
       <h3 class="dark:text-lightblue text-blue text-lg">
         {experience[0]?.category}
       </h3>
-      {experience.map(exp => <Experience {...exp} />)}
+      {experience.map((exp) => <Experience {...exp} />)}
     </>
-  )
+  );
 }
 
-type ExperienceProps = Omit<Experience, 'category'>;
+type ExperienceProps = Omit<Experience, "category">;
 
 function Experience({
   bullets,
