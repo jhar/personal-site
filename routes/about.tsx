@@ -10,7 +10,7 @@ export default function About() {
         My academic background is in cognitive science and conceptual art. In a
         past life, I wanted to be a neuroscientist who helped study the{" "}
         <a
-          class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue dark:text-lightblue"
+          class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue text-lightblue"
           href="https://www.researchgate.net/publication/233556531_The_Science_of_Art_A_Neurological_Theory_of_Aesthetic_Experience"
           target="_blank"
         >
