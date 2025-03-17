@@ -30,12 +30,16 @@ export default function About() {
         <li>Social Circle, Georgia</li>
         <li>Madison, Georgia</li>
         <li>Athens, Georgia</li>
+        <li>Salt Lake City, Utah</li>
         <li>Los Angeles, California</li>
         <li>San Francisco, California</li>
         <li>Oakland, California</li>
+        <li>Berkeley, California</li>
         <li>Santa Barbara, California</li>
         <li>Seattle, Washington</li>
+        <li>Everett, Washington</li>
         <li>Pasadena, California</li>
+        <li>Ciudad de México</li>
         <li>Burbank, California</li>
       </ul>
       <h3 class="mb-2 text-lg">Gym bests*</h3>

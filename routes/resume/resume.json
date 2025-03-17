@@ -67,7 +67,7 @@
         "Completed analytics dashboard with React Charts and Snowflake",
         "Maintained monolith full-stack app with React, Redux, RxJS, Node, Sails, MongoDB, Redis, NGINX",
         "Implemented UI/UX redesigns, animations, and responsiveness with HTML5, CSS3, SCSS/SASS, and SVG",
-        "Developed app with TypeScript, React-Native, and React Query"
+        "Developed mobile app with TypeScript, React-Native, React Query, and Stripe"
       ],
       "category": "Work Experience",
       "location": "Culver City, CA - Remote",
@@ -113,7 +113,7 @@
     },
     {
       "category": "Work Experience",
-      "description": "Manage inquiries about reward program by email. Troubleshoot hardware and software issues by phone.",
+      "description": "Managed inquiries about reward program by email. Troubleshot hardware and software issues by phone.",
       "location": "Redmond, WA - On-site",
       "organization": "Nintendo of America via Parker Staffing",
       "time": "2015",
