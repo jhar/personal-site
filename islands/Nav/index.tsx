@@ -2,7 +2,7 @@ import { useEffect } from "preact/hooks";
 import { useSignal } from "@preact/signals";
 import Hamburger from "./Hamburger.tsx";
 import Mobile from "./Mobile.tsx";
-import { links, Link } from "./links.ts";
+import { Link, links } from "./links.ts";
 
 /** TODO
     active link color change to black (black?)
@@ -60,5 +60,5 @@ function NavLink({ href, text }: Link) {
     >
       {text}
     </a>
-  )
+  );
 }

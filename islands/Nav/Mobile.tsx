@@ -1,5 +1,5 @@
 import type { Signal } from "@preact/signals";
-import { links, Link } from "./links.ts";
+import { Link, links } from "./links.ts";
 
 interface MobileProps {
   animated: Signal<boolean>;

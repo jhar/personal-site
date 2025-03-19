@@ -9,10 +9,13 @@ import * as $about from "./routes/about.tsx";
 import * as $index from "./routes/index.tsx";
 import * as $resume_Category from "./routes/resume/Category.tsx";
 import * as $resume_index from "./routes/resume/index.tsx";
+import * as $scratch_index from "./routes/scratch/index.tsx";
+import * as $scratch_snake from "./routes/scratch/snake.tsx";
 import * as $Nav_Hamburger from "./islands/Nav/Hamburger.tsx";
 import * as $Nav_Mobile from "./islands/Nav/Mobile.tsx";
 import * as $Nav_index from "./islands/Nav/index.tsx";
 import * as $Nav_links from "./islands/Nav/links.ts";
+import * as $SnakeLoader from "./islands/SnakeLoader.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -24,12 +27,15 @@ const manifest = {
     "./routes/index.tsx": $index,
     "./routes/resume/Category.tsx": $resume_Category,
     "./routes/resume/index.tsx": $resume_index,
+    "./routes/scratch/index.tsx": $scratch_index,
+    "./routes/scratch/snake.tsx": $scratch_snake,
   },
   islands: {
     "./islands/Nav/Hamburger.tsx": $Nav_Hamburger,
     "./islands/Nav/Mobile.tsx": $Nav_Mobile,
     "./islands/Nav/index.tsx": $Nav_index,
     "./islands/Nav/links.ts": $Nav_links,
+    "./islands/SnakeLoader.tsx": $SnakeLoader,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;
