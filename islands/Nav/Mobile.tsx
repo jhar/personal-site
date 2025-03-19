@@ -1,4 +1,5 @@
 import type { Signal } from "@preact/signals";
+import { links, Link } from "./links.ts";
 
 interface MobileProps {
   animated: Signal<boolean>;
@@ -23,27 +24,15 @@ function Mobile({ animated, showPanel, toggle }: MobileProps) {
       class={`bg-white dark:bg-slate ${panel} absolute left-0 top-28 right-0 bottom-11 text-3xl z-10`}
     >
       <nav class="mt-[7%] px-[7%]">
-        <a
-          class={`block dark:text-offwhite text-offblack ${link} h-12`}
-          href="/"
-          onClick={toggle}
-        >
-          Home
-        </a>
-        <a
-          class={`block dark:text-offwhite text-offblack ${link} h-12`}
-          href="/about"
-          onClick={toggle}
-        >
-          About
-        </a>
-        <a
-          class={`block dark:text-offwhite text-offblack ${link} h-12`}
-          href="/resume"
-          onClick={toggle}
-        >
-          Resume
-        </a>
+        {links.map(({ href, text }: Link) => (
+          <a
+            class={`block capitalize dark:text-offwhite text-offblack ${link} h-12`}
+            href={href}
+            onClick={toggle}
+          >
+            {text}
+          </a>
+        ))}
       </nav>
     </div>
   );

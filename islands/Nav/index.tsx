@@ -2,6 +2,7 @@ import { useEffect } from "preact/hooks";
 import { useSignal } from "@preact/signals";
 import Hamburger from "./Hamburger.tsx";
 import Mobile from "./Mobile.tsx";
+import { links, Link } from "./links.ts";
 
 /** TODO
     active link color change to black (black?)
@@ -39,24 +40,7 @@ export default function Nav() {
           toggle={toggle}
         />
         <nav class="flex-row h-full hidden items-center sm:flex">
-          <a
-            class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue pl-4 text-lg text-lightgrey dark:text-offwhite"
-            href="/"
-          >
-            home
-          </a>
-          <a
-            class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue pl-4 text-lg text-lightgrey dark:text-offwhite"
-            href="/about"
-          >
-            about
-          </a>
-          <a
-            class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue pl-4 text-lg text-lightgrey dark:text-offwhite"
-            href="/resume"
-          >
-            resume
-          </a>
+          {links.map((link: Link) => <NavLink key={link.text} {...link} />)}
         </nav>
       </div>
       <Mobile
@@ -66,4 +50,15 @@ export default function Nav() {
       />
     </div>
   );
+}
+
+function NavLink({ href, text }: Link) {
+  return (
+    <a
+      class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue pl-4 text-lg text-lightgrey dark:text-offwhite"
+      href={href}
+    >
+      {text}
+    </a>
+  )
 }

@@ -12,6 +12,7 @@ import * as $resume_index from "./routes/resume/index.tsx";
 import * as $Nav_Hamburger from "./islands/Nav/Hamburger.tsx";
 import * as $Nav_Mobile from "./islands/Nav/Mobile.tsx";
 import * as $Nav_index from "./islands/Nav/index.tsx";
+import * as $Nav_links from "./islands/Nav/links.ts";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -28,6 +29,7 @@ const manifest = {
     "./islands/Nav/Hamburger.tsx": $Nav_Hamburger,
     "./islands/Nav/Mobile.tsx": $Nav_Mobile,
     "./islands/Nav/index.tsx": $Nav_index,
+    "./islands/Nav/links.ts": $Nav_links,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;
