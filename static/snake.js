@@ -1,26 +1,5 @@
-const namespace = "http://www.w3.org/2000/svg";
 
-function isTyped(el) {
-  return el._type && el._type === "SVG_Creator_Element";
-}
 
-function _compose(el, target, method) {
-  if (!el || !target || !method) return null;
-  if (isTyped(target)) {
-    target = target.el;
-  }
-
-  switch (method) {
-    case "appendChild":
-      return target.appendChild(el);
-
-    case "replaceWith":
-      return target.replaceWith(el);
-
-    default:
-      return null;
-  }
-}
 
 function _addEvent(el, type, callback) {
   el.addEventListener(type, callback);
@@ -100,8 +79,6 @@ function create(params) {
     y,
   } = params;
 
-  // Input validation
-  !el && console.error("createSVG(params): requires params.el");
 
   const svg = document.createElementNS(namespace, el);
   text && svg.appendChild(document.createTextNode(text));
@@ -143,24 +120,17 @@ function create(params) {
     el: svg,
     elType: params.el,
     parent: appendTo || undefined,
-    _type: "SVG_Creator_Element",
   };
 }
 
 ////////////// APP ///////////////////
-let time = 0;
-let score = 0;
-let direction = "down";
+
 let xOff = 1;
 let yOff = 1;
-let grubX = null;
-let grubY = null;
 const myBody = [];
 let loop;
 let loopFunc;
-let paused = false;
 
-const randomize = (max) => Math.floor(Math.random() * Math.floor(max - 8));
 
 function newGrub(container) {
   const x = randomize(container.width);
@@ -246,7 +216,6 @@ function collisionDetection(a, b, bool, container) {
 }
 
 (() => {
-  console.log("hasdflkasjdf");
   const container = create({
     el: "svg",
     width: `${globalThis.innerWidth}`,
@@ -257,7 +226,7 @@ function collisionDetection(a, b, bool, container) {
   newGrub(container);
   newScore(container);
 
-  document.addEventListener("keypress", (event) => {
+  container.el.addEventListener("keypress", (event) => {
     console.info(`event key: ${event.key}`);
     switch (event.key) {
       case "w":

@@ -1,5 +1,5 @@
-import SnakeLoader from "../../islands/SnakeLoader.tsx";
+import SnekVG from "../../islands/SnekVG.tsx";
 
 export default function Snake() {
-  return <SnakeLoader />;
+  return <SnekVG />
 }
