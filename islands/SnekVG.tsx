@@ -55,6 +55,9 @@ export default function SnekVG() {
               setColorSet(randomColorSet());
               newGrub();
             } else {
+              if (a.x < 0 || a.y < 0) {
+                return;
+              }
               setGameOver(true);
             }
           }
@@ -64,16 +67,15 @@ export default function SnekVG() {
   }
 
   function newGrub() {
-    if (containerRef.current) {
-      const { width, height } = containerRef.current.getBoundingClientRect();
+    const svg = containerRef.current;
+    if (svg) {
+      const { width, height } = svg.getBoundingClientRect();
       setGrubX(randomize(width) + half);
       setGrubY(randomize(height) + half);
     }
   }
 
-  useEffect(() => {
-    newGrub();
-  }, []);
+  useEffect(() => newGrub(), []);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -92,6 +94,18 @@ export default function SnekVG() {
     return () => document.removeEventListener("keydown", handleKeyPress);
   }, [direction]);
 
+  useEffect(() => {
+    const svg = containerRef.current;
+    if (svg) {
+      const { width, height } = svg.getBoundingClientRect();
+      const x = xOff * size;
+      const y = yOff * size;
+      if (x > width) setXOff(0);
+      if (x < -size) setXOff(Math.floor(width/size));
+      if (y > height) setYOff(0);
+      if (y < -size) setYOff(Math.floor(height/size));
+    }
+  }, [containerRef, xOff, yOff]);
 
   useEffect(() => {
     function loopFn() {
