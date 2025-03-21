@@ -19,8 +19,8 @@ export default function SnekVG() {
   const [time, setTime] = useState(0);
   const [score, setScore] = useState(0);
   const [direction, setDirection] = useState<Direction>("down");
-  const [grubX, setGrubX] = useState<number | null>(null);
-  const [grubY, setGrubY] = useState<number | null>(null);
+  const [grubX, setGrubX] = useState<number>(-size);
+  const [grubY, setGrubY] = useState<number>(-size);
   const [xOff, setXOff] = useState(1);
   const [yOff, setYOff] = useState(1);
   const [body, setBody] = useState<Part[]>([]);
@@ -33,8 +33,8 @@ export default function SnekVG() {
     setTime(0);
     setScore(0);
     setDirection("down");
-    setGrubX(null);
-    setGrubY(null);
+    setGrubX(-size);
+    setGrubY(-size);
     setXOff(1);
     setYOff(1);
     setBody([]);
