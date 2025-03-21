@@ -15,7 +15,7 @@ import * as $Nav_Hamburger from "./islands/Nav/Hamburger.tsx";
 import * as $Nav_Mobile from "./islands/Nav/Mobile.tsx";
 import * as $Nav_index from "./islands/Nav/index.tsx";
 import * as $Nav_links from "./islands/Nav/links.ts";
-import * as $SnakeLoader from "./islands/SnakeLoader.tsx";
+import * as $SnekVG from "./islands/SnekVG.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -35,7 +35,7 @@ const manifest = {
     "./islands/Nav/Mobile.tsx": $Nav_Mobile,
     "./islands/Nav/index.tsx": $Nav_index,
     "./islands/Nav/links.ts": $Nav_links,
-    "./islands/SnakeLoader.tsx": $SnakeLoader,
+    "./islands/SnekVG.tsx": $SnekVG,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;
