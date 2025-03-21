@@ -30,13 +30,23 @@ export default function SnekVG() {
 
   return (
     <div class="absolute top-32 left-0 right-0 bottom-11">
+      <div class="mx-auto w-full">
+        <span class="block dark:text-white p-1 text-center text-xl">
+          Snek-VG -- Score: {score}
+        </span>
+      </div>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         ref={containerRef}
-        style="width: 100%; height: 100%; background-color: red"
+        style="width: 100%; height: 90%; background-color: red"
       >
         <circle cx={`${grubX}`} cy={`${grubY}`} fill="black" r="4" />
       </svg>
+      <div class="mx-auto w-full">
+        <span class="block dark:text-white p-1 text-center text-md">
+          Controls: WASD, Press P to pause.
+        </span>
+      </div>
     </div>
 
   );
