@@ -26,6 +26,7 @@ export default function SnekVG() {
   const [body, setBody] = useState<Part[]>([]);
   const [paused, setPaused] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [snakeHiss, setSnakeHiss] = useState<HTMLAudioElement | null>(null);
   const [colorSet, setColorSet] = useState<ColorSet>(randomColorSet());
 
   function reset() {
@@ -75,7 +76,10 @@ export default function SnekVG() {
     }
   }
 
-  useEffect(() => newGrub(), []);
+  useEffect(() => {
+    setSnakeHiss(new Audio('/snake_hiss.mp3'));
+    newGrub();
+  }, []);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -143,6 +147,10 @@ export default function SnekVG() {
       }
     }
   }, [gameOver, paused, time, xOff, yOff]);
+
+  useEffect(() => {
+    if (gameOver) snakeHiss?.play();
+  }, [gameOver]);
 
   return (
     <div class="absolute top-32 left-0 right-0 bottom-11">
