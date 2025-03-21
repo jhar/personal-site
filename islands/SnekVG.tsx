@@ -26,6 +26,22 @@ export default function SnekVG() {
   const [body, setBody] = useState<Part[]>([]);
   const [paused, setPaused] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [colorSet, setColorSet] = useState<ColorSet>(randomColorSet());
+
+  function reset() {
+    setTime(0);
+    setScore(0);
+    setDirection("down");
+    setGrubX(null);
+    setGrubY(null);
+    setXOff(1);
+    setYOff(1);
+    setBody([]);
+    setPaused(false);
+    setGameOver(false);
+    setColorSet(randomColorSet());
+    newGrub();
+  }
 
   // isGrub = false means checking head collisions w/ body
   function collisionDetection(a: Part, b: Part, isGrub: boolean) {
@@ -36,6 +52,7 @@ export default function SnekVG() {
           if (a.y < (b.y + offset)) {
             if (isGrub) {
               setScore(prev => prev + 1);
+              setColorSet(randomColorSet());
               newGrub();
             } else {
               setGameOver(true);
@@ -61,39 +78,13 @@ export default function SnekVG() {
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       switch (event.key) {
-        case "w":
-          if (direction !== "down") {
-            setDirection("up");
-          }
-  
-          return;
-  
-        case "a":
-          if (direction !== "right") {
-            setDirection("left");
-          }
-  
-          return;
-  
-        case "s":
-          if (direction !== "up") {
-            setDirection("down");
-          }
-  
-          return;
-  
-        case "d":
-          if (direction !== "left") {
-            setDirection("right");
-          }
-  
-          return;
-  
-        case "p":
-          return setPaused(prev => !prev);
-  
-        default:
-          return null;
+        case "w": return (direction !== "down") && setDirection("up");
+        case "a": return (direction !== "right") && setDirection("left");
+        case "s": return (direction !== "up") && setDirection("down");
+        case "d": return (direction !== "left") && setDirection("right");
+        case "p": return setPaused(prev => !prev);
+        case "r": return reset();
+        default: return null;
       }
     }
 
@@ -149,15 +140,15 @@ export default function SnekVG() {
       <svg
         xmlns="http://www.w3.org/2000/svg"
         ref={containerRef}
-        style="width: 100%; height: 90%; background-color: red"
+        style={`width: 100%; height: 90%; background-color: ${colorSet.bg}`}
         tabIndex={0}
       >
-        <circle cx={`${grubX}`} cy={`${grubY}`} fill="black" r={half} />
-        {body.map(p => <circle cx={`${p.x}`} cy={`${p.y}`} fill="blue" key={`${p.t}`} r={half}/>)}
+        <circle cx={`${grubX}`} cy={`${grubY}`} fill={colorSet.grub} r={half} />
+        {body.map(p => <circle cx={`${p.x}`} cy={`${p.y}`} fill={colorSet.body} key={`${p.t}`} r={half}/>)}
       </svg>
       <div class="mx-auto w-full">
         <span class="block dark:text-white p-1 text-center text-md">
-          Controls: WASD, Press P to pause.
+          Controls: WASD, Press P to pause, Press R to restart.
         </span>
       </div>
       {(paused && !gameOver) && <Message text="Pause" />}
@@ -180,3 +171,32 @@ function Message({ text }: MessageProps) {
 }
 
 const randomize = (max: number) => Math.floor(Math.random() * Math.floor(max - 8));
+
+interface ColorSet {
+  bg: string;
+  body: string;
+  grub: string;
+}
+
+function randomColorSet(): ColorSet {
+  const angle = Math.random() * 2 * Math.PI;
+  const r1 = Math.round(128 + 127 * Math.sin(angle));
+  const g1 = Math.round(128 + 127 * Math.sin(angle + 2 * Math.PI / 3));
+  const b1 = Math.round(128 + 127 * Math.sin(angle + 4 * Math.PI / 3));
+
+  const angle2 = angle + Math.PI / 4;
+  const r2 = Math.round(128 + 127 * Math.sin(angle2));
+  const g2 = Math.round(128 + 127 * Math.sin(angle2 + 2 * Math.PI / 3));
+  const b2 = Math.round(128 + 127 * Math.sin(angle2 + 4 * Math.PI / 3));
+
+  const angle3 = angle + Math.PI / 2;
+  const r3 = Math.round(128 + 127 * Math.sin(angle3));
+  const g3 = Math.round(128 + 127 * Math.sin(angle3 + 2 * Math.PI / 3));
+  const b3 = Math.round(128 + 127 * Math.sin(angle3 + 4 * Math.PI / 3));
+
+  return {
+    bg: `rgb(${r3}, ${g3}, ${b3})`,
+    body: `rgb(${r2}, ${g2}, ${b2})`,
+    grub: `rgb(${r1}, ${g1}, ${b1})`,
+  };
+}
