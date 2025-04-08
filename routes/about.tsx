@@ -69,7 +69,7 @@ export default function About() {
           </tr>
           <tr>
             <td>Front Squat</td>
-            <td>305</td>
+            <td>315</td>
           </tr>
           <tr>
             <td>Back Squat</td>
