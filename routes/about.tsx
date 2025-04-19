@@ -14,7 +14,7 @@ export default function About() {
           href="https://www.researchgate.net/publication/233556531_The_Science_of_Art_A_Neurological_Theory_of_Aesthetic_Experience"
           target="_blank"
         >
-          neurological foundatations of visual art
+          neurological foundations of visual art
         </a>.
       </p>
       <p class="mb-8">
