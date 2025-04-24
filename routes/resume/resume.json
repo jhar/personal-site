@@ -17,6 +17,12 @@
     },
     {
       "category": "Professional Development",
+      "organization": "HashiCorp",
+      "time": "Expires Apr 2027",
+      "title": "HashiCorp Certified: Terraform Associate (003)"
+    },
+    {
+      "category": "Professional Development",
       "organization": "Amazon Web Services Training and Certification",
       "time": "Expires Oct 2027",
       "title": "AWS Certified AI Practitioner - Early Adopter"
