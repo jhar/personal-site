@@ -18,8 +18,8 @@ export default function About() {
         </a>.
       </p>
       <p class="mb-8">
-        I'm currently prepping for Terraform Associate and AWS Data Engineer,
-        Associate certifications.
+        I'm currently prepping for the AWS Data Engineer,
+        Associate certification.
       </p>
       <p class="mb-8">
         Outside of work, I like to play games (Switch, 3DS, PS5, PC), watch
