@@ -61,7 +61,7 @@ export default function About() {
           </tr>
           <tr>
             <td class="pr-4">Overhead Pin Press from Nose</td>
-            <td>215</td>
+            <td>227.5</td>
           </tr>
           <tr>
             <td>Power Clean</td>
@@ -77,7 +77,7 @@ export default function About() {
           </tr>
           <tr>
             <td>Deadlift</td>
-            <td>460</td>
+            <td>465</td>
           </tr>
         </tbody>
       </table>
