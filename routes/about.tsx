@@ -25,59 +25,46 @@ export default function About() {
         Outside of work, I like to play games (Switch, 3DS, PS5, PC), watch
         movies (AMC A-List), and lift weights.
       </p>
-      <h3 class="mb-2 text-lg">Places I've lived</h3>
-      <ul class="mb-8 ml-8 list-disc">
-        <li>Social Circle, Georgia</li>
-        <li>Madison, Georgia</li>
-        <li>Athens, Georgia</li>
-        <li>Salt Lake City, Utah</li>
-        <li>Los Angeles, California</li>
-        <li>San Francisco, California</li>
-        <li>Oakland, California</li>
-        <li>Berkeley, California</li>
-        <li>Santa Barbara, California</li>
-        <li>Seattle, Washington</li>
-        <li>Everett, Washington</li>
-        <li>Pasadena, California</li>
-        <li>Ciudad de México</li>
-        <li>Burbank, California</li>
-      </ul>
       <h3 class="mb-2 text-lg">Gym bests*</h3>
       <table class="border-separate [border-spacing:1rem] mb-2 table-auto">
         <thead>
           <tr>
             <th class="text-left">Lift</th>
-            <th>1RM (lbs)</th>
+            <th>PR (lbs)</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>Bench Press</td>
-            <td>335</td>
+            <td>335x1</td>
           </tr>
           <tr>
             <td>Strict Press</td>
-            <td>201</td>
+            <td>202x3</td>
           </tr>
           <tr>
             <td class="pr-4">Overhead Pin Press from Nose</td>
-            <td>227.5</td>
+            <td>227.5x1</td>
           </tr>
           <tr>
             <td>Power Clean</td>
-            <td>225</td>
+            <td>225x1</td>
           </tr>
+	  <tr>
+	    <td>Overhead Squat</td>
+	    <td>195x1</td>
+	  </tr>
           <tr>
             <td>Front Squat</td>
-            <td>315</td>
+            <td>315x1</td>
           </tr>
           <tr>
             <td>Back Squat</td>
-            <td>375</td>
+            <td>375x1</td>
           </tr>
           <tr>
             <td>Deadlift</td>
-            <td>465</td>
+            <td>465x1</td>
           </tr>
         </tbody>
       </table>
