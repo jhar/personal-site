@@ -40,7 +40,7 @@ export default function About() {
           </tr>
           <tr>
             <td>Strict Press</td>
-            <td>202x3</td>
+            <td>205x3</td>
           </tr>
           <tr>
             <td class="pr-4">Overhead Pin Press from Nose</td>
