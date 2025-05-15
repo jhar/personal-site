@@ -8,6 +8,14 @@ export default function App({ Component }: PageProps) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Justin Harrison</title>
       </head>
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-CESBR50DBD"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-CESBR50DBD');
+      </script>
       <Component />
     </html>
   );
