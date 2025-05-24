@@ -59,12 +59,12 @@ export default function About() {
             <td>315x1</td>
           </tr>
           <tr>
-            <td>Back Squat</td>
-            <td>375x1</td>
+            <td>High-bar Box Squat - 14 inch</td>
+            <td>385x1</td>
           </tr>
           <tr>
             <td>Deadlift</td>
-            <td>465x1</td>
+            <td>475x1</td>
           </tr>
         </tbody>
       </table>
