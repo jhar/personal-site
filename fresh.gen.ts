@@ -11,7 +11,6 @@ import * as $resume_Category from "./routes/resume/Category.tsx";
 import * as $resume_index from "./routes/resume/index.tsx";
 import * as $scratch_index from "./routes/scratch/index.tsx";
 import * as $scratch_snake from "./routes/scratch/snake.tsx";
-import * as $GoogleTag from "./islands/GoogleTag.tsx";
 import * as $Nav_Hamburger from "./islands/Nav/Hamburger.tsx";
 import * as $Nav_Mobile from "./islands/Nav/Mobile.tsx";
 import * as $Nav_index from "./islands/Nav/index.tsx";
@@ -32,7 +31,6 @@ const manifest = {
     "./routes/scratch/snake.tsx": $scratch_snake,
   },
   islands: {
-    "./islands/GoogleTag.tsx": $GoogleTag,
     "./islands/Nav/Hamburger.tsx": $Nav_Hamburger,
     "./islands/Nav/Mobile.tsx": $Nav_Mobile,
     "./islands/Nav/index.tsx": $Nav_index,

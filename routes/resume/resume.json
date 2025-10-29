@@ -53,47 +53,52 @@
     },
     {
       "bullets": [
-        "Maintained and added to a suite of 140+ e2e and integration tests in TypeScript with Cypress, Playwright, and Jest",
-        "Performed RCA utilizing New Relic, Cypress Cloud, CloudWatch, PSQL, NRQL, and Python",
-        "Generated business simulation data and loaded into training environments with TypeScript, Node, ECS, and Step Functions",
-        "Refactored GHA workflows to more efficiently manage tests over 8 environments with reusable actions and SSM Parameter Store",
-        "Participated in leadership council, recruiting, interviewing, technical assessments, mentorship, and delegation to contractors",
-        "Took point interfacing with stakeholders - clarifying expectations, communicating progress, and managing timelines"
+        "Contributed to state government benefits portal built with Python, Flask, and Next.js on AWS",
+        "Maintained and added to 140+ e2e and integration tests with Cypress, Playwright, and Jest",
+        "Performed RCA with New Relic, Cypress Cloud, CloudWatch, and custom dashboards",
+        "Documented defects for partner teams, stopping an avg. of 1 per day from making it to production",
+        "Generated and loaded synthetic data with TypeScript, Node, ECS, and Step Functions",
+        "Architected AWS infrastructure to streamline and optimize synthetic data workflows",
+        "Implemented and managed infrastructure with Terraform and CI/CD with Github Actions",
+        "Updated GHA workflows with SSM to enable/disable testing across 8 lower environments",
+        "Participated in leadership council, interviewing, mentorship, epic outlining, and delegation",
+        "Interfaced with partners and stakeholders, communicating progress and managing timelines",
+        "Improved New Relic test observability dashboard using React, SCSS, and NRQL"
       ],
       "category": "Work Experience",
       "location": "Boston, MA - Remote",
-      "organization": "Massachusetts PFML via Last Call Media",
-      "time": "2024 - Present",
-      "title": "Software Engineer"
+      "organization": "Massachusetts DFML via Last Call Media",
+      "time": "Mar 2024 - Sep 2025",
+      "title": "Software Engineer II"
     },
     {
       "bullets": [
-        "Designed and developed analytics pipeline with AWS and Snowflake, 95% under monthly budget",
-        "Optimized existing analytics jobs, 90-99% reduction in runtimes",
-        "Completed analytics dashboard with React Charts and Snowflake",
-        "Maintained monolith full-stack app with React, Redux, RxJS, Node, Sails, MongoDB, Redis, NGINX",
-        "Implemented UI/UX redesigns, animations, and responsiveness with HTML5, CSS3, SCSS/SASS, and SVG",
-        "Developed mobile app with TypeScript, React-Native, React Query, and Stripe"
+        "Engineered data pipeline with Twitch, S3, Lambda, DynamoDB, EventBridge, and Snowflake",
+        "Refactored Node batch jobs to leverage Snowflake’s concurrency for 90-99% reduction in runtimes",
+        "Completed analytics dashboard with React Charts, Redux, and RxJS",
+        "Integrated IP geolocation service to help catch campaign geo-restriction circumvention",
+        "Spearheaded mobile app with TypeScript, React-Native, React Query, Stripe, and push notifications",
+        "Maintained Sails web app on DigitalOcean with NGINX load balancing and a MongoDB cluster",
+        "Implemented responsive designs and animations with React, SCSS/SASS, and SVG"
       ],
       "category": "Work Experience",
       "location": "Culver City, CA - Remote",
-      "organization": "Snail Games USA, Eminence Corp",
+      "organization": "Snail Games USA",
       "time": "2021 - 2023",
       "title": "Senior Software Engineer"
     },
     {
       "bullets": [
-        "Helped architect/develop new serverless platform with AWS, for > 90% reduction in monthly costs",
-        "Designed and developed streaming video based LMS and CMS with React, Redux, and AWS",
-        "Automated WebVTT creation for videos with AWS S3, Transcribe, and Translate, cutting > 95% of labor",
-        "Developed custom HLS video player with React and HTML5 for better app integration",
-        "Created interactive floor plan viewers for web and mobile with SVG, React, and React-Native",
-        "Developed First Responder React-Native app with AWS Serverless",
-        "Developed Guardian iOS app with Swift, Ruby, Rails, Redis, Sidekiq, and ElasticSearch",
-        "Maintained legacy apps with Ruby, Rails, and MSSQL",
-        "Developed React-Native apps for deployment to high rise buildings",
-        "Modernized Flash-based video/quiz player React/Redux",
-        "Developed LAWA training program with React, Node, and GCP"
+        "Helped architect and develop serverless LMS and CMS platform on AWS, cutting > 90% costs",
+        "Automated video transcription, translation, and WebVTT generation with AWS services",
+        "Developed custom video player with React and HLS for superior web app integration",
+        "Created interactive SVG high-rise floor plan viewers for web (React) and mobile (React-Native)",
+        "Spearheaded First Responder app with React-Native and AWS Serverless",
+        "Pushed Guardian iOS app to completion with Swift, Ruby, Rails, Redis, Sidekiq, and ElasticSearch",
+        "Maintained legacy web applications with Ruby, Rails, and MSSQL in Windows Server on AWS",
+        "Prototyped interactive 3D model viewer with A-Frame for building electrical and plumbing systems",
+        "Modernized Flash-based video/quiz player by porting to React with Redux",
+        "Managed development of LAWA training program with React on GCP"
       ],
       "category": "Work Experience",
       "location": "Pasadena, CA - Hybrid",
@@ -103,7 +108,6 @@
     },
     {
       "category": "Work Experience",
-      "description": "Developed a third-party JavaScript lead gen app. Wrote back-end integrations for marketing services like ActiveCampaign. Wrote scripts to clean redundancies and errors from a large database, built a web directory service to navigate the data, then incorporated user profiles, a membership service, and InfusionSoft for payment processing.",
       "location": "Los Angeles, CA",
       "organization": "Advercalls, Inc",
       "time": "2016",
@@ -111,7 +115,6 @@
     },
     {
       "category": "Work Experience",
-      "description": "Converted PSD designs to pixel perfect UI with Enyo.js for an enterprise Cisco IoT project.",
       "location": "Burbank, CA",
       "organization": "Not That This, LLC",
       "time": "2015",
@@ -119,7 +122,6 @@
     },
     {
       "category": "Work Experience",
-      "description": "Managed inquiries about reward program by email. Troubleshot hardware and software issues by phone.",
       "location": "Redmond, WA - On-site",
       "organization": "Nintendo of America via Parker Staffing",
       "time": "2015",
@@ -134,17 +136,15 @@
     },
     {
       "category": "Work Experience",
-      "description": "Worked on a new website for the UCIRA. Merged their main site and State of the Arts blog. Created a platform for California art researchers to network and display their work.",
       "location": "Santa Barbara, CA",
-      "organization": "University of California Institute for Research in the Arts",
+      "organization": "University of California - Department of Art",
       "time": "2014",
       "title": "Web Developer"
     },
     {
       "category": "Work Experience",
-      "description": "Provided technical assistance and support related to computer networks, hardware, and software. Responded to calls and emails and tracked issues with JIRA to help diagnose, solve, and document problems. Managed hardware inventory.",
       "location": "Santa Barbara, CA",
-      "organization": "Davidson Library",
+      "organization": "University of California - Library",
       "time": "2013 - 2014",
       "title": "IT Helpdesk Assistant"
     },
