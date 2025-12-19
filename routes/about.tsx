@@ -59,8 +59,8 @@ export default function About() {
             <td>320x1</td>
           </tr>
           <tr>
-            <td>High-bar Box Squat - 14 inch</td>
-            <td>385x1</td>
+            <td>Back Squat</td>
+            <td>405x1</td>
           </tr>
           <tr>
             <td>Deadlift</td>
