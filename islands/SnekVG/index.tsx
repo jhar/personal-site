@@ -28,6 +28,7 @@ export default function SnekVG() {
   const [body, setBody] = useState<Part[]>([]);
   const [paused, setPaused] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [snakeHiss, setSnakeHiss] = useState<HTMLAudioElement | null>(null);
   const [colorSet, setColorSet] = useState<ColorSet>(randomizeColorSet());
 
@@ -79,6 +80,7 @@ export default function SnekVG() {
   }
 
   useEffect(() => {
+    setIsMobile(globalThis.matchMedia("(pointer: coarse)").matches);
     setSnakeHiss(new Audio('/snake_hiss.mp3'));
     newGrub();
   }, []);
@@ -154,6 +156,14 @@ export default function SnekVG() {
     if (gameOver) snakeHiss?.play();
   }, [gameOver]);
 
+  if (isMobile) {
+    return (
+      <h3 class="dark:text-white p-[1em]">
+        This game requires a keyboard and doesn't support touch controls yet.
+      </h3>
+    )
+  }
+  
   return (
     <div class="absolute top-32 left-0 right-0 bottom-11">
       <div class="mx-auto w-full">
