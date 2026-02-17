@@ -17,6 +17,7 @@ import * as $Nav_index from "./islands/Nav/index.tsx";
 import * as $Nav_links from "./islands/Nav/links.ts";
 import * as $SnekVG_Message from "./islands/SnekVG/Message.tsx";
 import * as $SnekVG_index from "./islands/SnekVG/index.tsx";
+import * as $SnekVG_utils from "./islands/SnekVG/utils.ts";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -38,6 +39,7 @@ const manifest = {
     "./islands/Nav/links.ts": $Nav_links,
     "./islands/SnekVG/Message.tsx": $SnekVG_Message,
     "./islands/SnekVG/index.tsx": $SnekVG_index,
+    "./islands/SnekVG/utils.ts": $SnekVG_utils,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;

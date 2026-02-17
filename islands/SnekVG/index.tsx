@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import Message from "./Message.tsx";
+import { ColorSet, randomizeColorSet, randomizeGrubPosition } from "./utils.ts";
 
 const size = 12;
 const half = size/2;
@@ -28,7 +29,7 @@ export default function SnekVG() {
   const [paused, setPaused] = useState(false);
   const [gameOver, setGameOver] = useState(false);
   const [snakeHiss, setSnakeHiss] = useState<HTMLAudioElement | null>(null);
-  const [colorSet, setColorSet] = useState<ColorSet>(randomColorSet());
+  const [colorSet, setColorSet] = useState<ColorSet>(randomizeColorSet());
 
   function reset() {
     setTime(0);
@@ -54,7 +55,7 @@ export default function SnekVG() {
           if (a.y < (b.y + offset)) {
             if (isGrub) {
               setScore(prev => prev + 1);
-              setColorSet(randomColorSet());
+              setColorSet(randomizeColorSet());
               newGrub();
             } else {
               if (a.x < 0 || a.y < 0) {
@@ -72,8 +73,8 @@ export default function SnekVG() {
     const svg = containerRef.current;
     if (svg) {
       const { width, height } = svg.getBoundingClientRect();
-      setGrubX(randomize(width) + half);
-      setGrubY(randomize(height) + half);
+      setGrubX(randomizeGrubPosition(width) + half);
+      setGrubY(randomizeGrubPosition(height) + half);
     }
   }
 
@@ -179,37 +180,4 @@ export default function SnekVG() {
     </div>
 
   );
-}
-
-
-
-const randomize = (max: number) => Math.floor(Math.random() * Math.floor(max - 8));
-
-interface ColorSet {
-  bg: string;
-  body: string;
-  grub: string;
-}
-
-function randomColorSet(): ColorSet {
-  const angle = Math.random() * 2 * Math.PI;
-  const r1 = Math.round(128 + 127 * Math.sin(angle));
-  const g1 = Math.round(128 + 127 * Math.sin(angle + 2 * Math.PI / 3));
-  const b1 = Math.round(128 + 127 * Math.sin(angle + 4 * Math.PI / 3));
-
-  const angle2 = angle + Math.PI / 4;
-  const r2 = Math.round(128 + 127 * Math.sin(angle2));
-  const g2 = Math.round(128 + 127 * Math.sin(angle2 + 2 * Math.PI / 3));
-  const b2 = Math.round(128 + 127 * Math.sin(angle2 + 4 * Math.PI / 3));
-
-  const angle3 = angle + Math.PI / 2;
-  const r3 = Math.round(128 + 127 * Math.sin(angle3));
-  const g3 = Math.round(128 + 127 * Math.sin(angle3 + 2 * Math.PI / 3));
-  const b3 = Math.round(128 + 127 * Math.sin(angle3 + 4 * Math.PI / 3));
-
-  return {
-    bg: `rgb(${r3}, ${g3}, ${b3})`,
-    body: `rgb(${r2}, ${g2}, ${b2})`,
-    grub: `rgb(${r1}, ${g1}, ${b1})`,
-  };
 }
