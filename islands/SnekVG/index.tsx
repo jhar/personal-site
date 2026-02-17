@@ -42,7 +42,7 @@ export default function SnekVG() {
     setBody([]);
     setPaused(false);
     setGameOver(false);
-    setColorSet(randomColorSet());
+    setColorSet(randomizeColorSet());
     newGrub();
   }
 
