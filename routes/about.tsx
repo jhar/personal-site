@@ -64,7 +64,7 @@ export default function About() {
           </tr>
           <tr>
             <td>Deadlift</td>
-            <td>475x1</td>
+            <td>485x1</td>
           </tr>
         </tbody>
       </table>
