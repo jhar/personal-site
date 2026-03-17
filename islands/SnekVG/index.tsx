@@ -32,6 +32,7 @@ export default function SnekVG() {
   const [snakeHiss, setSnakeHiss] = useState<HTMLAudioElement | null>(null);
   const [colorSet, setColorSet] = useState<ColorSet>(randomizeColorSet());
   const [gameSpeed, setGameSpeed] = useState(40);
+  const [started, setStarted] = useState(false);
 
   function reset() {
     setTime(0);
@@ -117,6 +118,8 @@ export default function SnekVG() {
         const dx = e.changedTouches[0].clientX - startX;
         const dy = e.changedTouches[0].clientY - startY;
 
+        setStarted(true);
+
         if (Math.abs(dx) < 20 && Math.abs(dy) < 20) {
           // Tap — check for double tap
           const now = Date.now();
@@ -151,11 +154,11 @@ export default function SnekVG() {
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
       switch (event.key) {
-        case "w": return (direction !== "down") && setDirection("up");
-        case "a": return (direction !== "right") && setDirection("left");
-        case "s": return (direction !== "up") && setDirection("down");
-        case "d": return (direction !== "left") && setDirection("right");
-        case "p": return setPaused(prev => !prev);
+        case "w": setStarted(true); return (direction !== "down") && setDirection("up");
+        case "a": setStarted(true); return (direction !== "right") && setDirection("left");
+        case "s": setStarted(true); return (direction !== "up") && setDirection("down");
+        case "d": setStarted(true); return (direction !== "left") && setDirection("right");
+        case "p": setStarted(true); return setPaused(prev => !prev);
         case "r": return reset();
         default: return null;
       }
@@ -202,7 +205,7 @@ export default function SnekVG() {
       })
     }
 
-    if (gameOver || paused) {
+    if (gameOver || paused || !started) {
       clearInterval(loopRef.current);
     } else {
       loopRef.current = setInterval(loopFn, gameSpeed);
@@ -213,7 +216,7 @@ export default function SnekVG() {
         clearInterval(loopRef.current);
       }
     }
-  }, [gameOver, paused, time, xOff, yOff, gameSpeed]);
+  }, [gameOver, paused, started, time, xOff, yOff, gameSpeed]);
 
   useEffect(() => {
     if (gameOver) snakeHiss?.play();
@@ -235,14 +238,18 @@ export default function SnekVG() {
         <circle cx={`${grubX}`} cy={`${grubY}`} fill={colorSet.grub} r={half} />
         {body.map(p => <circle cx={`${p.x}`} cy={`${p.y}`} fill={colorSet.body} key={`${p.t}`} r={half}/>)}
       </svg>
-      <div class="mx-auto w-full">
-        <span class="block dark:text-white p-1 text-center text-md">
-          {isMobile
-            ? "Swipe to steer · Double-tap to pause · Hold to restart"
-            : "Controls: WASD, Press P to pause, Press R to restart."}
-        </span>
-      </div>
-      {(paused && !gameOver) && <Message text="Pause" />}
+      {!started && !gameOver && <Message
+        text="Controls"
+        subtext={isMobile
+          ? "Swipe to steer · Double-tap to pause · Hold to restart"
+          : "WASD to move · P to pause · R to restart"}
+      />}
+      {started && paused && !gameOver && <Message
+        text="Pause"
+        subtext={isMobile
+          ? "Swipe to steer · Double-tap to pause · Hold to restart"
+          : "WASD to move · P to pause · R to restart"}
+      />}
       {gameOver && <Message text="Game Over" />}
     </div>
   );
