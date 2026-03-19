@@ -17,14 +17,15 @@ export default function About() {
           neurological foundations of visual art
         </a>.
       </p>
-      <p class="mb-8">
-        I'm currently prepping for the AWS Data Engineer,
-        Associate certification.
+      <p class="mb-2">
+        Outside of work, I rotate through a handful of hobbies and interests, including:
       </p>
-      <p class="mb-8">
-        Outside of work, I like to play games (Switch, 3DS, PS5, PC), watch
-        movies (AMC A-List), and lift weights.
-      </p>
+      <ul class="list-disc list-inside mb-8">
+        <li>Games (Switch, 3DS, PS5, PC)</li>
+        <li>Movies (AMC A-List, Kanopy)</li>
+        <li>Philosophical and/or spiritual rabbit holes</li>
+        <li>Serious physical practice (strength training, olympic lifting, aerial yoga, yoga sculpt, walking, boxing, etc.)</li>
+      </ul>
       <h3 class="mb-2 text-lg">Gym bests*</h3>
       <table class="border-separate [border-spacing:1rem] mb-2 table-auto">
         <thead>
