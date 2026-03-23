@@ -41,7 +41,7 @@ export default function About({ data: movies }: PageProps<Movie[]>) {
         including:
       </p>
       <ul class="list-disc list-inside mb-8">
-        <li>Games (Switch, 3DS, PS5, PC)</li>
+        <li>Games (Switch 2, 3DS, PS5, PC)</li>
         <li>Movies (AMC A-List, Kanopy)</li>
         <li>Philosophical and/or spiritual rabbit holes</li>
         <li>
