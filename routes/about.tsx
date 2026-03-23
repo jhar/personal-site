@@ -81,7 +81,7 @@ export default function About({ data: movies }: PageProps<Movie[]>) {
           </tr>
           <tr>
             <td>Front Squat</td>
-            <td>335x1</td>
+            <td>350x1</td>
           </tr>
           <tr>
             <td>Back Squat</td>
