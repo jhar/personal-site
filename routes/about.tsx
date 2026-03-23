@@ -1,4 +1,23 @@
-export default function About() {
+import { Handlers, PageProps } from "$fresh/server.ts";
+import {
+  fetchRecentMovies,
+  formatDate,
+  Movie,
+  ratingToStars,
+} from "../utils/letterboxd.ts";
+
+export const handler: Handlers<Movie[]> = {
+  async GET(_, ctx) {
+    try {
+      const movies = await fetchRecentMovies();
+      return ctx.render(movies);
+    } catch {
+      return ctx.render([]);
+    }
+  },
+};
+
+export default function About({ data: movies }: PageProps<Movie[]>) {
   return (
     <div class="dark:text-offwhite max-w-5xl pb-20 mx-auto w-[86%]">
       <p class="mb-8">
@@ -18,14 +37,19 @@ export default function About() {
         </a>.
       </p>
       <p class="mb-2">
-        Outside of work, I rotate through a handful of hobbies and interests, including:
+        Outside of work, I rotate through a handful of hobbies and interests,
+        including:
       </p>
       <ul class="list-disc list-inside mb-8">
         <li>Games (Switch, 3DS, PS5, PC)</li>
         <li>Movies (AMC A-List, Kanopy)</li>
         <li>Philosophical and/or spiritual rabbit holes</li>
-        <li>Serious physical practice (strength training, olympic lifting, aerial yoga, yoga sculpt, walking, boxing, etc.)</li>
+        <li>
+          Serious physical practice (strength training, olympic lifting, aerial
+          yoga, yoga sculpt, walking, boxing, etc.)
+        </li>
       </ul>
+
       <h3 class="mb-2 text-lg">Gym bests*</h3>
       <table class="border-separate [border-spacing:1rem] mb-2 table-auto">
         <thead>
@@ -51,10 +75,10 @@ export default function About() {
             <td>Power Clean</td>
             <td>225x1</td>
           </tr>
-	  <tr>
-	    <td>Overhead Squat</td>
-	    <td>200x1</td>
-	  </tr>
+          <tr>
+            <td>Overhead Squat</td>
+            <td>200x1</td>
+          </tr>
           <tr>
             <td>Front Squat</td>
             <td>335x1</td>
@@ -73,6 +97,40 @@ export default function About() {
         * I'm working with a lower extremity disability that skews upper/lower
         ratio from what you might expect.
       </span>
+
+      {movies.length > 0 && (
+        <div class="mt-12">
+          <h3 class="mb-4 text-lg">Recently Watched Movies</h3>
+          <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+            {movies.map((movie) => (
+              <a
+                href={movie.link}
+                target="_blank"
+                key={movie.link}
+                class="group block"
+              >
+                <div class="overflow-hidden rounded mb-1.5 aspect-[2/3] bg-gray-800">
+                  <img
+                    src={movie.posterUrl}
+                    alt={movie.title}
+                    class="w-full h-full object-cover group-hover:opacity-80 transition-opacity"
+                    loading="lazy"
+                  />
+                </div>
+                <p class="text-xs font-medium leading-tight truncate">
+                  {movie.title}
+                </p>
+                {movie.rating && (
+                  <p class="text-xs text-yellow-400">
+                    {ratingToStars(movie.rating)}
+                  </p>
+                )}
+                <p class="text-xs opacity-50">{formatDate(movie.watchedDate)}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
