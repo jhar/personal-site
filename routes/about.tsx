@@ -72,6 +72,10 @@ export default function About({ data: movies }: PageProps<Movie[]>) {
             <td>227.5x1</td>
           </tr>
           <tr>
+            <td>Clean</td>
+            <td>235x1</td>
+          </tr>
+          <tr>
             <td>Power Clean</td>
             <td>225x1</td>
           </tr>
