@@ -7,10 +7,34 @@ export interface Movie {
   link: string;
 }
 
-export async function fetchRecentMovies(): Promise<Movie[]> {
+const CACHE_KEY = ["letterboxd", "recent_movies"];
+const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+
+async function fetchFromRSS(): Promise<Movie[]> {
+  console.log("[letterboxd] fetching from RSS");
   const res = await fetch("https://letterboxd.com/maybejustin/rss/");
   const xml = await res.text();
   return parseLetterboxdFeed(xml);
+}
+
+export async function fetchRecentMovies(): Promise<Movie[]> {
+  try {
+    const kv = await Deno.openKv();
+
+    const cached = await kv.get<{ movies: Movie[]; fetchedAt: number }>(CACHE_KEY);
+    if (cached.value && Date.now() - cached.value.fetchedAt < CACHE_TTL_MS) {
+      console.log("[letterboxd] serving from cache");
+      return cached.value.movies;
+    }
+
+    const movies = await fetchFromRSS();
+    await kv.set(CACHE_KEY, { movies, fetchedAt: Date.now() });
+
+    return movies;
+  } catch {
+    console.log("[letterboxd] cache unavailable");
+    return fetchFromRSS();
+  }
 }
 
 function decodeEntities(str: string): string {
