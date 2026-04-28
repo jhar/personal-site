@@ -61,7 +61,7 @@ export default function About({ data: movies }: PageProps<Movie[]>) {
         <tbody>
           <tr>
             <td>Bench Press</td>
-            <td>335x1</td>
+            <td>340x1</td>
           </tr>
           <tr>
             <td>Strict Press</td>
