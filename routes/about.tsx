@@ -43,7 +43,7 @@ export default function About({ data: movies }: PageProps<Movie[]>) {
       <ul class="list-disc list-inside mb-8">
         <li>Games (Switch 2, 3DS, PS5, PC)</li>
         <li>Movies (AMC A-List, Kanopy)</li>
-        <li>Philosophical and/or spiritual rabbit holes</li>
+        <li>Philosophical and/or spiritual rabbit holes (lately Merton, Chödrön, and Krishnamurti)</li>
         <li>
           Serious physical practice (strength training, olympic lifting, aerial
           yoga, yoga sculpt, walking, boxing, etc.)
