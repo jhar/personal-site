@@ -15,6 +15,7 @@ export async function handler(req: Request, ctx: FreshContext) {
   const ip =
     req.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
     req.headers.get("x-real-ip") ??
+    (ctx.remoteAddr as Deno.NetAddr)?.hostname ??
     "unknown";
 
   const country = req.headers.get("x-deno-geo-country") ?? "unknown";
