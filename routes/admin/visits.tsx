@@ -63,10 +63,10 @@ export default function Visits({ data: visits }: PageProps<Visit[]>) {
                 <td class="py-1.5 pr-4 whitespace-nowrap">
                   {[v.city, v.region, v.country].filter((x) => x && x !== "unknown").join(", ") || "—"}
                 </td>
-                <td class="py-1.5 pr-4 max-w-[200px] truncate opacity-70">
+                <td class="py-1.5 pr-4 max-w-[200px] truncate opacity-70" title={v.referrer || "—"}>
                   {v.referrer || "—"}
                 </td>
-                <td class="py-1.5 max-w-[300px] truncate opacity-50 text-xs">
+                <td class="py-1.5 max-w-[300px] truncate opacity-50 text-xs" title={v.userAgent}>
                   {v.userAgent}
                 </td>
               </tr>
