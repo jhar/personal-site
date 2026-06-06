@@ -5,7 +5,9 @@
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
 import * as $_layout from "./routes/_layout.tsx";
+import * as $_middleware from "./routes/_middleware.ts";
 import * as $about from "./routes/about.tsx";
+import * as $admin_visits from "./routes/admin/visits.tsx";
 import * as $index from "./routes/index.tsx";
 import * as $resume_Category from "./routes/resume/Category.tsx";
 import * as $resume_index from "./routes/resume/index.tsx";
@@ -25,7 +27,9 @@ const manifest = {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
     "./routes/_layout.tsx": $_layout,
+    "./routes/_middleware.ts": $_middleware,
     "./routes/about.tsx": $about,
+    "./routes/admin/visits.tsx": $admin_visits,
     "./routes/index.tsx": $index,
     "./routes/resume/Category.tsx": $resume_Category,
     "./routes/resume/index.tsx": $resume_index,
