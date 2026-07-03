@@ -42,11 +42,13 @@ export default function About({ data: movies }: PageProps<Movie[]>) {
       </p>
       <ul class="list-disc list-inside mb-8">
         <li>Games (Switch 2, 3DS, PS5, PC)</li>
-        <li>Movies (AMC A-List, Kanopy)</li>
-        <li>Philosophical and/or spiritual rabbit holes (lately Merton, Chödrön, and Krishnamurti)</li>
+        <li>Movies (AMC A-List, Kanopy, Paramount+, THE LIBRARY)</li>
+        <li>Monastic rabbit holes (lately Merton, Chödrön, Krishnamurti, Chopra, Becker, and Kierkegaard)</li>
         <li>
-          Serious physical practice (strength training, olympic lifting, aerial
-          yoga, yoga sculpt, walking, boxing, etc.)
+          Physical practice (lately just hybrid strength training methodology with walking and light yoga and boxing)
+        </li>
+        <li>
+          Misc: Also reading John le Carré and Walker Percy, and watching Crunchyroll (Kaiju No. 8 and Frieren) although not as fast as I'd like, and I love watching UFC and boxing. Old episodes of TUF tickle me pink.
         </li>
       </ul>
 
