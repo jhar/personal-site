@@ -1,6 +1,7 @@
 export interface Link {
   href: string;
   text: string;
+  native?: boolean;
 }
 
 export const links: Link[] = [
@@ -15,6 +16,7 @@ export const links: Link[] = [
   {
     href: "/resume.pdf",
     text: "resume",
+    native: true,
   },
   {
     href: "/scratch",

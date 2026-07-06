@@ -24,11 +24,14 @@ function Mobile({ animated, showPanel, toggle }: MobileProps) {
       class={`bg-white dark:bg-slate ${panel} absolute left-0 top-28 right-0 bottom-11 text-3xl z-10`}
     >
       <nav class="mt-[7%] px-[7%]">
-        {links.map(({ href, text }: Link) => (
+        {links.map(({ href, text, native }: Link) => (
           <a
             class={`block capitalize dark:text-offwhite text-offblack ${link} h-12`}
             href={href}
             onClick={toggle}
+            data-native-link={native ? "true" : undefined}
+            target={native ? "_blank" : undefined}
+            rel={native ? "noopener noreferrer" : undefined}
           >
             {text}
           </a>

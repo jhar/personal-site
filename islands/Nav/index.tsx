@@ -52,11 +52,14 @@ export default function Nav() {
   );
 }
 
-function NavLink({ href, text }: Link) {
+function NavLink({ href, text, native }: Link) {
   return (
     <a
       class="dark:hover:text-lightblue hover:animate-pulse hover:text-blue pl-4 text-lg text-lightgrey dark:text-offwhite"
       href={href}
+      data-native-link={native ? "true" : undefined}
+      target={native ? "_blank" : undefined}
+      rel={native ? "noopener noreferrer" : undefined}
     >
       {text}
     </a>
