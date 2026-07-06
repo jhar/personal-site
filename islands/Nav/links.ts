@@ -13,7 +13,7 @@ export const links: Link[] = [
     text: "about",
   },
   {
-    href: "/resume",
+    href: "/resume.pdf",
     text: "resume",
   },
   {
