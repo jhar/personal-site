@@ -48,7 +48,13 @@ export default function About({ data: movies }: PageProps<Movie[]>) {
           Physical practice (lately just hybrid strength training methodology with walking and light yoga and boxing)
         </li>
         <li>
-          Misc: Also reading John le Carré and Walker Percy, and watching Crunchyroll (Kaiju No. 8 and Frieren) although not as fast as I'd like, and I love watching UFC and boxing. Old episodes of TUF tickle me pink.
+          Reading John le Carré, Walker Percy, and Cervantes., and I
+        </li>
+        <li>
+          Watching Crunchyroll (Kaiju No. 8 and Frieren) although not as fast as I'd like.
+        </li>
+        <li>
+          I love watching UFC and boxing. Old episodes of TUF tickle me pink.
         </li>
       </ul>
 
