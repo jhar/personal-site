@@ -1,4 +1,5 @@
 import { Handlers, PageProps } from "$fresh/server.ts";
+import LocalTime from "../../islands/LocalTime.tsx";
 
 interface Visit {
   ip: string;
@@ -56,7 +57,7 @@ export default function Visits({ data: visits }: PageProps<Visit[]>) {
                 class="border-b border-slate-700 hover:bg-slate-800"
               >
                 <td class="py-1.5 pr-4 whitespace-nowrap opacity-70">
-                  {new Date(v.ts).toLocaleString()}
+                  <LocalTime ts={v.ts} />
                 </td>
                 <td class="py-1.5 pr-4">{v.path}</td>
                 <td class="py-1.5 pr-4 opacity-70">{v.ip}</td>

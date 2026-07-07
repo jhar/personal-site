@@ -11,6 +11,7 @@ import * as $admin_visits from "./routes/admin/visits.tsx";
 import * as $index from "./routes/index.tsx";
 import * as $scratch_index from "./routes/scratch/index.tsx";
 import * as $scratch_snake from "./routes/scratch/snake.tsx";
+import * as $LocalTime from "./islands/LocalTime.tsx";
 import * as $Nav_Hamburger from "./islands/Nav/Hamburger.tsx";
 import * as $Nav_Mobile from "./islands/Nav/Mobile.tsx";
 import * as $Nav_index from "./islands/Nav/index.tsx";
@@ -33,6 +34,7 @@ const manifest = {
     "./routes/scratch/snake.tsx": $scratch_snake,
   },
   islands: {
+    "./islands/LocalTime.tsx": $LocalTime,
     "./islands/Nav/Hamburger.tsx": $Nav_Hamburger,
     "./islands/Nav/Mobile.tsx": $Nav_Mobile,
     "./islands/Nav/index.tsx": $Nav_index,
