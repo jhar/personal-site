@@ -48,7 +48,7 @@ export default function About({ data: movies }: PageProps<Movie[]>) {
           Physical practice (lately just hybrid strength training methodology with walking and light yoga and boxing)
         </li>
         <li>
-          Reading John le Carré, Walker Percy, and Cervantes.
+          Reading John le Carré and Cervantes.
         </li>
         <li>
           Watching Crunchyroll (Kaiju No. 8 and Frieren) although not as fast as I'd like.
