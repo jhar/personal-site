@@ -1,6 +1,6 @@
 # Live site
 
-https://jhar-personal-site.deno.dev/
+https://personal-site.jhar.deno.net/
 
 ## Fresh project
 
