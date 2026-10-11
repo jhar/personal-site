@@ -1,0 +1,9 @@
+# Python lint/format settings for api/ and scripts/.
+line-length = 100
+target-version = "py313"
+
+[lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[lint.isort]
+known-first-party = ["site_api"]

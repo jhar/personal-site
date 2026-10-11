@@ -1,0 +1,88 @@
+name: Deploy to environment
+
+# Uploads the built site to S3, deploys the Lambda code and clears the
+# CloudFront cache. Needs these variables on the GitHub environment (values come
+# from `terraform output` in infra/envs/<env>): AWS_ROLE_ARN, SITE_BUCKET,
+# DISTRIBUTION_ID, FUNCTION_NAME, SITE_URL.
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ vars.SITE_URL }}
+    concurrency: deploy-${{ inputs.environment }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check configuration
+        env:
+          AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+          SITE_BUCKET: ${{ vars.SITE_BUCKET }}
+          DISTRIBUTION_ID: ${{ vars.DISTRIBUTION_ID }}
+          FUNCTION_NAME: ${{ vars.FUNCTION_NAME }}
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          missing=0
+          for v in AWS_ROLE_ARN SITE_BUCKET DISTRIBUTION_ID FUNCTION_NAME SITE_URL; do
+            if [ -z "${!v}" ]; then
+              echo "::error::Variable $v is not set on the '${{ inputs.environment }}' environment (see README)."
+              missing=1
+            fi
+          done
+          exit $missing
+
+      - uses: actions/download-artifact@v5
+        with:
+          name: site
+
+      - uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Upload site
+        env:
+          BUCKET: ${{ vars.SITE_BUCKET }}
+        run: |
+          # Hashed build assets never change, so browsers can keep them forever.
+          aws s3 sync out/_next/static "s3://$BUCKET/_next/static" \
+            --cache-control "public, max-age=31536000, immutable"
+          # Everything else: CloudFront caches until the invalidation below,
+          # browsers always revalidate.
+          aws s3 sync out "s3://$BUCKET" --delete --exclude "_next/static/*" \
+            --cache-control "public, max-age=0, s-maxage=31536000, must-revalidate"
+
+      - name: Deploy API
+        env:
+          FUNCTION_NAME: ${{ vars.FUNCTION_NAME }}
+        run: |
+          aws lambda update-function-code --function-name "$FUNCTION_NAME" \
+            --zip-file fileb://api/dist/lambda.zip > /dev/null
+          aws lambda wait function-updated-v2 --function-name "$FUNCTION_NAME"
+
+      - name: Clear CloudFront cache
+        env:
+          DISTRIBUTION_ID: ${{ vars.DISTRIBUTION_ID }}
+        run: |
+          id=$(aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" \
+            --paths "/*" --query Invalidation.Id --output text)
+          aws cloudfront wait invalidation-completed --distribution-id "$DISTRIBUTION_ID" --id "$id"
+
+      - name: Smoke test
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+        run: |
+          curl -fsS -o /dev/null "$SITE_URL/"
+          curl -fsS -o /dev/null "$SITE_URL/about"
+          curl -fsS "$SITE_URL/api/letterboxd" | head -c 200; echo
+          # Reaches the Lambda without writing a visit: no token means 401.
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE_URL/api/admin/visits")
+          [ "$code" = 401 ] || { echo "::error::/api/admin/visits returned $code, expected 401"; exit 1; }

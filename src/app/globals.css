@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/* Ported from the Fresh site's twind.config.ts. */
+@theme {
+  --color-blue: #4874d4;
+  --color-lightblue: #0ea5e9;
+  --color-lightgrey: #676767;
+  --color-medgrey: rgb(119, 119, 119);
+  --color-offblack: rgb(25, 25, 25);
+  --color-offwhite: rgb(225, 225, 225);
+  --color-slate: #1e293b;
+  --color-white: rgb(255, 255, 255);
+
+  /* Tailwind v3 values Twind used, so these match the old site exactly. */
+  --color-gray-800: #1f2937;
+  --color-yellow-400: #facc15;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+
+  --animate-fadeIn: fadeIn 0.618s forwards;
+  --animate-fadeOut: fadeOut 0.618s forwards;
+  --animate-slideDown: slideDown 0.618s forwards;
+  --animate-slideUp: slideUp 0.618s forwards;
+
+  @keyframes fadeIn {
+    0% {
+      display: none;
+      opacity: 0;
+    }
+    100% {
+      display: block;
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOut {
+    0% {
+      display: block;
+      opacity: 1;
+    }
+    100% {
+      display: none;
+      opacity: 0;
+    }
+  }
+
+  @keyframes slideDown {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+    100% {
+      transform: translate3d(2%, 38%, 0);
+    }
+  }
+
+  @keyframes slideUp {
+    0% {
+      transform: translate3d(-1%, 24%, 0);
+    }
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+}

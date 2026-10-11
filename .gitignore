@@ -1,13 +1,38 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# API bundle
+api/dist/
+
 # dotenv environment variable files
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+.env*.local
 
-# Fresh build directory
-_fresh/
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
 
+# visit exports (contain IPs)
+visits*.json
 
 # VS Code settings
 .vscode/
+
+# Python
+__pycache__/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# Terraform placeholder Lambda zip
+.build/
+.terraform.lock.hcl.bak

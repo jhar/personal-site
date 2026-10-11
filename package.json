@@ -1,0 +1,41 @@
+{
+  "name": "personal-site",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c blue,magenta \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:web": "next dev",
+    "dev:api": "uv run --project api python api/dev_server.py",
+    "db:up": "docker compose up -d dynamodb",
+    "db:down": "docker compose down",
+    "build": "npm run build:web && npm run build:api",
+    "build:web": "next build",
+    "build:api": "node scripts/package-api.mjs",
+    "preview": "concurrently -k -n api,web -c blue,magenta \"npm:dev:api\" \"node scripts/preview.mjs\"",
+    "lint": "eslint . && uv run --project api ruff check api scripts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run && uv run --project api pytest api",
+    "check": "npm run lint && npm run typecheck && npm run test",
+    "import-visits": "uv run --project api python scripts/import_visits.py"
+  },
+  "dependencies": {
+    "next": "^16.4.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "concurrently": "^10.0.6",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.3"
+  }
+}
