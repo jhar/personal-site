@@ -225,6 +225,7 @@ export class TetrominoVisualizer {
   private pendingShape: readonly Cell[] | null = null;
   private usesCssVars = false;
   private lastColorCheck = 0;
+  private shuffleSeed = 0;
 
   private quads = createQuadList();
   private h = new Float32Array(1);
@@ -499,7 +500,9 @@ export class TetrominoVisualizer {
       }
       this.fill.set(this.grid.cells);
     }
-    if (!this.raf) this.frame(performance.now(), true);
+    // Resizing the canvas clears it, and ResizeObserver runs after this frame's
+    // animation callback, so redraw now or the frame is painted blank.
+    this.draw();
   }
 
   // ------------------------------------------------------------------ shapes
@@ -531,7 +534,9 @@ export class TetrominoVisualizer {
     const idx = this.placements.map((_, i) => i);
     const { order } = this.opts;
     if (order === 'shuffle') {
-      shuffle(idx, this.rng);
+      // Keep the order when the same shape is re-laid out (e.g. on resize).
+      if (restart) this.shuffleSeed = Math.floor(this.rng() * 2 ** 32);
+      shuffle(idx, createRng(this.shuffleSeed));
     } else if (order === 'interleave') {
       const groups = PIECE_TYPES.map((p) => idx.filter((i) => this.placements[i].piece === p));
       const out: number[] = [];
