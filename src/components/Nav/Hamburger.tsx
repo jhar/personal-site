@@ -9,7 +9,7 @@ export default function Hamburger({ toggle }: HamburgerProps) {
       onClick={toggle}
     >
       <svg
-        className="dark:fill-white"
+        className="fill-ink-strong"
         fill="currentColor"
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 50 50"

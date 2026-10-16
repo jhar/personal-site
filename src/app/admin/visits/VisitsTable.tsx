@@ -30,16 +30,16 @@ export default function VisitsTable() {
 
   if (state.status === "loading") return null;
   if (state.status === "unauthorized") {
-    return <p className="dark:text-offwhite max-w-7xl mx-auto w-[92%]">Unauthorized</p>;
+    return <p className="max-w-7xl mx-auto w-[92%]">Unauthorized</p>;
   }
   if (state.status === "error") {
-    return <p className="dark:text-offwhite max-w-7xl mx-auto w-[92%]">Couldn&apos;t load visits.</p>;
+    return <p className="max-w-7xl mx-auto w-[92%]">Couldn&apos;t load visits.</p>;
   }
 
   const { visits } = state;
 
   return (
-    <div className="dark:text-offwhite max-w-7xl mx-auto w-[92%] pb-20">
+    <div className="max-w-7xl mx-auto w-[92%] pb-20">
       <h1 className="text-2xl mb-6 mt-4">Visits ({visits.length})</h1>
       <div className="overflow-x-auto">
         <table className="w-full text-sm font-mono border-collapse">

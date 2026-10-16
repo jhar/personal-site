@@ -224,7 +224,7 @@ export default function SnekVG() {
   return (
     <div ref={wrapperRef} className="absolute top-32 left-0 right-0 bottom-11">
       <div className="mx-auto w-full">
-        <span className="block font-bold dark:text-white p-1 text-center text-xl">
+        <span className="block font-bold text-ink-strong p-1 text-center text-xl">
           Snek-VG -- Score: {score}
         </span>
       </div>

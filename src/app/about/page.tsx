@@ -2,7 +2,7 @@ import RecentMovies from "./RecentMovies";
 
 export default function About() {
   return (
-    <div className="dark:text-offwhite max-w-5xl pb-20 mx-auto w-[86%]">
+    <div className="max-w-5xl pb-20 mx-auto w-[86%]">
       <p className="mb-8">
         I&apos;m a software engineer experienced with cloud infrastructure, dev ops,
         full stack development for web and mobile, E2E and integration testing,
@@ -12,7 +12,7 @@ export default function About() {
         My academic background is in cognitive science and conceptual art. In a
         past life, I wanted to be a neuroscientist who helped study the{" "}
         <a
-          className="dark:hover:text-lightblue hover:animate-pulse hover:text-blue text-lightblue"
+          className="hover:animate-pulse hover:text-link-hover text-link"
           href="https://www.researchgate.net/publication/233556531_The_Science_of_Art_A_Neurological_Theory_of_Aesthetic_Experience"
           target="_blank"
         >

@@ -27,9 +27,9 @@ export default function Nav() {
   }, []);
 
   return (
-    <div className="box-border font-mono mx-0">
-      <div className="flex justify-between dark:text-white h-32 items-center m-auto max-w-5xl min-w-[230px] w-[86%]">
-        <span className="py-1 text-2xl sm:text-3xl">
+    <div className="box-border font-nav mx-0">
+      <div className="flex justify-between text-ink-strong h-32 items-center m-auto max-w-5xl min-w-[230px] w-[86%]">
+        <span className="py-1 text-2xl sm:text-3xl [letter-spacing:var(--t-nav-tracking)]">
           JUSTIN HARRISON
         </span>
         <Hamburger toggle={toggle} />
@@ -38,7 +38,7 @@ export default function Nav() {
             <NavAnchor
               key={l.text}
               {...l}
-              className="dark:hover:text-lightblue hover:animate-pulse hover:text-blue pl-4 text-lg text-lightgrey dark:text-offwhite"
+              className="hover:animate-pulse hover:text-link-hover pl-4 text-lg text-nav [letter-spacing:var(--t-nav-tracking)]"
             />
           ))}
         </nav>
