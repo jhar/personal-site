@@ -70,7 +70,7 @@ async def _log_visit(req: Request, deps: Deps) -> Response:
     h, geo = req.headers, req.geo
     visit: Visit = {
         "ip": _clip(h.get("cf-connecting-ip")) or "unknown",
-        # Cloudflare's equivalent of Deno Deploy's x-deno-geo-* headers.
+        # Cloudflare's request.cf geolocation.
         "country": _clip(geo.get("country")) or "unknown",
         "region": _clip(geo.get("region")) or "unknown",
         "city": _clip(geo.get("city")) or "unknown",
