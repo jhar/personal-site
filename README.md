@@ -27,6 +27,19 @@ IP from `CF-Connecting-IP`, the equivalents of Deno Deploy's geo headers.
 Everything in one Worker means one URL per environment and nothing to keep in
 sync between a static host and an API host.
 
+## Themes and the home page
+
+The site has two themes, both following the system light/dark setting. The
+default, **Dekalog**, is cream and warm grey with Bodoni Moda and Jost (loaded
+by `next/font`). **Classic** is the original white/slate look with the old
+fonts. The footer button switches between them and the choice is kept in
+`localStorage`. Colours and fonts are CSS variables in `src/app/globals.css`;
+components use the token utilities (`bg-page`, `text-ink`, `text-link`, ...).
+
+The home page is the tetromino visualizer in `src/components/TetrominoViz`,
+vendored from the `tetromino-viz` project. It reads its cell colours from
+`--viz-cell` and `--viz-hover`, so it follows the theme too.
+
 ## Local development
 
 Needs Node 22+, [uv](https://docs.astral.sh/uv/) and Python 3.13.

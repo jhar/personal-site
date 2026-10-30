@@ -9,19 +9,19 @@ export default function Scratch() {
         src="/frame_1.svg"
       />
       <div className="h-full max-w-5xl pb-20 mx-auto w-[86%]">
-        <p className="dark:text-white mb-6">
+        <p className="text-ink-strong mb-6">
           If you want to amuse yourself,{" "}
           <Link
-            className="dark:hover:text-lightblue hover:animate-pulse hover:text-blue text-lightblue"
+            className="hover:animate-pulse hover:text-link-hover text-link"
             href="/scratch/snake"
           >
             here
           </Link>{" "}
           is a Snake game made in Preact, rendered in SVG.
         </p>
-        <p className="dark:text-white">
+        <p className="text-ink-strong">
           <a
-            className="dark:hover:text-lightblue hover:animate-pulse hover:text-blue text-lightblue"
+            className="hover:animate-pulse hover:text-link-hover text-link"
             href="/hello_world.html"
             target="_blank"
           >

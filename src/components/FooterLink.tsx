@@ -6,7 +6,7 @@ interface FooterLinkProps {
 export default function FooterLink({ name, href }: FooterLinkProps) {
   return (
     <a
-      className="dark:hover:text-lightblue hover:animate-pulse hover:text-blue dark:text-offwhite"
+      className="hover:animate-pulse hover:text-link-hover text-ink"
       href={href}
       target="_blank"
     >

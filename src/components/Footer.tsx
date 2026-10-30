@@ -1,10 +1,11 @@
 import FooterLink from "./FooterLink";
+import ThemeToggle from "./ThemeToggle";
 import Year from "./Year";
 
 export default function Footer() {
   return (
-    <footer className="absolute dark:bg-slate bg-white fixed bottom-0 w-full">
-      <div className="font-serif flex flex-row items-center justify-around m-auto max-w-5xl py-3 text-medgray dark:text-offwhite text-sm w-[86%]">
+    <footer className="absolute bg-page fixed bottom-0 w-full">
+      <div className="font-footer [font-weight:var(--t-footer-weight)] [letter-spacing:var(--t-footer-tracking)] [text-transform:var(--t-footer-case)] [font-size:var(--t-footer-size)] flex flex-row items-center justify-around m-auto max-w-5xl py-3 text-ink w-[86%]">
         <span>&copy; <Year /></span>
         <FooterLink
           name="credly"
@@ -16,6 +17,7 @@ export default function Footer() {
           name="linkedin"
           href="https://www.linkedin.com/in/justinadenharrison"
         />
+        <ThemeToggle className="cursor-pointer hover:animate-pulse hover:text-link-hover [text-transform:inherit] [letter-spacing:inherit]" />
       </div>
     </footer>
   );

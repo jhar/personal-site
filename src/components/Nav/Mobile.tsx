@@ -21,14 +21,14 @@ export default function Mobile({ animated, showPanel, toggle }: MobileProps) {
 
   return (
     <div
-      className={`bg-white dark:bg-slate ${panel} absolute left-0 top-28 right-0 bottom-11 text-3xl z-10`}
+      className={`bg-page ${panel} absolute left-0 top-28 right-0 bottom-11 text-3xl z-10`}
     >
       <nav className="mt-[7%] px-[7%]">
         {links.map((l) => (
           <NavAnchor
             key={l.text}
             {...l}
-            className={`block capitalize dark:text-offwhite text-offblack ${link} h-12`}
+            className={`block capitalize text-menu-ink ${link} h-12`}
             onClick={toggle}
           />
         ))}
