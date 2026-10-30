@@ -63,11 +63,14 @@ jobs:
         run: |
           secrets="$RUNNER_TEMP/secrets.json"
           jq -n --arg token "$ADMIN_TOKEN" '{ADMIN_TOKEN: $token}' > "$secrets"
-          npx wrangler deploy --env "$WRANGLER_ENV" --secrets-file "$secrets" | tee "$RUNNER_TEMP/deploy.log"
+          npx wrangler deploy --env "$WRANGLER_ENV" --secrets-file "$secrets"
           rm "$secrets"
-          url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' "$RUNNER_TEMP/deploy.log" | head -1)
-          [ -n "$url" ] || { echo "::error::Couldn't find the workers.dev URL in wrangler's output."; exit 1; }
-          echo "url=$url" >> "$GITHUB_OUTPUT"
+          # The custom domains in wrangler.jsonc.
+          if [ "$WRANGLER_ENV" = production ]; then
+            echo "url=https://justinharrison.dev" >> "$GITHUB_OUTPUT"
+          else
+            echo "url=https://staging.justinharrison.dev" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Smoke test
         env:

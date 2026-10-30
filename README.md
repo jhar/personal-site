@@ -11,7 +11,7 @@ The previous Deno Fresh version lives on the `legacy/deno` branch.
 
 ```
 browser ──► Cloudflare Worker ──┬─► static assets      Next.js export (out/), served without running the Worker
-            (*.workers.dev)     └─► /api/* ─► Python    api/src (Python Worker)
+     justinharrison.dev         └─► /api/* ─► Python    api/src (Python Worker)
                                                └─► D1    visits (no expiry) + Letterboxd cache
 ```
 
@@ -60,12 +60,14 @@ dry-run bundle of the Worker.
 There are two copies of the infrastructure, built from one Terraform module
 (`infra/modules/site`):
 
-| Environment | Terraform            | Worker                  | GitHub environment | Deploys                                 |
-| ----------- | -------------------- | ----------------------- | ------------------ | --------------------------------------- |
-| staging     | `infra/envs/staging` | `personal-site-staging` | `staging`          | every merge to `master`, or run by hand |
-| prod        | `infra/envs/prod`    | `personal-site`         | `production`       | after staging, once approved            |
+| Environment | URL                                  | Terraform            | Worker                  | GitHub environment | Deploys                                 |
+| ----------- | ------------------------------------ | -------------------- | ----------------------- | ------------------ | --------------------------------------- |
+| staging     | https://staging.justinharrison.dev   | `infra/envs/staging` | `personal-site-staging` | `staging`          | every merge to `master`, or run by hand |
+| prod        | https://justinharrison.dev           | `infra/envs/prod`    | `personal-site`         | `production`       | after staging, once approved            |
 
-Each has its own `workers.dev` URL, D1 database and admin token.
+Each has its own D1 database and admin token. The domains are Workers custom
+domains (`routes` in `wrangler.jsonc`): Cloudflare creates their DNS records and
+certificates on deploy. Staging also keeps its `workers.dev` URL; prod's is off.
 
 Terraform owns the D1 databases, the admin tokens, the state bucket and the
 deploy token. GitHub Actions deploys the Worker code and static files with
@@ -74,12 +76,17 @@ never need a Terraform run.
 
 ## First-time Cloudflare setup
 
-You need a Cloudflare account with a `workers.dev` subdomain (Workers & Pages
-in the dashboard picks one the first time you open it) and Terraform 1.10+.
+You need the Cloudflare account that holds the `justinharrison.dev` zone, with a
+`workers.dev` subdomain (Workers & Pages in the dashboard picks one the first
+time you open it), and Terraform 1.10+.
+
+If `justinharrison.dev` or `staging.justinharrison.dev` already has a DNS record
+(an A/CNAME pointing somewhere else), delete it first: the first deploy can't
+attach a Worker to a hostname that already has one.
 
 1. **Make a token for Terraform** (My Profile → API Tokens → Create Custom
    Token) with these account permissions: *Account API Tokens: Edit*, *D1: Edit*,
-   *Workers R2 Storage: Edit*. Then:
+   *Workers R2 Storage: Edit*, plus *Zone: Read* on `justinharrison.dev`. Then:
 
    ```sh
    export CLOUDFLARE_API_TOKEN=...
@@ -87,7 +94,8 @@ in the dashboard picks one the first time you open it) and Terraform 1.10+.
    ```
 
 2. **Bootstrap** (once per account): creates the R2 bucket for Terraform state
-   and the token GitHub Actions deploys with.
+   and the token GitHub Actions deploys with (Workers and D1 on the account, plus
+   custom domains on the `justinharrison.dev` zone only).
 
    ```sh
    cd infra/bootstrap
@@ -139,7 +147,7 @@ in the dashboard picks one the first time you open it) and Terraform 1.10+.
 
 7. **Deploy**: Actions → Deploy → Run workflow → `staging` deploys any branch
    to staging. After a merge to `master`, staging deploys on its own and prod
-   waits for your approval. The workflow prints each environment's URL.
+   waits for your approval.
 
 ## Moving visits over from Deno KV
 
@@ -166,14 +174,10 @@ your Deno Deploy plan, the fallback is a temporary token-protected route on
 
 ## Cutover checklist
 
-1. Deploy this branch to staging and check it at its `workers.dev` URL.
+1. Deploy this branch to staging and check it at https://staging.justinharrison.dev.
 2. Apply prod, merge to `master`, approve the prod deploy.
 3. Export and import the KV visits.
 4. Shut down the Deno Deploy project.
-
-A custom domain can be added later by moving its DNS to Cloudflare (free plan)
-and adding a `routes` entry with `custom_domain: true` to the production
-environment in `wrangler.jsonc`.
 
 ## Cost
 

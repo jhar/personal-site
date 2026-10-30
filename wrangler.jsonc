@@ -27,6 +27,7 @@
     // database_id values come from `terraform output` in infra/envs/<env>.
     "staging": {
       "name": "personal-site-staging",
+      "routes": [{ "pattern": "staging.justinharrison.dev", "custom_domain": true }],
       "workers_dev": true,
       "preview_urls": false,
       "d1_databases": [
@@ -40,7 +41,8 @@
     },
     "production": {
       "name": "personal-site",
-      "workers_dev": true,
+      "routes": [{ "pattern": "justinharrison.dev", "custom_domain": true }],
+      "workers_dev": false,
       "preview_urls": false,
       "d1_databases": [
         {
