@@ -25,7 +25,7 @@ async def fetch_movies() -> list[Movie]:
 class Default(WorkerEntrypoint):
     async def fetch(self, request):
         url = urlsplit(request.url)
-        cf = request.cf
+        cf = getattr(request.js_object, "cf", None)
         res = await handle_request(
             Request(
                 method=request.js_object.method,

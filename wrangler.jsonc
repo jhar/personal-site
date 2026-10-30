@@ -6,7 +6,9 @@
   "name": "personal-site-local",
   "main": "api/src/entry.py",
   "compatibility_date": "2026-10-01",
-  "compatibility_flags": ["python_workers"],
+  // disable_python_external_sdk: use the runtime's built-in `workers` module
+  // instead of one vendored by pywrangler (api/ has no Python dependencies).
+  "compatibility_flags": ["python_workers", "disable_python_external_sdk"],
   "assets": {
     "directory": "out",
     // /about is served from about.html, unknown paths get 404.html.
