@@ -11,5 +11,5 @@ export default defineConfig([
       "@next/next/no-img-element": "off",
     },
   },
-  globalIgnores(["infra/**/.terraform/**", ".next/**", "out/**", "api/**", "next-env.d.ts", "scripts/deno/**"]),
+  globalIgnores(["infra/**/.terraform/**", ".wrangler/**", ".next/**", "out/**", "api/**", "next-env.d.ts", "scripts/deno/**"]),
 ]);

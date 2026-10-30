@@ -1,27 +1,31 @@
 # personal-site
 
-Justin Harrison's personal site: Next.js + React + Tailwind, served as a static
-site from S3 + CloudFront, with one small Python 3.13 Lambda behind `/api/*`.
-Infrastructure is Terraform; deploys run on GitHub Actions.
+Justin Harrison's personal site: Next.js + React + Tailwind, built as a static
+site and served by Cloudflare Workers, with a small Python Worker behind
+`/api/*` and visits stored in Cloudflare D1. Infrastructure is Terraform;
+deploys run on GitHub Actions.
 
 The previous Deno Fresh version lives on the `legacy/deno` branch.
 
 ## How it fits together
 
 ```
-browser ──► CloudFront ──┬─► S3 bucket          static export of the Next.js app (out/)
-                         └─► /api/* ─► Lambda   Python 3.13 (api/site_api)
-                                         └─► DynamoDB visits table (no expiry)
+browser ──► Cloudflare Worker ──┬─► static assets      Next.js export (out/), served without running the Worker
+            (*.workers.dev)     └─► /api/* ─► Python    api/src (Python Worker)
+                                               └─► D1    visits (no expiry) + Letterboxd cache
 ```
 
-| Path                | What it does                                                        |
-| ------------------- | ------------------------------------------------------------------- |
-| `/api/visit`        | Records a page view. Called by the site on every page view.         |
-| `/api/letterboxd`   | Recent movies from Letterboxd RSS. CloudFront caches it 15 minutes. |
-| `/api/admin/visits` | Newest 500 visits, for `/admin/visits?token=...`.                   |
+| Path                | What it does                                                         |
+| ------------------- | -------------------------------------------------------------------- |
+| `/api/visit`        | Records a page view. Called by the site on every page view.          |
+| `/api/letterboxd`   | Recent movies from Letterboxd RSS, cached 15 minutes in D1.          |
+| `/api/admin/visits` | Newest 500 visits, for `/admin/visits?token=...`.                    |
 
-Visitor country, region, city and IP come from CloudFront's viewer headers, the
-AWS equivalent of Deno Deploy's geo headers.
+Visitor country, region and city come from Cloudflare's `request.cf`, and the
+IP from `CF-Connecting-IP`, the equivalents of Deno Deploy's geo headers.
+
+Everything in one Worker means one URL per environment and nothing to keep in
+sync between a static host and an API host.
 
 ## Local development
 
@@ -30,89 +34,112 @@ Needs Node 22+, [uv](https://docs.astral.sh/uv/) and Python 3.13.
 ```sh
 npm install
 uv sync --project api
-cp .env.example .env.local   # optional
-npm run dev                  # http://localhost:3000
+cp .dev.vars.example .dev.vars   # optional, sets the local admin token
+npm run dev                      # http://localhost:3000
 ```
 
-`npm run dev` runs `next dev` and the API (`api/dev_server.py`) together; Next
-proxies `/api/*` to it. Visits are kept in memory unless you run DynamoDB Local:
-
-```sh
-npm run db:up                                            # needs Docker
-echo "DYNAMODB_ENDPOINT=http://localhost:8000" >> .env.local
-```
+`npm run dev` runs `next dev` and `wrangler dev` together; Next proxies `/api/*`
+to the Python Worker on port 8787. The Worker uses a local D1 database (SQLite
+under `.wrangler/`), created and migrated on startup, so visits persist between
+runs. Wrangler downloads the Python runtime the first time.
 
 The admin page is at http://localhost:3000/admin/visits?token=dev-token.
 
-To check the production build the way CloudFront serves it:
+To check the production build the way Cloudflare serves it (static assets and
+the Worker together, on one port):
 
 ```sh
-npm run build && npm run preview
+npm run preview   # http://localhost:3000
 ```
 
-`npm run check` runs ESLint, ruff, the TypeScript check, Vitest and pytest.
+`npm run check` runs ESLint, ruff, the TypeScript check, pytest, the build, and a
+dry-run bundle of the Worker.
 
 ## Environments
 
 There are two copies of the infrastructure, built from one Terraform module
 (`infra/modules/site`):
 
-| Environment | Terraform           | GitHub environment | Deploys                                |
-| ----------- | ------------------- | ------------------ | -------------------------------------- |
-| staging     | `infra/envs/staging` | `staging`          | every merge to `master`, or run by hand |
-| prod        | `infra/envs/prod`    | `production`       | after staging, once approved            |
+| Environment | Terraform            | Worker                  | GitHub environment | Deploys                                 |
+| ----------- | -------------------- | ----------------------- | ------------------ | --------------------------------------- |
+| staging     | `infra/envs/staging` | `personal-site-staging` | `staging`          | every merge to `master`, or run by hand |
+| prod        | `infra/envs/prod`    | `personal-site`         | `production`       | after staging, once approved            |
 
-Each has its own CloudFront URL, bucket, Lambda and visits table.
+Each has its own `workers.dev` URL, D1 database and admin token.
 
-## First-time AWS setup
+Terraform owns the D1 databases, the admin tokens, the state bucket and the
+deploy token. GitHub Actions deploys the Worker code and static files with
+wrangler (from `wrangler.jsonc`) and applies D1 migrations, so code changes
+never need a Terraform run.
 
-You need the AWS CLI signed in to your account and Terraform 1.10+. Everything is
-in `us-east-1`.
+## First-time Cloudflare setup
 
-1. **Bootstrap** (once per account): creates the Terraform state bucket and the
-   GitHub OIDC provider.
+You need a Cloudflare account with a `workers.dev` subdomain (Workers & Pages
+in the dashboard picks one the first time you open it) and Terraform 1.10+.
+
+1. **Make a token for Terraform** (My Profile → API Tokens → Create Custom
+   Token) with these account permissions: *Account API Tokens: Edit*, *D1: Edit*,
+   *Workers R2 Storage: Edit*. Then:
+
+   ```sh
+   export CLOUDFLARE_API_TOKEN=...
+   export TF_VAR_account_id=...      # Workers & Pages → Account details
+   ```
+
+2. **Bootstrap** (once per account): creates the R2 bucket for Terraform state
+   and the token GitHub Actions deploys with.
 
    ```sh
    cd infra/bootstrap
    terraform init && terraform apply
+   terraform output -raw github_deploy_token
    ```
 
    This folder uses local state. Keep its `terraform.tfstate` somewhere safe.
+   R2 is free at this size, but Cloudflare asks for a payment method before the
+   first bucket.
 
-2. **Create each environment**:
+3. **Make an R2 token for the state bucket** (R2 → Manage API tokens → Object
+   Read & Write, limited to `personal-site-tfstate`), then:
 
    ```sh
-   ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+   export AWS_ACCESS_KEY_ID=...        # the R2 token's access key id
+   export AWS_SECRET_ACCESS_KEY=...    # and secret
+   export AWS_ENDPOINT_URL_S3=https://$TF_VAR_account_id.r2.cloudflarestorage.com
+   ```
+
+   (These are the names Terraform's S3 backend reads; R2 speaks the S3 API.)
+
+4. **Create each environment**:
+
+   ```sh
    cd infra/envs/staging      # then repeat for infra/envs/prod
-   terraform init -backend-config="bucket=personal-site-tfstate-$ACCOUNT"
-   terraform apply
-   terraform output           # values for the next step
+   terraform init && terraform apply
+   terraform output database_id
    terraform output -raw admin_token
    ```
 
    Commit the generated `.terraform.lock.hcl` files.
 
-3. **Configure GitHub** (Settings → Environments): create `staging` and
-   `production`, and give each these variables from its `terraform output`:
+5. **Point wrangler at the databases**: put each `database_id` into
+   `env.staging` and `env.production` in `wrangler.jsonc` and commit it. (IDs
+   aren't secret.)
 
-   | Variable          | Output            |
-   | ----------------- | ----------------- |
-   | `AWS_ROLE_ARN`    | `deploy_role_arn` |
-   | `SITE_BUCKET`     | `site_bucket`     |
-   | `DISTRIBUTION_ID` | `distribution_id` |
-   | `FUNCTION_NAME`   | `function_name`   |
-   | `SITE_URL`        | `site_url`        |
+6. **Configure GitHub** (Settings → Secrets and variables → Actions):
+
+   | Where                                | Name                    | Value                                    |
+   | ------------------------------------ | ----------------------- | ---------------------------------------- |
+   | Repository secret                    | `CLOUDFLARE_API_TOKEN`  | bootstrap `github_deploy_token`          |
+   | Repository variable                  | `CLOUDFLARE_ACCOUNT_ID` | your account id                          |
+   | `staging` environment secret         | `ADMIN_TOKEN`           | staging `admin_token`                    |
+   | `production` environment secret      | `ADMIN_TOKEN`           | prod `admin_token`                       |
 
    On `production`, add yourself as a required reviewer and limit deployments to
    the `master` branch. That's the approval step before prod.
 
-4. **Deploy**: Actions → Deploy → Run workflow → `staging` deploys any branch
+7. **Deploy**: Actions → Deploy → Run workflow → `staging` deploys any branch
    to staging. After a merge to `master`, staging deploys on its own and prod
-   waits for your approval.
-
-Terraform owns the infrastructure; GitHub Actions only uploads the site, updates
-the Lambda code and clears the CloudFront cache. Code changes never need a
-Terraform run. The deploy role can't do anything else.
+   waits for your approval. The workflow prints each environment's URL.
 
 ## Moving visits over from Deno KV
 
@@ -124,29 +151,39 @@ as is practical before shutting it down:
 DENO_KV_ACCESS_TOKEN=... deno run -A --unstable-kv \
   scripts/deno/export-kv-visits.ts <kv-connect-url> > visits.json
 
-# 2. Import into each environment's table (safe to re-run, no duplicates)
-npm run import-visits -- visits.json personal-site-prod-visits
+# 2. Turn it into SQL, keeping the original timestamps and KV ids
+npm run import-visits -- visits.json > visits.sql
+
+# 3. Load it (safe to re-run: same ids overwrite, no duplicates)
+npx wrangler d1 execute DB --remote --env production --file visits.sql
 ```
 
-If remote KV access isn't available on your Deno Deploy plan, the fallback is a
-temporary token-protected route on `legacy/deno` that returns the same JSON.
+Step 3 uses your own `wrangler login`. If remote KV access isn't available on
+your Deno Deploy plan, the fallback is a temporary token-protected route on
+`legacy/deno` that returns the same JSON.
 
-`visits*.json` is gitignored since it contains IP addresses.
+`visits*.json` and `visits*.sql` are gitignored since they contain IP addresses.
 
 ## Cutover checklist
 
-1. Deploy this branch to staging and check it at its CloudFront URL.
+1. Deploy this branch to staging and check it at its `workers.dev` URL.
 2. Apply prod, merge to `master`, approve the prod deploy.
 3. Export and import the KV visits.
 4. Shut down the Deno Deploy project.
 
-A custom domain can be added later: a Route 53 zone (~$0.50/month), an ACM
-certificate in us-east-1, and `aliases` + `viewer_certificate` on the
-distribution.
+A custom domain can be added later by moving its DNS to Cloudflare (free plan)
+and adding a `routes` entry with `custom_domain: true` to the production
+environment in `wrangler.jsonc`.
 
 ## Cost
 
-At current traffic, roughly $0–1/month per environment. CloudFront's always-free
-tier covers 1 TB and 10M requests a month; Lambda's covers 1M requests. The rest
-is S3 storage, DynamoDB storage and requests, CloudWatch logs (kept 14 days), and
-point-in-time recovery on the prod visits table, all cents at this scale.
+$0 at current traffic, on the Workers free plan:
+
+- Static asset requests are free and unlimited.
+- Worker requests (`/api/*` only): 100,000 a day free.
+- D1: 5 GB storage, 5 million rows read and 100,000 rows written a day free.
+  Each visit is one row written.
+- R2 (Terraform state only): 10 GB free.
+
+If traffic ever outgrows that, the Workers paid plan is $5/month and covers all
+of it with lots of room.

@@ -1,13 +1,16 @@
 name: Deploy to environment
 
-# Uploads the built site to S3, deploys the Lambda code and clears the
-# CloudFront cache. Needs these variables on the GitHub environment (values come
-# from `terraform output` in infra/envs/<env>): AWS_ROLE_ARN, SITE_BUCKET,
-# DISTRIBUTION_ID, FUNCTION_NAME, SITE_URL.
+# Applies D1 migrations, then deploys the Worker and the built site with
+# wrangler. Needs (see README):
+#   repository secret   CLOUDFLARE_API_TOKEN  (infra/bootstrap output github_deploy_token)
+#   repository variable CLOUDFLARE_ACCOUNT_ID
+#   environment secret  ADMIN_TOKEN           (infra/envs/<env> output admin_token)
+# and the environment's database_id filled in in wrangler.jsonc.
 on:
   workflow_call:
     inputs:
       environment:
+        description: GitHub environment, also the wrangler environment.
         type: string
         required: true
 
@@ -16,73 +19,63 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.environment }}
-      url: ${{ vars.SITE_URL }}
+      url: ${{ steps.deploy.outputs.url }}
     concurrency: deploy-${{ inputs.environment }}
     permissions:
       contents: read
-      id-token: write
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+      WRANGLER_ENV: ${{ inputs.environment }}
     steps:
+      - uses: actions/checkout@v5
+
       - name: Check configuration
-        env:
-          AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
-          SITE_BUCKET: ${{ vars.SITE_BUCKET }}
-          DISTRIBUTION_ID: ${{ vars.DISTRIBUTION_ID }}
-          FUNCTION_NAME: ${{ vars.FUNCTION_NAME }}
-          SITE_URL: ${{ vars.SITE_URL }}
         run: |
           missing=0
-          for v in AWS_ROLE_ARN SITE_BUCKET DISTRIBUTION_ID FUNCTION_NAME SITE_URL; do
+          for v in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID ADMIN_TOKEN; do
             if [ -z "${!v}" ]; then
-              echo "::error::Variable $v is not set on the '${{ inputs.environment }}' environment (see README)."
+              echo "::error::$v is not set for the '$WRANGLER_ENV' environment (see README)."
               missing=1
             fi
           done
+          node scripts/check-database-id.mjs "$WRANGLER_ENV" || missing=1
           exit $missing
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
 
       - uses: actions/download-artifact@v5
         with:
           name: site
+          path: out
 
-      - uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: us-east-1
+      - name: Apply database migrations
+        run: npx wrangler d1 migrations apply DB --remote --env "$WRANGLER_ENV"
 
-      - name: Upload site
-        env:
-          BUCKET: ${{ vars.SITE_BUCKET }}
+      - name: Deploy
+        id: deploy
         run: |
-          # Hashed build assets never change, so browsers can keep them forever.
-          aws s3 sync out/_next/static "s3://$BUCKET/_next/static" \
-            --cache-control "public, max-age=31536000, immutable"
-          # Everything else: CloudFront caches until the invalidation below,
-          # browsers always revalidate.
-          aws s3 sync out "s3://$BUCKET" --delete --exclude "_next/static/*" \
-            --cache-control "public, max-age=0, s-maxage=31536000, must-revalidate"
-
-      - name: Deploy API
-        env:
-          FUNCTION_NAME: ${{ vars.FUNCTION_NAME }}
-        run: |
-          aws lambda update-function-code --function-name "$FUNCTION_NAME" \
-            --zip-file fileb://api/dist/lambda.zip > /dev/null
-          aws lambda wait function-updated-v2 --function-name "$FUNCTION_NAME"
-
-      - name: Clear CloudFront cache
-        env:
-          DISTRIBUTION_ID: ${{ vars.DISTRIBUTION_ID }}
-        run: |
-          id=$(aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" \
-            --paths "/*" --query Invalidation.Id --output text)
-          aws cloudfront wait invalidation-completed --distribution-id "$DISTRIBUTION_ID" --id "$id"
+          secrets="$RUNNER_TEMP/secrets.json"
+          jq -n --arg token "$ADMIN_TOKEN" '{ADMIN_TOKEN: $token}' > "$secrets"
+          npx wrangler deploy --env "$WRANGLER_ENV" --secrets-file "$secrets" | tee "$RUNNER_TEMP/deploy.log"
+          rm "$secrets"
+          url=$(grep -oE 'https://[a-z0-9.-]+\.workers\.dev' "$RUNNER_TEMP/deploy.log" | head -1)
+          [ -n "$url" ] || { echo "::error::Couldn't find the workers.dev URL in wrangler's output."; exit 1; }
+          echo "url=$url" >> "$GITHUB_OUTPUT"
 
       - name: Smoke test
         env:
-          SITE_URL: ${{ vars.SITE_URL }}
+          SITE_URL: ${{ steps.deploy.outputs.url }}
         run: |
           curl -fsS -o /dev/null "$SITE_URL/"
           curl -fsS -o /dev/null "$SITE_URL/about"
           curl -fsS "$SITE_URL/api/letterboxd" | head -c 200; echo
-          # Reaches the Lambda without writing a visit: no token means 401.
+          # Reaches the Worker without writing a visit: no token means 401.
           code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE_URL/api/admin/visits")
           [ "$code" = 401 ] || { echo "::error::/api/admin/visits returned $code, expected 401"; exit 1; }

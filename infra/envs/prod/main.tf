@@ -1,69 +1,55 @@
 terraform {
   required_version = ">= 1.10"
 
-  # Bucket is passed at init time, since it includes the AWS account id:
-  #   terraform init -backend-config="bucket=personal-site-tfstate-<account-id>"
+  # State lives in the R2 bucket made by infra/bootstrap, through R2's S3 API.
+  # Set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY (an R2 API token) and
+  # AWS_ENDPOINT_URL_S3=https://<account-id>.r2.cloudflarestorage.com first.
   backend "s3" {
-    key          = "prod/terraform.tfstate"
-    region       = "us-east-1"
-    encrypt      = true
-    use_lockfile = true
+    bucket                      = "personal-site-tfstate"
+    key                         = "prod/terraform.tfstate"
+    region                      = "auto"
+    use_path_style              = true
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    skip_region_validation      = true
+    skip_requesting_account_id  = true
+    skip_s3_checksum            = true
   }
 
   required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 6.0"
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 5.14"
     }
   }
 }
 
-provider "aws" {
-  region = "us-east-1"
+provider "cloudflare" {
+  # Reads CLOUDFLARE_API_TOKEN from the environment.
+}
 
-  default_tags {
-    tags = {
-      Project     = "personal-site"
-      Environment = "prod"
-      ManagedBy   = "terraform"
-    }
-  }
+variable "account_id" {
+  type = string
 }
 
 module "site" {
   source = "../../modules/site"
 
-  environment        = "prod"
-  github_environment = "production"
-  protect_data       = true
-  force_destroy      = false
+  account_id  = var.account_id
+  environment = "prod"
 }
 
-output "site_url" {
-  value = module.site.site_url
+output "database_id" {
+  description = "database_id for env.production in wrangler.jsonc."
+  value       = module.site.database_id
 }
 
-output "distribution_id" {
-  value = module.site.distribution_id
-}
-
-output "site_bucket" {
-  value = module.site.site_bucket
-}
-
-output "function_name" {
-  value = module.site.function_name
-}
-
-output "visits_table" {
-  value = module.site.visits_table
-}
-
-output "deploy_role_arn" {
-  value = module.site.deploy_role_arn
+output "database_name" {
+  value = module.site.database_name
 }
 
 output "admin_token" {
-  value     = module.site.admin_token
-  sensitive = true
+  description = "ADMIN_TOKEN secret on the GitHub environment."
+  value       = module.site.admin_token
+  sensitive   = true
 }

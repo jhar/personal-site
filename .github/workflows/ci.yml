@@ -30,6 +30,8 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
+      - name: Bundle the Worker (no upload)
+        run: npx wrangler deploy --dry-run --env production --outdir .wrangler/dry-run
 
   terraform:
     name: Terraform

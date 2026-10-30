@@ -1,9 +1,10 @@
+import asyncio
 import json
 
 import pytest
 
 from site_api.app import Deps, Request, handle_request, reset_movies_cache
-from site_api.store import MemoryVisitStore
+from site_api.store import MemoryStore
 
 NOW = 1_760_000_000.0  # 2025-10-09T08:53:20Z
 
@@ -13,29 +14,34 @@ def _reset():
     reset_movies_cache()
 
 
+async def no_movies():
+    return []
+
+
 def deps(**kwargs):
-    return Deps(store=MemoryVisitStore(), admin_token="secret", now=lambda: NOW, **kwargs)
+    kwargs.setdefault("store", MemoryStore())
+    kwargs.setdefault("fetch_movies", no_movies)
+    kwargs.setdefault("now", lambda: NOW)
+    return Deps(admin_token=kwargs.pop("admin_token", "secret"), **kwargs)
 
 
-def get(path, d, query=None, headers=None):
-    return handle_request(Request("GET", path, query or {}, headers or {}), d)
+def get(path, d, query=None, headers=None, geo=None):
+    return asyncio.run(
+        handle_request(Request("GET", path, query or {}, headers or {}, geo or {}), d)
+    )
 
 
-def test_logs_visit_with_cloudfront_geo_headers():
+def test_logs_visit_with_cloudflare_geo():
     d = deps()
     res = get(
         "/api/visit",
         d,
         {"path": "/about", "referrer": "https://google.com/"},
-        {
-            "cloudfront-viewer-address": "2001:db8::1:51234",
-            "cloudfront-viewer-country": "US",
-            "cloudfront-viewer-country-region-name": "California",
-            "cloudfront-viewer-city": "San%20Francisco",
-            "user-agent": "test-agent",
-        },
+        {"cf-connecting-ip": "2001:db8::1", "user-agent": "test-agent"},
+        {"country": "US", "region": "California", "city": "San Francisco"},
     )
     assert res.status == 204
+    assert res.body == ""
     assert d.store.visits == [
         {
             "ip": "2001:db8::1",
@@ -50,6 +56,13 @@ def test_logs_visit_with_cloudfront_geo_headers():
     ]
 
 
+def test_missing_geo_is_unknown():
+    d = deps()
+    get("/api/visit", d, {"path": "/"})
+    visit = d.store.visits[0]
+    assert (visit["ip"], visit["country"], visit["region"], visit["city"]) == ("unknown",) * 4
+
+
 def test_skips_admin_and_invalid_paths():
     d = deps()
     for path in ("/admin/visits", "about", ""):
@@ -58,19 +71,18 @@ def test_skips_admin_and_invalid_paths():
 
 
 def test_store_failure_does_not_break_logging():
-    class Broken(MemoryVisitStore):
-        def add(self, visit, visit_id):
+    class Broken(MemoryStore):
+        async def add_visit(self, visit, visit_id):
             raise RuntimeError("down")
 
-    d = Deps(store=Broken(), now=lambda: NOW)
-    assert get("/api/visit", d, {"path": "/"}).status == 204
+    assert get("/api/visit", deps(store=Broken()), {"path": "/"}).status == 204
 
 
 def test_admin_requires_token():
     d = deps()
     assert get("/api/admin/visits", d).status == 401
     assert get("/api/admin/visits", d, headers={"x-admin-token": "wrong"}).status == 401
-    assert get("/api/admin/visits", Deps(store=MemoryVisitStore())).status == 401
+    assert get("/api/admin/visits", deps(admin_token=None)).status == 401
 
 
 def test_admin_lists_newest_first():
@@ -85,14 +97,17 @@ def test_admin_lists_newest_first():
     ]
 
 
+def counting_fetch(calls, movies=({"title": "Heat"},)):
+    async def fetch():
+        calls.append(1)
+        return list(movies)
+
+    return fetch
+
+
 def test_letterboxd_is_cached_and_cacheable():
     calls = []
-
-    def fetch():
-        calls.append(1)
-        return [{"title": "Heat"}]
-
-    d = deps(fetch_movies=fetch)
+    d = deps(fetch_movies=counting_fetch(calls))
     res = get("/api/letterboxd", d)
     get("/api/letterboxd", d)
     assert res.status == 200
@@ -101,16 +116,38 @@ def test_letterboxd_is_cached_and_cacheable():
     assert len(calls) == 1
 
 
+def test_letterboxd_cache_is_shared_through_the_store():
+    calls = []
+    store = MemoryStore()
+    get("/api/letterboxd", deps(store=store, fetch_movies=counting_fetch(calls)))
+    reset_movies_cache()  # a different isolate
+    res = get("/api/letterboxd", deps(store=store, fetch_movies=counting_fetch(calls)))
+    assert json.loads(res.body) == [{"title": "Heat"}]
+    assert len(calls) == 1
+
+
+def test_letterboxd_refetches_after_15_minutes():
+    calls = []
+    clock = [NOW]
+    d = deps(fetch_movies=counting_fetch(calls), now=lambda: clock[0])
+    get("/api/letterboxd", d)
+    clock[0] += 14 * 60
+    get("/api/letterboxd", d)
+    clock[0] += 2 * 60
+    get("/api/letterboxd", d)
+    assert len(calls) == 2
+
+
 def test_letterboxd_serves_stale_data_when_feed_fails():
     clock = [NOW]
     movies = [[{"title": "Heat"}]]
 
-    def fetch():
+    async def fetch():
         if not movies:
             raise OSError("feed down")
         return movies.pop()
 
-    d = Deps(store=MemoryVisitStore(), fetch_movies=fetch, now=lambda: clock[0])
+    d = deps(fetch_movies=fetch, now=lambda: clock[0])
     get("/api/letterboxd", d)
     clock[0] += 16 * 60
     res = get("/api/letterboxd", d)
@@ -119,7 +156,7 @@ def test_letterboxd_serves_stale_data_when_feed_fails():
 
 
 def test_letterboxd_failure_without_cache_is_502():
-    def fetch():
+    async def fetch():
         raise OSError("feed down")
 
     assert get("/api/letterboxd", deps(fetch_movies=fetch)).status == 502
@@ -127,5 +164,5 @@ def test_letterboxd_failure_without_cache_is_502():
 
 def test_rejects_other_methods_and_paths():
     d = deps()
-    assert handle_request(Request("POST", "/api/visit"), d).status == 405
+    assert asyncio.run(handle_request(Request("POST", "/api/visit"), d)).status == 405
     assert get("/api/nope", d).status == 404

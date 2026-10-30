@@ -1,0 +1,55 @@
+// One Worker per environment. Workers static assets serves the Next.js export
+// in out/ (free, and it never runs the Worker); only /api/* runs the Python
+// Worker in api/src. The top level is for local dev (`npm run dev`).
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "personal-site-local",
+  "main": "api/src/entry.py",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["python_workers"],
+  "assets": {
+    "directory": "out",
+    // /about is served from about.html, unknown paths get 404.html.
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "personal-site-local",
+      "database_id": "local",
+      "migrations_dir": "api/migrations"
+    }
+  ],
+  "env": {
+    // database_id values come from `terraform output` in infra/envs/<env>.
+    "staging": {
+      "name": "personal-site-staging",
+      "workers_dev": true,
+      "preview_urls": false,
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "personal-site-staging",
+          "database_id": "SET-FROM-TERRAFORM-OUTPUT",
+          "migrations_dir": "api/migrations"
+        }
+      ]
+    },
+    "production": {
+      "name": "personal-site",
+      "workers_dev": true,
+      "preview_urls": false,
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "personal-site-prod",
+          "database_id": "SET-FROM-TERRAFORM-OUTPUT",
+          "migrations_dir": "api/migrations"
+        }
+      ]
+    }
+  }
+}

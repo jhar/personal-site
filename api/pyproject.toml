@@ -1,14 +1,14 @@
 [project]
 name = "site-api"
 version = "0.1.0"
-description = "Lambda behind /api/* for the personal site"
+description = "Python Worker behind /api/* for the personal site"
 requires-python = ">=3.13,<3.14"
-# Runtime dependencies: none. boto3 ships with the python3.13 Lambda runtime.
+# Runtime dependencies: none. The Worker uses only the standard library and the
+# Workers SDK (`workers`), which the runtime provides.
 dependencies = []
 
 [dependency-groups]
 dev = [
-  "boto3>=1.40",
   "pytest>=8",
   "ruff>=0.13",
 ]
@@ -18,4 +18,4 @@ package = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = ["src", "."]

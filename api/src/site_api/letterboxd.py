@@ -1,18 +1,11 @@
 """Recently watched movies from Justin's Letterboxd RSS feed."""
 
 import re
-import urllib.request
 from typing import Any
 
 RSS_URL = "https://letterboxd.com/maybejustin/rss/"
 
 Movie = dict[str, Any]
-
-
-def fetch_movies(timeout: float = 5) -> list[Movie]:
-    req = urllib.request.Request(RSS_URL, headers={"User-Agent": "personal-site"})
-    with urllib.request.urlopen(req, timeout=timeout) as res:
-        return parse_feed(res.read().decode("utf-8"))
 
 
 def _decode_entities(text: str) -> str:

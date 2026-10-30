@@ -7,8 +7,9 @@ out/
 next-env.d.ts
 *.tsbuildinfo
 
-# API bundle
-api/dist/
+# Wrangler (local D1 data, dry-run output) and local Worker secrets
+.wrangler/
+.dev.vars
 
 # dotenv environment variable files
 .env
@@ -23,6 +24,7 @@ crash.log
 
 # visit exports (contain IPs)
 visits*.json
+visits*.sql
 
 # VS Code settings
 .vscode/
@@ -33,6 +35,4 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 
-# Terraform placeholder Lambda zip
-.build/
 .terraform.lock.hcl.bak

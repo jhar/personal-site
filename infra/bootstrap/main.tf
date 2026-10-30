@@ -1,74 +1,72 @@
-# One-time setup per AWS account: the Terraform state bucket and the GitHub
-# OIDC identity provider. Uses local state; keep terraform.tfstate from this
-# folder somewhere safe (it's gitignored), or re-import if lost.
+# Once per Cloudflare account: the R2 bucket that holds the environments'
+# Terraform state, and the API token GitHub Actions deploys with.
+#
+# Uses local state; keep terraform.tfstate somewhere safe.
 
 terraform {
   required_version = ">= 1.10"
 
   required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 6.0"
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "~> 5.14"
     }
   }
 }
 
-provider "aws" {
-  region = "us-east-1"
-
-  default_tags {
-    tags = {
-      Project   = "personal-site"
-      ManagedBy = "terraform"
-    }
-  }
+provider "cloudflare" {
+  # Reads CLOUDFLARE_API_TOKEN from the environment.
 }
 
-data "aws_caller_identity" "current" {}
+variable "account_id" {
+  description = "Cloudflare account id (dashboard → Workers & Pages → Account details)."
+  type        = string
+}
 
-resource "aws_s3_bucket" "state" {
-  bucket = "personal-site-tfstate-${data.aws_caller_identity.current.account_id}"
+resource "cloudflare_r2_bucket" "tfstate" {
+  account_id = var.account_id
+  name       = "personal-site-tfstate"
+  location   = "enam"
+}
+
+data "cloudflare_account_api_token_permission_groups_list" "all" {
+  account_id = var.account_id
+}
+
+locals {
+  permission_groups = {
+    for group in data.cloudflare_account_api_token_permission_groups_list.all.result :
+    group.name => group.id
+  }
+
+  # What `wrangler deploy` and `wrangler d1 migrations apply` need, and nothing else.
+  deploy_permissions = ["Workers Scripts Write", "D1 Write", "Account Settings Read"]
+}
+
+resource "cloudflare_account_token" "github_deploy" {
+  account_id = var.account_id
+  name       = "personal-site GitHub Actions deploy"
+
+  policies = [{
+    effect            = "allow"
+    permission_groups = [for name in local.deploy_permissions : { id = local.permission_groups[name] }]
+    resources         = jsonencode({ "com.cloudflare.api.account.${var.account_id}" = "*" })
+  }]
 
   lifecycle {
-    prevent_destroy = true
-  }
-}
-
-resource "aws_s3_bucket_versioning" "state" {
-  bucket = aws_s3_bucket.state.id
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "state" {
-  bucket                  = aws_s3_bucket.state.id
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-# Keep old state versions for 90 days, then clean them up.
-resource "aws_s3_bucket_lifecycle_configuration" "state" {
-  bucket = aws_s3_bucket.state.id
-
-  rule {
-    id     = "expire-old-versions"
-    status = "Enabled"
-    filter {}
-
-    noncurrent_version_expiration {
-      noncurrent_days = 90
+    precondition {
+      condition     = alltrue([for name in local.deploy_permissions : contains(keys(local.permission_groups), name)])
+      error_message = "A deploy permission group was not found. Available: ${join(", ", sort(keys(local.permission_groups)))}"
     }
   }
-}
-
-resource "aws_iam_openid_connect_provider" "github" {
-  url            = "https://token.actions.githubusercontent.com"
-  client_id_list = ["sts.amazonaws.com"]
 }
 
 output "state_bucket" {
-  value = aws_s3_bucket.state.bucket
+  value = cloudflare_r2_bucket.tfstate.name
+}
+
+output "github_deploy_token" {
+  description = "Repository secret CLOUDFLARE_API_TOKEN."
+  value       = cloudflare_account_token.github_deploy.value
+  sensitive   = true
 }
