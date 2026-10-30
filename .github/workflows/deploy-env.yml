@@ -76,7 +76,14 @@ jobs:
         env:
           SITE_URL: ${{ steps.deploy.outputs.url }}
         run: |
-          curl -fsS -o /dev/null "$SITE_URL/"
+          # The first deploy to a custom domain creates its DNS record, which can
+          # take a minute or two to resolve on the runner.
+          host=${SITE_URL#https://}
+          for i in $(seq 1 24); do
+            getent hosts "$host" > /dev/null && break
+            echo "Waiting for $host to resolve..."; sleep 5
+          done
+          curl -fsS --retry 5 --retry-delay 5 --retry-all-errors -o /dev/null "$SITE_URL/"
           curl -fsS -o /dev/null "$SITE_URL/about"
           curl -fsS "$SITE_URL/api/letterboxd" | head -c 200; echo
           # Reaches the Worker without writing a visit: no token means 401.
