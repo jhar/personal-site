@@ -5,7 +5,7 @@ site and served by Cloudflare Workers, with a small Python Worker behind
 `/api/*` and visits stored in Cloudflare D1. Infrastructure is Terraform;
 deploys run on GitHub Actions.
 
-The previous Deno Fresh version lives on the `legacy/deno` branch.
+The previous Deno Fresh version is in `master`'s history before the Next.js migration.
 
 ## How it fits together
 
@@ -22,7 +22,7 @@ browser ──► Cloudflare Worker ──┬─► static assets      Next.js e
 | `/api/admin/visits` | Newest 500 visits, for `/admin/visits?token=...`.                    |
 
 Visitor country, region and city come from Cloudflare's `request.cf`, and the
-IP from `CF-Connecting-IP`, the equivalents of Deno Deploy's geo headers.
+IP from `CF-Connecting-IP`.
 
 Everything in one Worker means one URL per environment and nothing to keep in
 sync between a static host and an API host.
@@ -179,18 +179,10 @@ npm run import-visits -- visits.json > visits.sql
 npx wrangler d1 execute DB --remote --env production --file visits.sql
 ```
 
-Step 3 uses your own `wrangler login`. If remote KV access isn't available on
-your Deno Deploy plan, the fallback is a temporary token-protected route on
-`legacy/deno` that returns the same JSON.
+Step 3 uses your own `wrangler login`. Once the visits are imported, this
+section and `scripts/deno/` can be deleted.
 
 `visits*.json` and `visits*.sql` are gitignored since they contain IP addresses.
-
-## Cutover checklist
-
-1. Deploy this branch to staging and check it at https://staging.justinharrison.dev.
-2. Apply prod, merge to `master`, approve the prod deploy.
-3. Export and import the KV visits.
-4. Shut down the Deno Deploy project.
 
 ## Cost
 

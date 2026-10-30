@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Three dark squares, in the home page visualizer's cell colour. -->
+  <g fill="#55554f">
+    <rect x="17" y="2" width="13" height="13" />
+    <rect x="2" y="17" width="13" height="13" />
+    <rect x="17" y="17" width="13" height="13" />
+  </g>
+</svg>

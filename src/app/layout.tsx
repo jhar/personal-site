@@ -10,8 +10,29 @@ import "./globals.css";
 const bodoni = Bodoni_Moda({ subsets: ["latin"], variable: "--font-bodoni" });
 const jost = Jost({ subsets: ["latin"], variable: "--font-jost" });
 
+const DESCRIPTION =
+  "Software engineer working across cloud infrastructure, full stack web and mobile, " +
+  "testing, data engineering and creative coding.";
+
+// Link previews (Open Graph and Twitter/X cards). The image is opengraph-image.tsx;
+// metadataBase makes its URL absolute.
 export const metadata: Metadata = {
-  title: "Justin Harrison",
+  metadataBase: new URL("https://justinharrison.dev"),
+  title: { default: "Justin Harrison", template: "%s · Justin Harrison" },
+  description: DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: "Justin Harrison",
+    title: "Justin Harrison",
+    description: DESCRIPTION,
+    url: "/",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Justin Harrison",
+    description: DESCRIPTION,
+  },
 };
 
 export const viewport: Viewport = {

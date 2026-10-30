@@ -1,0 +1,4 @@
+# Workers static assets headers. The Open Graph image is exported without a file
+# extension, so it needs its content type set here.
+/opengraph-image
+  Content-Type: image/png
