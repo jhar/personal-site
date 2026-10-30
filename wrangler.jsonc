@@ -36,7 +36,7 @@
         {
           "binding": "DB",
           "database_name": "personal-site-staging",
-          "database_id": "SET-FROM-TERRAFORM-OUTPUT",
+          "database_id": "0a7a9fc1-c999-4b39-884b-32a1ebe6780a",
           "migrations_dir": "api/migrations"
         }
       ]
@@ -50,7 +50,7 @@
         {
           "binding": "DB",
           "database_name": "personal-site-prod",
-          "database_id": "SET-FROM-TERRAFORM-OUTPUT",
+          "database_id": "59c6faf5-509d-4a63-9d87-d028d55856ad",
           "migrations_dir": "api/migrations"
         }
       ]
