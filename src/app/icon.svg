@@ -1,14 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-<!-- A 3x3 well on a cream tile with a T tetromino in the link colour. Follows the system dark mode. -->
-<style>.bg{fill:#f8f9e3}.c{fill:#55554f;opacity:.3}.h{fill:#a3402e}@media (prefers-color-scheme:dark){.bg{fill:#1b1b18}.c{fill:#c9cab5;opacity:.3}.h{fill:#e2876d}}</style>
-<rect class="bg" width="32" height="32" rx="7"/>
-<rect class="c" x="4.50" y="12.70" width="6.60" height="6.60" rx="1.2"/>
-<rect class="c" x="20.90" y="12.70" width="6.60" height="6.60" rx="1.2"/>
-<rect class="c" x="4.50" y="20.90" width="6.60" height="6.60" rx="1.2"/>
-<rect class="c" x="12.70" y="20.90" width="6.60" height="6.60" rx="1.2"/>
-<rect class="c" x="20.90" y="20.90" width="6.60" height="6.60" rx="1.2"/>
-<rect class="h" x="4.50" y="4.50" width="6.60" height="6.60" rx="1.2"/>
-<rect class="h" x="12.70" y="4.50" width="6.60" height="6.60" rx="1.2"/>
-<rect class="h" x="20.90" y="4.50" width="6.60" height="6.60" rx="1.2"/>
-<rect class="h" x="12.70" y="12.70" width="6.60" height="6.60" rx="1.2"/>
+  <!-- Four squares (an O tetromino) in the site's dark theme colours. -->
+  <rect width="32" height="32" rx="7" fill="#1b1b18" />
+  <g fill="#c9cab5">
+    <rect x="6" y="6" width="9" height="9" />
+    <rect x="17" y="6" width="9" height="9" />
+    <rect x="6" y="17" width="9" height="9" />
+    <rect x="17" y="17" width="9" height="9" />
+  </g>
 </svg>
