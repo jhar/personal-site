@@ -1,13 +1,38 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# Wrangler (local D1 data, dry-run output) and local Worker secrets
+.wrangler/
+.dev.vars
+
 # dotenv environment variable files
 .env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+.env*.local
 
-# Fresh build directory
-_fresh/
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
 
+# visit exports (contain IPs)
+visits*.json
+visits*.sql
 
 # VS Code settings
 .vscode/
+
+# Python
+__pycache__/
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+.terraform.lock.hcl.bak

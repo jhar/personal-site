@@ -1,0 +1,170 @@
+@import "tailwindcss";
+
+/*
+ * Site themes. "dekalog" (the default) is cream and warm grey after the
+ * Dekalog cover; "classic" is the original white/slate look, with the exact
+ * colours and fonts the components used before. Both follow the system's
+ * light/dark setting. <html data-theme="classic"> switches to classic; see
+ * src/components/ThemeToggle.tsx.
+ */
+:root {
+  color-scheme: light;
+  --t-page: #f8f9e3;
+  --t-ink: #4b4b45;
+  --t-ink-strong: #3a3a35;
+  --t-nav: #55554f;
+  --t-menu-ink: #3a3a35;
+  --t-link: #a3402e;
+  --t-link-hover: #2b2b27;
+  --t-rule: rgba(85, 85, 79, 0.25);
+  --t-font-body: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+  --t-font-nav: var(--font-bodoni), "Didot", "Bodoni 72", serif;
+  --t-font-footer: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+  --t-nav-tracking: 0.28em;
+  --t-footer-tracking: 0.25em;
+  --t-footer-case: uppercase;
+  --t-footer-weight: 600;
+  --t-footer-size: 0.7rem;
+  /* Read by the home page visualizer (TetrominoViz theme props). */
+  --viz-cell: #55554f;
+  --viz-hover: rgba(85, 85, 79, 0.28);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --t-page: #1b1b18;
+    --t-ink: #d9dac6;
+    --t-ink-strong: #f8f9e3;
+    --t-nav: #cfd0bc;
+    --t-menu-ink: #e6e7d2;
+    --t-link: #e2876d;
+    --t-link-hover: #f8f9e3;
+    --t-rule: rgba(248, 249, 227, 0.2);
+    --viz-cell: #c9cab5;
+    --viz-hover: rgba(248, 249, 227, 0.3);
+  }
+}
+
+/* Narrow screens: the tracked footer caps need to fit on one row. */
+@media (max-width: 640px) {
+  :root {
+    --t-footer-tracking: 0.08em;
+    --t-footer-size: 0.62rem;
+  }
+}
+
+:root[data-theme="classic"] {
+  color-scheme: light;
+  --t-page: #ffffff;
+  --t-ink: #000000;
+  --t-ink-strong: #000000;
+  --t-nav: #676767;
+  --t-menu-ink: rgb(25, 25, 25);
+  --t-link: #0ea5e9;
+  --t-link-hover: #4874d4;
+  --t-rule: #475569;
+  --t-font-body: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --t-font-nav: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --t-font-footer: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --t-nav-tracking: normal;
+  --t-footer-tracking: normal;
+  --t-footer-case: none;
+  --t-footer-weight: 400;
+  --t-footer-size: 0.875rem;
+  --viz-cell: #334155;
+  --viz-hover: rgba(51, 65, 85, 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="classic"] {
+    color-scheme: dark;
+    --t-page: #1e293b;
+    --t-ink: rgb(225, 225, 225);
+    --t-ink-strong: rgb(255, 255, 255);
+    --t-nav: rgb(225, 225, 225);
+    --t-menu-ink: rgb(225, 225, 225);
+    --t-link: #0ea5e9;
+    --t-link-hover: #0ea5e9;
+    --viz-cell: #64748b;
+    --viz-hover: rgba(225, 225, 225, 0.25);
+  }
+}
+
+@theme inline {
+  --color-page: var(--t-page);
+  --color-ink: var(--t-ink);
+  --color-ink-strong: var(--t-ink-strong);
+  --color-nav: var(--t-nav);
+  --color-menu-ink: var(--t-menu-ink);
+  --color-link: var(--t-link);
+  --color-link-hover: var(--t-link-hover);
+  --color-rule: var(--t-rule);
+  --font-body: var(--t-font-body);
+  --font-nav: var(--t-font-nav);
+  --font-footer: var(--t-font-footer);
+}
+
+/* Classic palette, ported from the Fresh site's twind.config.ts. */
+@theme {
+  --color-blue: #4874d4;
+  --color-lightblue: #0ea5e9;
+  --color-lightgrey: #676767;
+  --color-medgrey: rgb(119, 119, 119);
+  --color-offblack: rgb(25, 25, 25);
+  --color-offwhite: rgb(225, 225, 225);
+  --color-slate: #1e293b;
+  --color-white: rgb(255, 255, 255);
+
+  /* Tailwind v3 values Twind used, so these match the old site exactly. */
+  --color-gray-800: #1f2937;
+  --color-yellow-400: #facc15;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+
+  --animate-fadeIn: fadeIn 0.618s forwards;
+  --animate-fadeOut: fadeOut 0.618s forwards;
+  --animate-slideDown: slideDown 0.618s forwards;
+  --animate-slideUp: slideUp 0.618s forwards;
+
+  @keyframes fadeIn {
+    0% {
+      display: none;
+      opacity: 0;
+    }
+    100% {
+      display: block;
+      opacity: 1;
+    }
+  }
+
+  @keyframes fadeOut {
+    0% {
+      display: block;
+      opacity: 1;
+    }
+    100% {
+      display: none;
+      opacity: 0;
+    }
+  }
+
+  @keyframes slideDown {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+    100% {
+      transform: translate3d(2%, 38%, 0);
+    }
+  }
+
+  @keyframes slideUp {
+    0% {
+      transform: translate3d(-1%, 24%, 0);
+    }
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+}

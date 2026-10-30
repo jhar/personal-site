@@ -1,0 +1,4 @@
+# Local secrets for `wrangler dev` (npm run dev). Copy to .dev.vars.
+
+# Token for /admin/visits?token=...
+ADMIN_TOKEN=dev-token

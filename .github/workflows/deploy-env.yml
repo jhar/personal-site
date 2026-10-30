@@ -1,0 +1,84 @@
+name: Deploy to environment
+
+# Applies D1 migrations, then deploys the Worker and the built site with
+# wrangler. Needs (see README):
+#   repository secret   CLOUDFLARE_API_TOKEN  (infra/bootstrap output github_deploy_token)
+#   repository variable CLOUDFLARE_ACCOUNT_ID
+#   environment secret  ADMIN_TOKEN           (infra/envs/<env> output admin_token)
+# and the environment's database_id filled in in wrangler.jsonc.
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: GitHub environment, also the wrangler environment.
+        type: string
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ steps.deploy.outputs.url }}
+    concurrency: deploy-${{ inputs.environment }}
+    permissions:
+      contents: read
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+      ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+      WRANGLER_ENV: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Check configuration
+        run: |
+          missing=0
+          for v in CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID ADMIN_TOKEN; do
+            if [ -z "${!v}" ]; then
+              echo "::error::$v is not set for the '$WRANGLER_ENV' environment (see README)."
+              missing=1
+            fi
+          done
+          node scripts/check-database-id.mjs "$WRANGLER_ENV" || missing=1
+          exit $missing
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/download-artifact@v5
+        with:
+          name: site
+          path: out
+
+      - name: Apply database migrations
+        run: npx wrangler d1 migrations apply DB --remote --env "$WRANGLER_ENV"
+
+      - name: Deploy
+        id: deploy
+        run: |
+          secrets="$RUNNER_TEMP/secrets.json"
+          jq -n --arg token "$ADMIN_TOKEN" '{ADMIN_TOKEN: $token}' > "$secrets"
+          npx wrangler deploy --env "$WRANGLER_ENV" --secrets-file "$secrets"
+          rm "$secrets"
+          # The custom domains in wrangler.jsonc.
+          if [ "$WRANGLER_ENV" = production ]; then
+            echo "url=https://justinharrison.dev" >> "$GITHUB_OUTPUT"
+          else
+            echo "url=https://staging.justinharrison.dev" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Smoke test
+        env:
+          SITE_URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          curl -fsS -o /dev/null "$SITE_URL/"
+          curl -fsS -o /dev/null "$SITE_URL/about"
+          curl -fsS "$SITE_URL/api/letterboxd" | head -c 200; echo
+          # Reaches the Worker without writing a visit: no token means 401.
+          code=$(curl -s -o /dev/null -w '%{http_code}' "$SITE_URL/api/admin/visits")
+          [ "$code" = 401 ] || { echo "::error::/api/admin/visits returned $code, expected 401"; exit 1; }
