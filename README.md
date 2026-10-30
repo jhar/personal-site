@@ -5,8 +5,6 @@ site and served by Cloudflare Workers, with a small Python Worker behind
 `/api/*` and visits stored in Cloudflare D1. Infrastructure is Terraform;
 deploys run on GitHub Actions.
 
-The previous Deno Fresh version is in `master`'s history before the Next.js migration.
-
 ## How it fits together
 
 ```
@@ -161,28 +159,6 @@ attach a Worker to a hostname that already has one.
 7. **Deploy**: Actions → Deploy → Run workflow → `staging` deploys any branch
    to staging. After a merge to `master`, staging deploys on its own and prod
    waits for your approval.
-
-## Moving visits over from Deno KV
-
-The old site stored visits in Deno KV with a 90-day expiry, so copy them as late
-as is practical before shutting it down:
-
-```sh
-# 1. Export (uses Deno; the KV connect URL and access token are in the Deno Deploy dashboard)
-DENO_KV_ACCESS_TOKEN=... deno run -A --unstable-kv \
-  scripts/deno/export-kv-visits.ts <kv-connect-url> > visits.json
-
-# 2. Turn it into SQL, keeping the original timestamps and KV ids
-npm run import-visits -- visits.json > visits.sql
-
-# 3. Load it (safe to re-run: same ids overwrite, no duplicates)
-npx wrangler d1 execute DB --remote --env production --file visits.sql
-```
-
-Step 3 uses your own `wrangler login`. Once the visits are imported, this
-section and `scripts/deno/` can be deleted.
-
-`visits*.json` and `visits*.sql` are gitignored since they contain IP addresses.
 
 ## Cost
 

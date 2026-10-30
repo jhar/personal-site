@@ -15,8 +15,7 @@
     "lint": "eslint . && uv run --project api ruff check api scripts",
     "typecheck": "tsc --noEmit",
     "test": "uv run --project api pytest api",
-    "check": "npm run lint && npm run typecheck && npm run test && npm run build && wrangler deploy --dry-run --env production --outdir .wrangler/dry-run",
-    "import-visits": "uv run --project api python scripts/import_visits.py"
+    "check": "npm run lint && npm run typecheck && npm run test && npm run build && wrangler deploy --dry-run --env production --outdir .wrangler/dry-run"
   },
   "dependencies": {
     "next": "^16.4.3",
