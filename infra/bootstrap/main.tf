@@ -46,9 +46,14 @@ data "cloudflare_account_api_token_permission_groups_list" "all" {
 }
 
 locals {
-  permission_groups = {
+  # Some names (e.g. "Logs Read") exist once per scope, so look them up by scope.
+  account_permission_groups = {
     for group in data.cloudflare_account_api_token_permission_groups_list.all.result :
-    group.name => group.id
+    group.name => group.id if contains(group.scopes, "com.cloudflare.api.account")
+  }
+  zone_permission_groups = {
+    for group in data.cloudflare_account_api_token_permission_groups_list.all.result :
+    group.name => group.id if contains(group.scopes, "com.cloudflare.api.account.zone")
   }
 
   # What `wrangler deploy` and `wrangler d1 migrations apply` need, and nothing else.
@@ -64,23 +69,23 @@ resource "cloudflare_account_token" "github_deploy" {
   policies = [
     {
       effect            = "allow"
-      permission_groups = [for name in local.deploy_permissions : { id = local.permission_groups[name] }]
+      permission_groups = [for name in local.deploy_permissions : { id = local.account_permission_groups[name] }]
       resources         = jsonencode({ "com.cloudflare.api.account.${var.account_id}" = "*" })
     },
     {
       effect            = "allow"
-      permission_groups = [for name in local.domain_permissions : { id = local.permission_groups[name] }]
+      permission_groups = [for name in local.domain_permissions : { id = local.zone_permission_groups[name] }]
       resources         = jsonencode({ "com.cloudflare.api.account.zone.${data.cloudflare_zone.site.id}" = "*" })
     },
   ]
 
   lifecycle {
     precondition {
-      condition = alltrue([
-        for name in concat(local.deploy_permissions, local.domain_permissions) :
-        contains(keys(local.permission_groups), name)
-      ])
-      error_message = "A deploy permission group was not found. Available: ${join(", ", sort(keys(local.permission_groups)))}"
+      condition = alltrue(concat(
+        [for name in local.deploy_permissions : contains(keys(local.account_permission_groups), name)],
+        [for name in local.domain_permissions : contains(keys(local.zone_permission_groups), name)],
+      ))
+      error_message = "A deploy permission group was not found. Account: ${join(", ", sort(keys(local.account_permission_groups)))}. Zone: ${join(", ", sort(keys(local.zone_permission_groups)))}"
     }
   }
 }
