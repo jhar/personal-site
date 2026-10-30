@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- The Dekalog glyph from the home page, with its middle T tetromino in the link colour. -->
+  <style>
+    .c { fill: #55554f; }
+    .h { fill: #a3402e; }
+    @media (prefers-color-scheme: dark) {
+      .c { fill: #c9cab5; }
+      .h { fill: #e2876d; }
+    }
+  </style>
+  <g transform="translate(8.8 1.3)">
+    <rect class="c" x="5" y="0" width="4.4" height="4.4" />
+    <rect class="c" x="0" y="5" width="4.4" height="4.4" />
+    <rect class="c" x="5" y="5" width="4.4" height="4.4" />
+    <rect class="h" x="0" y="10" width="4.4" height="4.4" />
+    <rect class="h" x="5" y="10" width="4.4" height="4.4" />
+    <rect class="h" x="10" y="10" width="4.4" height="4.4" />
+    <rect class="h" x="5" y="15" width="4.4" height="4.4" />
+    <rect class="c" x="10" y="15" width="4.4" height="4.4" />
+    <rect class="c" x="5" y="20" width="4.4" height="4.4" />
+    <rect class="c" x="5" y="25" width="4.4" height="4.4" />
+  </g>
+</svg>

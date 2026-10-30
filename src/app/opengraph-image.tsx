@@ -1,6 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { parseShape } from "@/components/TetrominoViz/core/shape";
+import { DEKALOG_SHAPE } from "@/components/TetrominoViz/core/visualizer";
 
 // The link preview for every page (og:image and twitter:image), rendered once
 // at build time in the Dekalog theme.
@@ -15,17 +17,15 @@ const INK = "#3a3a35";
 const CELL = "#55554f";
 const LINK = "#a3402e";
 
-const UNIT = 46;
-const GAP = 6;
+const UNIT = 66;
+const GAP = 8;
 
-// A few tetrominoes stacked like the home page visualizer, as [column, row] cells.
-const CELLS: [number, number][] = [
-  [3, 0], [3, 1], [3, 2], [3, 3], // I
-  [1, 2], [2, 2], [2, 3], [2, 4], // J
-  [0, 3], [0, 4], [1, 4], [1, 5], // S
-  [0, 5], [0, 6], [1, 6], [2, 6], // L
-  [2, 5], [3, 5], [3, 4], [3, 6], // T
-];
+// The home page's Dekalog glyph, with one tetromino (the T across its middle)
+// picked out in the link colour, like a hovered placement in the visualizer.
+const CELLS = parseShape(DEKALOG_SHAPE);
+const HIGHLIGHT = new Set(["0,2", "1,2", "2,2", "1,3"]);
+const COLS = Math.max(...CELLS.map(([x]) => x)) + 1;
+const ROWS = Math.max(...CELLS.map(([, y]) => y)) + 1;
 
 export default async function Image() {
   const fonts = join(process.cwd(), "assets/fonts");
@@ -43,7 +43,7 @@ export default async function Image() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "0 110px",
+          padding: "0 150px 0 110px",
           background: CREAM,
           color: INK,
         }}
@@ -71,8 +71,8 @@ export default async function Image() {
           style={{
             position: "relative",
             display: "flex",
-            width: 4 * UNIT - GAP,
-            height: 7 * UNIT - GAP,
+            width: COLS * UNIT - GAP,
+            height: ROWS * UNIT - GAP,
           }}
         >
           {CELLS.map(([x, y]) => (
@@ -84,7 +84,7 @@ export default async function Image() {
                 top: y * UNIT,
                 width: UNIT - GAP,
                 height: UNIT - GAP,
-                background: CELL,
+                background: HIGHLIGHT.has(`${x},${y}`) ? LINK : CELL,
               }}
             />
           ))}
