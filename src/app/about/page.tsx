@@ -14,6 +14,21 @@ export default function About() {
         data engineering, and creative coding.
       </p>
       <p className="mb-8">
+        I recently shipped{" "}
+        <a
+          className="hover:animate-pulse hover:text-link-hover text-link"
+          href="https://opfitness.app"
+          target="_blank"
+        >
+          OP Fitness
+        </a>. I&apos;ve never enjoyed fitness or strength training logging apps because I always
+        felt that they couldn&apos;t adequately model complex training approaches, and that you would
+        end up adjusting around the app instead of the other way around. OP (onus progressivum) is meant to be
+        as flexible as possible in that respect, and also formalizes a variety of novel approaches to PR tracking
+        and progressive overload that I&apos;d previously managed through a scattered collection of scripts, spreadsheets,
+        Discord, and calculator usage.
+      </p>
+      <p className="mb-8">
         My academic background is in cognitive science and conceptual art. In a
         past life, I wanted to be a neuroscientist who helped study the{" "}
         <a
