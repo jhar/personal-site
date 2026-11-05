@@ -33,12 +33,50 @@
                 width: 100%;
             }
 
+            html,
+            body {
+                height: 100%;
+                margin: 0;
+                overflow: hidden;
+            }
+
+            /* Fixed and oversized so the slow spin always covers the screen. A CSS
+               animation instead of SVG animateTransform on the outer <svg>, which
+               iOS browsers (WebKit) don't animate. */
             #background {
-                overflow: visible;
+                animation: spin 360s linear infinite;
+                height: 200vmax;
+                left: 50%;
+                margin: -100vmax 0 0 -100vmax;
+                position: fixed;
+                top: 50%;
+                width: 200vmax;
+                z-index: -1;
+            }
+
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            /* Phones: center the card across the screen. */
+            @media (max-width: 640px) {
+                #hero {
+                    box-sizing: border-box;
+                    left: 5%;
+                    top: 30%;
+                    width: 90%;
+                }
+
+                #hero-txt {
+                    right: 2em;
+                    width: auto;
+                }
             }
         </style>
     </head>
-    <body width="100%" height="100%">
+    <body>
 
         <div id="hero">
             <div id="hero-bg"></div>
@@ -48,16 +86,7 @@
             </div>
         </div>
         
-        <svg id="background" opacity="0.38" width="200%" height="200%" viewBox="0 0 1200 1100" fill="none" xmlns="http://www.w3.org/2000/svg">            
-            
-            <animateTransform
-                attributeName="transform"
-                type="rotate"
-                from="0"
-                to="360"
-                dur="360s"
-                repeatCount="indefinite"
-            />
+        <svg id="background" opacity="0.38" viewBox="0 0 1200 1100" preserveAspectRatio="xMidYMid slice" fill="none" xmlns="http://www.w3.org/2000/svg">            
             
             <rect width="1270.94" height="1019.47" transform="translate(13.1473 0.720337) rotate(0.688844)" fill="#1A1212"/>
             <path d="M1462.29 607.805L-507.615 524.852L160.903 1087.17L854.383 1133.27L1462.29 607.805Z" fill="#A5D7AA"/>
