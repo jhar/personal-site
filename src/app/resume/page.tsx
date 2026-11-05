@@ -25,8 +25,8 @@ function Row({ left, right }: { left: React.ReactNode; right: string }) {
   );
 }
 
-// HTML copy of public/resume.pdf. The nav's resume link sends browsers that can't show
-// PDFs here (see NavAnchor).
+// HTML copy of public/resume.pdf, linked from the nav. A page rather than the PDF itself
+// because some browsers can't show PDFs (iOS Lockdown Mode), and don't report it.
 export default function Resume() {
   return (
     <div className="max-w-5xl pb-20 mx-auto w-[86%]">
@@ -41,7 +41,7 @@ export default function Resume() {
           </span>
         ))}
         {" | "}
-        <a className={link} href="/resume.pdf" download>
+        <a className={link} href="/resume.pdf">
           PDF
         </a>
       </p>
