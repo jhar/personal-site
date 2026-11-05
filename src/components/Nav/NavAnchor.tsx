@@ -6,7 +6,9 @@ interface NavAnchorProps extends Link {
   onClick?: () => void;
 }
 
-// Native links (like the resume PDF) open in a new tab instead of client-side navigation.
+// Native links (like the resume PDF) skip client-side navigation and load as a normal page
+// in the same tab. They used to open in a new tab, but DuckDuckGo on iOS shows a black
+// screen for same-site files opened with target="_blank".
 export default function NavAnchor({ href, text, native, className, onClick }: NavAnchorProps) {
   if (native) {
     return (
@@ -14,8 +16,6 @@ export default function NavAnchor({ href, text, native, className, onClick }: Na
         className={className}
         href={href}
         onClick={onClick}
-        target="_blank"
-        rel="noopener noreferrer"
       >
         {text}
       </a>

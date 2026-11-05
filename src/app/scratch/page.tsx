@@ -23,7 +23,6 @@ export default function Scratch() {
           <a
             className="hover:animate-pulse hover:text-link-hover text-link"
             href="/hello_world.html"
-            target="_blank"
           >
             This is just some nonsense.
           </a>
