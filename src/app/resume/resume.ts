@@ -13,7 +13,6 @@ export interface Job {
 export const contact = [
   { text: "jhar-dev@protonmail.com", href: "mailto:jhar-dev@protonmail.com" },
   { text: "GitHub", href: "https://github.com/jhar" },
-  { text: "LinkedIn", href: "https://linkedin.com/in/justinadenharrison" },
   { text: "Credly", href: "https://www.credly.com/users/justin-harrison.19866e97/badges" },
 ];
 
