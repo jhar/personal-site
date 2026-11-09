@@ -33,6 +33,7 @@ export const experience: Job[] = [
     summary:
       "Cloud infrastructure, DevOps, and platform reliability for a state benefits system disbursing ~$750M/year to 150k+ applicants.",
     bullets: [
+      "Served on leadership council, guiding strategy, multi‑team planning, recruiting, delegation, and mentorship",
       "Built and optimized test infrastructure across 8 lower environments with GitHub Actions, SSM, and Docker/ECS",
       "Performed RCA using New Relic, CloudWatch, Python, Postgres, and Cypress Cloud to identify and resolve system issues",
       "Conducted load and stress testing to validate system behavior under peak usage and identify reliability risks",
@@ -41,7 +42,6 @@ export const experience: Job[] = [
       "Maintained and extended a suite of 140+ E2E and integration tests written with Playwright, Cypress, and Jest",
       "Prevented ~1 production‑bound defect per day (team‑wide) through proactive testing, triage, and cross‑team coordination",
       "Operated internal CLI tools for synthetic data generation and population via APIs and browser automation",
-      "Served on leadership council, guiding strategy, multi‑team planning, recruiting, delegation, and mentorship",
     ],
   },
   {
