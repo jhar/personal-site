@@ -13,10 +13,6 @@ export default function Footer() {
         />
         <FooterLink name="github" href="https://github.com/jhar" />
         <FooterLink name="gitlab" href="https://gitlab.com/justin187" />
-        <FooterLink
-          name="linkedin"
-          href="https://www.linkedin.com/in/justinadenharrison"
-        />
         <ThemeToggle className="cursor-pointer hover:animate-pulse hover:text-link-hover [text-transform:inherit] [letter-spacing:inherit]" />
       </div>
     </footer>
