@@ -3,6 +3,7 @@ import RecentMovies from "./RecentMovies";
 
 export const metadata: Metadata = {
   title: "About",
+  alternates: { canonical: "/about" },
 };
 
 export default function About() {

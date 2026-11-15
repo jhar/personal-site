@@ -1,4 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Scratch",
+  alternates: { canonical: "/scratch" },
+};
 
 export default function Scratch() {
   return (

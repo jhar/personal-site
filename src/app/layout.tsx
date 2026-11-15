@@ -11,8 +11,8 @@ const bodoni = Bodoni_Moda({ subsets: ["latin"], variable: "--font-bodoni" });
 const jost = Jost({ subsets: ["latin"], variable: "--font-jost" });
 
 const DESCRIPTION =
-  "Software engineer working across cloud infrastructure, full stack web and mobile, " +
-  "testing, data engineering and creative coding.";
+  "Justin Harrison is a software engineer in Burbank, CA, working across cloud infrastructure, " +
+  "full stack web and mobile, testing, data engineering and creative coding.";
 
 // Link previews (Open Graph and Twitter/X cards). The image is opengraph-image.tsx;
 // metadataBase makes its URL absolute.
