@@ -35,7 +35,9 @@ export default function Scratch() {
           >
             watched lately
           </Link>
-          .
+          , pulled from my Letterboxd RSS feed by a Python Cloudflare Worker that parses
+          it into JSON and caches it for 15 minutes, in memory and in a D1 database, so
+          Letterboxd only gets asked a few times an hour.
         </p>
       </div>
     </div>
