@@ -3,6 +3,7 @@ import { additional, certifications, contact, education, experience, location, s
 
 export const metadata: Metadata = {
   title: "Resume",
+  alternates: { canonical: "/resume" },
 };
 
 const link = "hover:animate-pulse hover:text-link-hover text-link";
