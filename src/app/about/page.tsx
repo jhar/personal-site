@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import RecentMovies from "./RecentMovies";
 
 export const metadata: Metadata = {
   title: "About",
@@ -113,7 +112,6 @@ export default function About() {
         ratio from what you might expect.
       </span>
 
-      <RecentMovies />
     </div>
   );
 }

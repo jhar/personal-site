@@ -19,13 +19,23 @@ export default function Scratch() {
           </Link>{" "}
           is a Snake game made in Preact, rendered in SVG.
         </p>
-        <p className="text-ink-strong">
+        <p className="text-ink-strong mb-6">
           <a
             className="hover:animate-pulse hover:text-link-hover text-link"
             href="/hello_world.html"
           >
             This is just some nonsense.
           </a>
+        </p>
+        <p className="text-ink-strong">
+          Here&apos;s what I&apos;ve{" "}
+          <Link
+            className="hover:animate-pulse hover:text-link-hover text-link"
+            href="/scratch/movies"
+          >
+            watched lately
+          </Link>
+          .
         </p>
       </div>
     </div>

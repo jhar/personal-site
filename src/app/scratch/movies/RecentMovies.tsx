@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { formatDate, Movie, ratingToStars } from "@/lib/letterboxd";
 
-// Fetched in the browser from /api/letterboxd, which CloudFront caches for 15 minutes.
+// Fetched in the browser from /api/letterboxd, which the API caches for 15 minutes.
 export default function RecentMovies() {
-  const [movies, setMovies] = useState<Movie[]>([]);
+  const [movies, setMovies] = useState<Movie[] | null>(null);
 
   useEffect(() => {
     fetch("/api/letterboxd")
@@ -14,11 +14,13 @@ export default function RecentMovies() {
       .catch(() => setMovies([]));
   }, []);
 
-  if (movies.length === 0) return null;
+  if (movies === null) return <p className="text-sm opacity-50">Loading…</p>;
+  if (movies.length === 0) {
+    return <p className="text-sm opacity-50">Couldn&apos;t load movies right now.</p>;
+  }
 
   return (
-    <div className="mt-12">
-      <h3 className="mb-4 text-lg">Recently Watched Movies</h3>
+    <div>
       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
         {movies.map((movie) => (
           <a
