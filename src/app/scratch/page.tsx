@@ -28,12 +28,12 @@ export default function Scratch() {
           </a>
         </p>
         <p className="text-ink-strong">
-          Here&apos;s what I&apos;ve{" "}
+          Here are the{" "}
           <Link
             className="hover:animate-pulse hover:text-link-hover text-link"
             href="/scratch/movies"
           >
-            watched lately
+            movies I&apos;ve watched lately
           </Link>
           , pulled from my Letterboxd RSS feed by a Python Cloudflare Worker that parses
           it into JSON and caches it for 15 minutes, in memory and in a D1 database, so
