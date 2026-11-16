@@ -58,7 +58,9 @@ export interface Game {
   // Tail first, head last.
   body: Part[];
   nextId: number;
-  // Grubs of any kind eaten: sets the snake's length and the speed.
+  // Segments grown beyond the first 3: sets the snake's length and the speed.
+  // Regular and sus grubs grow it by one; disco grubs don't; bonus grubs add
+  // one in all, when the frenzy ends, if you caught any.
   eaten: number;
   score: number;
   grub: Cell | null;
@@ -69,6 +71,8 @@ export interface Game {
   // Eating it costs SUS_PENALTY points; eating the regular grub removes it.
   sus: Sus | null;
   frenzyUntil: number;
+  // Whether this frenzy's bonus grubs have earned the end-of-frenzy segment.
+  frenzyCaught: boolean;
   bonuses: Bonus[];
   nextBonusAt: number;
   popups: Popup[];
@@ -144,6 +148,7 @@ export function newGame(baseInterval: number, round = 0, cols = 0, rows = 0): Ga
     disco: null,
     sus: null,
     frenzyUntil: 0,
+    frenzyCaught: false,
     bonuses: [],
     nextBonusAt: 0,
     popups: [],
@@ -260,6 +265,7 @@ function step(game: Game): Game {
     const popup = { id: next.nextId, x, y, value: -SUS_PENALTY, from: next.clock, until: next.clock + SUS_PENALTY * 1000 };
     next = {
       ...next,
+      eaten: next.eaten + 1,
       score: Math.max(0, next.score - SUS_PENALTY),
       sus: null,
       nextId: next.nextId + 1,
@@ -273,9 +279,9 @@ function step(game: Game): Game {
   if (next.disco && same(next.disco, head)) {
     next = {
       ...next,
-      eaten: next.eaten + 1,
-      score: next.score + 1,
+      // Worth nothing itself: it only starts the frenzy.
       disco: null,
+      frenzyCaught: false,
       frenzyUntil: next.clock + FRENZY_MS,
       nextBonusAt: next.clock + BONUS_EVERY_MS,
     };
@@ -292,7 +298,7 @@ function step(game: Game): Game {
       const clock = next.clock;
       next = {
         ...next,
-        eaten: next.eaten + caught.length,
+        frenzyCaught: true,
         score: next.score + caught.reduce((sum, bonus) => sum + bonus.value, 0),
         bonuses: next.bonuses.filter(bonus => !caught.includes(bonus)),
         // "+3" stays up for about 3 seconds.
@@ -304,8 +310,9 @@ function step(game: Game): Game {
     }
     const walker = next;
     next = { ...next, bonuses: next.bonuses.map(bonus => walk(walker, bonus)) };
-  } else if (next.bonuses.length > 0) {
-    next = { ...next, bonuses: [] };
+  } else if (next.bonuses.length > 0 || next.frenzyCaught) {
+    // The frenzy is over.
+    next = { ...next, bonuses: [], frenzyCaught: false, eaten: next.eaten + (next.frenzyCaught ? 1 : 0) };
   }
 
   if (next.popups.some(popup => popup.until <= next.clock)) {
