@@ -165,4 +165,5 @@ def test_letterboxd_failure_without_cache_is_502():
 def test_rejects_other_methods_and_paths():
     d = deps()
     assert asyncio.run(handle_request(Request("POST", "/api/visit"), d)).status == 405
+    assert get("/api/snek/games", d).status == 405
     assert get("/api/nope", d).status == 404

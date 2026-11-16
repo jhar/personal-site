@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
+from . import snek
 from .letterboxd import Movie
 from .store import Store, Visit
 
@@ -33,6 +34,8 @@ class Request:
     headers: dict[str, str] = field(default_factory=dict)
     # Cloudflare's request.cf geolocation: country, region, city.
     geo: dict[str, str] = field(default_factory=dict)
+    # Request body, read only for POST.
+    body: str = ""
 
 
 @dataclass
@@ -51,15 +54,13 @@ class Deps:
 
 
 async def handle_request(req: Request, deps: Deps) -> Response:
-    if req.method != "GET":
+    route = ROUTES.get(req.path)
+    if route is None:
+        return _json(404, {"error": "not found"}, NO_STORE)
+    handler = route.get(req.method)
+    if handler is None:
         return _json(405, {"error": "method not allowed"}, NO_STORE)
-    if req.path == "/api/visit":
-        return await _log_visit(req, deps)
-    if req.path == "/api/letterboxd":
-        return await _letterboxd(deps)
-    if req.path == "/api/admin/visits":
-        return await _admin_visits(req, deps)
-    return _json(404, {"error": "not found"}, NO_STORE)
+    return await handler(req, deps)
 
 
 async def _log_visit(req: Request, deps: Deps) -> Response:
@@ -93,7 +94,7 @@ async def _log_visit(req: Request, deps: Deps) -> Response:
 _movies_cache: dict[str, Any] = {}
 
 
-async def _letterboxd(deps: Deps) -> Response:
+async def _letterboxd(req: Request, deps: Deps) -> Response:
     now = deps.now()
     cached = _movies_cache.get("value")
     if cached is None or now - cached["fetched_at"] >= MOVIES_TTL_SECONDS:
@@ -139,6 +140,47 @@ async def _admin_visits(req: Request, deps: Deps) -> Response:
     if not deps.admin_token or not hmac.compare_digest(deps.admin_token, given):
         return _json(401, {"error": "unauthorized"}, NO_STORE)
     return _json(200, await deps.store.recent_visits(500), NO_STORE)
+
+
+async def _snek_scores(req: Request, deps: Deps) -> Response:
+    return _json(200, await deps.store.top_scores(snek.BOARD_SIZE), NO_STORE)
+
+
+async def _snek_new_game(req: Request, deps: Deps) -> Response:
+    if not deps.admin_token:
+        return _json(503, {"error": "scoreboard unavailable"}, NO_STORE)
+    return _json(200, {"token": snek.issue_token(deps.admin_token, deps.now())}, NO_STORE)
+
+
+async def _snek_submit(req: Request, deps: Deps) -> Response:
+    if not deps.admin_token:
+        return _json(503, {"error": "scoreboard unavailable"}, NO_STORE)
+    # Browsers can't send JSON cross-site without a CORS preflight, which this
+    # API never approves.
+    if not req.headers.get("content-type", "").startswith("application/json"):
+        return _json(415, {"error": "expected application/json"}, NO_STORE)
+    try:
+        score_id, board = await snek.submit(
+            deps.store,
+            deps.admin_token,
+            req.body,
+            req.headers.get("cf-connecting-ip") or "unknown",
+            req.geo,
+            deps.now,
+        )
+    except snek.Rejected as e:
+        return _json(e.status, {"error": e.message}, NO_STORE)
+    return _json(201, {"id": score_id, "scores": board}, NO_STORE)
+
+
+Handler = Callable[[Request, Deps], Awaitable[Response]]
+ROUTES: dict[str, dict[str, Handler]] = {
+    "/api/visit": {"GET": _log_visit},
+    "/api/letterboxd": {"GET": _letterboxd},
+    "/api/admin/visits": {"GET": _admin_visits},
+    "/api/snek/scores": {"GET": _snek_scores, "POST": _snek_submit},
+    "/api/snek/games": {"POST": _snek_new_game},
+}
 
 
 def _clip(value: str | None) -> str:

@@ -3,12 +3,26 @@
 
 import { useEffect, useRef, useState } from "react";
 import Message from "./Message";
+import Scoreboard, { InputMethod } from "./Scoreboard";
 import { ColorSet, randomizeColorSet, randomizeGrubPosition } from "./utils";
 
 const size = 12;
 const half = size/2;
 
 type Direction = "up" | "down" | "left" | "right";
+
+// Asks the API for a one-time token for a new game; scores are sent with it.
+function newGameToken(): Promise<string | null> {
+  return fetch("/api/snek/games", { method: "POST", cache: "no-store" })
+    .then(res => (res.ok ? res.json() : null))
+    .then(body => (typeof body?.token === "string" ? body.token : null))
+    .catch(() => null);
+}
+
+// Typing initials on the scoreboard must not steer, pause or restart the game.
+function inScoreboard(target: EventTarget | null) {
+  return target instanceof Element && target.closest("[data-scoreboard]") !== null;
+}
 
 interface Part {
   t?: number;
@@ -41,6 +55,11 @@ export default function SnekVG() {
     return Math.max(40, Math.round(40 * (800 / screenWidth)));
   });
   const [started, setStarted] = useState(false);
+  // How the player steered last: the scoreboard records keyboard or touch.
+  const inputRef = useRef<InputMethod>(isMobile ? "touch" : "keyboard");
+  const tokenRef = useRef<Promise<string | null> | null>(null);
+  // Bumped on every restart so the scoreboard starts fresh.
+  const [round, setRound] = useState(0);
 
   function reset() {
     setTime(0);
@@ -54,8 +73,14 @@ export default function SnekVG() {
     setPaused(false);
     setGameOver(false);
     setColorSet(randomizeColorSet());
+    setRound(r => r + 1);
     newGrub();
   }
+
+  // A new token whenever a game starts: the first move, or any restart after it.
+  useEffect(() => {
+    if (started) tokenRef.current = newGameToken();
+  }, [started, round]);
 
   // isGrub = false means checking head collisions w/ body
   function collisionDetection(a: Part, b: Part, isGrub: boolean) {
@@ -100,6 +125,7 @@ export default function SnekVG() {
       let longPressTriggered = false;
 
       const handleTouchStart = (e: TouchEvent) => {
+        if (inScoreboard(e.target)) return;
         e.preventDefault();
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
@@ -111,6 +137,7 @@ export default function SnekVG() {
       };
 
       const handleTouchEnd = (e: TouchEvent) => {
+        if (inScoreboard(e.target)) return;
         clearTimeout(longPressTimer);
         if (longPressTriggered) return;
 
@@ -130,6 +157,7 @@ export default function SnekVG() {
           }
         } else {
           // Swipe
+          inputRef.current = "touch";
           if (Math.abs(dx) > Math.abs(dy)) {
             if (dx > 0) setDirection(prev => prev !== "left" ? "right" : prev);
             else setDirection(prev => prev !== "right" ? "left" : prev);
@@ -152,6 +180,8 @@ export default function SnekVG() {
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
+      if (inScoreboard(event.target)) return;
+      if ("wasd".includes(event.key) && event.key.length === 1) inputRef.current = "keyboard";
       switch (event.key) {
         case "w": setStarted(true); return (direction !== "down") && setDirection("up");
         case "a": setStarted(true); return (direction !== "right") && setDirection("left");
@@ -249,7 +279,15 @@ export default function SnekVG() {
           ? "Swipe to steer · Double-tap to pause · Hold to restart"
           : "WASD to move · P to pause · R to restart"}
       />}
-      {gameOver && <Message text="Game Over" />}
+      {gameOver && <Scoreboard
+        key={round}
+        score={score}
+        getInput={() => inputRef.current}
+        getToken={() => tokenRef.current}
+        accent={colorSet.grub}
+        isMobile={isMobile}
+        onRestart={reset}
+      />}
     </div>
   );
 }

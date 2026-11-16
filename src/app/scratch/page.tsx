@@ -23,7 +23,9 @@ export default function Scratch() {
           >
             here
           </Link>{" "}
-          is a Snake game made in Preact, rendered in SVG.
+          is a Snake game I first wrote in vanilla JavaScript around 2019, then ported
+          to Preact, and then ported again to React with Claude&apos;s help. Every version
+          has drawn the game in SVG.
         </p>
         <p className="text-ink-strong mb-6">
           <a
