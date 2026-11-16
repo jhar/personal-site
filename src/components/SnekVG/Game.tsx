@@ -14,6 +14,8 @@ import {
   reduce,
   running,
   size,
+  START_SLOWDOWN,
+  bonusRadius,
   stepInterval,
   Sus,
 } from "./engine";
@@ -41,7 +43,7 @@ const FRENZY_COLORS = hues(55, 20);
 
 // A grub colour nudged around the wheel: one of the sus grub's tells.
 const tint = (color: string) =>
-  color.replace(/hsl\((\d+)/, (_, hue) => `hsl(${(Number(hue) + 35) % 360}`);
+  color.replace(/hsl\((\d+)/, (_, hue) => `hsl(${(Number(hue) + 60) % 360}`);
 
 // How the sus grub is drawn while it gives itself away. Otherwise it is drawn
 // exactly like the regular grub.
@@ -49,7 +51,7 @@ function susLook(sus: Sus, color: string) {
   switch (sus.tell) {
     case "blink": return { opacity: 0 };
     case "tint": return { fill: tint(color) };
-    case "twitch": return { transform: "translate(3 -2)" };
+    case "twitch": return { transform: "translate(4 -3)" };
     default: return {};
   }
 }
@@ -78,13 +80,17 @@ export default function SnekVG() {
   const [game, dispatch] = useReducer(reduce, undefined, () => {
     // Scale the starting speed to screen width: smaller screen = slower steps.
     const screenWidth = globalThis.innerWidth || 800;
-    return newGame(Math.max(40, Math.round(40 * (800 / screenWidth))));
+    const original = Math.max(40, Math.round(40 * (800 / screenWidth)));
+    return newGame(Math.round(original * START_SLOWDOWN));
   });
   // The board's pixel size; the grid is centred in it.
   const [board, setBoard] = useState({ width: 0, height: 0 });
 
-  // How the player steered last: it picks the keyboard or touch scoreboard.
+  // How this game was steered, which picks its scoreboard; the player can't.
+  // Any keyboard steering at all makes it a keyboard game, so swiping once
+  // doesn't put a keyboard player on the touch board.
   const inputRef = useRef<InputMethod>(isMobile ? "touch" : "keyboard");
+  const keyboardUsedRef = useRef(false);
   const tokenRef = useRef<Promise<string | null> | null>(null);
 
   const isRunning = running(game);
@@ -93,8 +99,11 @@ export default function SnekVG() {
 
   // A new token whenever a game starts: the first move, or any restart after it.
   useEffect(() => {
-    if (game.started) tokenRef.current = newGameToken();
-  }, [game.started, game.round]);
+    if (!game.started) return;
+    tokenRef.current = newGameToken();
+    keyboardUsedRef.current = false;
+    inputRef.current = isMobile ? "touch" : "keyboard";
+  }, [game.started, game.round, isMobile]);
 
   useEffect(() => {
     const svg = containerRef.current;
@@ -150,7 +159,7 @@ export default function SnekVG() {
         }
       } else {
         // Swipe
-        inputRef.current = "touch";
+        if (!keyboardUsedRef.current) inputRef.current = "touch";
         const direction: Direction = Math.abs(dx) > Math.abs(dy)
           ? (dx > 0 ? "right" : "left")
           : (dy > 0 ? "down" : "up");
@@ -176,6 +185,7 @@ export default function SnekVG() {
       if (direction) {
         // Arrow keys would scroll the page.
         event.preventDefault();
+        keyboardUsedRef.current = true;
         inputRef.current = "keyboard";
         dispatch({ type: "turn", direction });
       } else if (key === "p") {
@@ -267,7 +277,7 @@ export default function SnekVG() {
           </circle>
         )}
         {game.bonuses.map(bonus => (
-          <circle {...px(bonus)} fill={game.colors.grub} key={bonus.id} r={size} data-snek="bonus">
+          <circle {...px(bonus)} fill={game.colors.grub} key={bonus.id} r={size * bonusRadius(bonus.value)} data-snek="bonus">
             <animate attributeName="fill" values={DISCO_COLORS} dur={reducedMotion ? "4s" : "1.2s"} repeatCount="indefinite" />
           </circle>
         ))}

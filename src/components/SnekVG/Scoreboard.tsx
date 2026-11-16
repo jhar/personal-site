@@ -18,10 +18,7 @@ interface Score {
 type Boards = Record<InputMethod, Score[]>;
 
 const BOARD_SIZE = 10;
-const METHODS: { method: InputMethod; label: string }[] = [
-  { method: "keyboard", label: "Keyboard" },
-  { method: "touch", label: "Touch" },
-];
+
 
 interface ScoreboardProps {
   score: number;
@@ -45,8 +42,7 @@ function place({ city, country }: Score) {
 export default function Scoreboard({ score, getInput, getToken, accent, isMobile, onRestart }: ScoreboardProps) {
   const [input] = useState(getInput);
   const [boards, setBoards] = useState<Boards | null>(null);
-  // The board on show; it starts on the player's own.
-  const [shown, setShown] = useState<InputMethod>(input);
+
   const [loadFailed, setLoadFailed] = useState(false);
   const [initials, setInitials] = useState("");
   const [saving, setSaving] = useState(false);
@@ -65,7 +61,8 @@ export default function Scoreboard({ score, getInput, getToken, accent, isMobile
   }, []);
 
   const mine = boards?.[input] ?? null;
-  const board = boards?.[shown] ?? null;
+  // Only the board for how this game was played.
+  const board = mine;
   const qualifies = mine !== null && savedId === null && score > 0 &&
     (mine.length < BOARD_SIZE || score > mine[BOARD_SIZE - 1].score);
 
@@ -86,7 +83,6 @@ export default function Scoreboard({ score, getInput, getToken, accent, isMobile
       if (!res.ok) throw new Error(body.error ? `Couldn't save: ${body.error}.` : "Couldn't save your score.");
       setBoards(body.scores);
       setSavedId(body.id);
-      setShown(input);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Couldn't save your score.");
     } finally {
@@ -141,28 +137,16 @@ export default function Scoreboard({ score, getInput, getToken, accent, isMobile
         {board === null && !loadFailed && <span className="text-sm opacity-75">Loading scores…</span>}
         {loadFailed && <span className="text-sm opacity-75">Couldn&apos;t load the scoreboard.</span>}
         {boards !== null && (
-          <div className="flex font-mono gap-4 text-sm tracking-widest uppercase" role="tablist" aria-label="High scores">
-            {METHODS.map(({ method, label }) => (
-              <button
-                key={method}
-                type="button"
-                role="tab"
-                aria-selected={shown === method}
-                onClick={() => setShown(method)}
-                className={`border-b-2 font-bold pb-0.5 ${shown === method ? "" : "border-transparent opacity-50 hover:opacity-100"}`}
-                style={shown === method ? { borderColor: accent } : undefined}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <span className="border-b-2 font-bold font-mono pb-0.5 text-sm tracking-widest uppercase" style={{ borderColor: accent }}>
+            {input === "touch" ? "Touch" : "Keyboard"} high scores
+          </span>
         )}
         {board !== null && board.length === 0 && (
-          <span className="text-sm opacity-75">No {shown} scores yet.</span>
+          <span className="text-sm opacity-75">No {input} scores yet.</span>
         )}
         {board !== null && board.length > 0 && (
           <table className="font-mono text-sm tabular-nums w-full">
-            <caption className="sr-only">{shown === "touch" ? "Touch" : "Keyboard"} high scores</caption>
+            <caption className="sr-only">{input === "touch" ? "Touch" : "Keyboard"} high scores</caption>
             <thead className="opacity-60 text-xs">
               <tr>
                 <th className="font-normal pr-2 text-right">#</th>
