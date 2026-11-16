@@ -20,7 +20,14 @@ interface Part extends Cell {
 export interface Bonus extends Part {
   value: number;
   nextMoveAt: number;
+  // The way it's wandering; it keeps going that way for a while.
+  heading: Direction;
 }
+
+// Bonus grubs are smaller the more they're worth: radius in cells, and how
+// many cells around their centre count as touching them.
+export const bonusRadius = (value: number) => 2.4 / value;
+const bonusReach = (value: number) => (value <= 2 ? 1 : 0);
 
 export type Tell = "blink" | "tint" | "twitch";
 
@@ -28,6 +35,8 @@ export type Tell = "blink" | "tint" | "twitch";
 // seconds it gives itself away for a moment.
 export interface Sus extends Cell {
   tell: Tell | null;
+  // The last tell shown, so the next one is a different kind.
+  lastTell: Tell | null;
   // Game-clock times: when the current tell ends, and when the next begins.
   tellUntil: number;
   nextTellAt: number;
@@ -58,7 +67,9 @@ export interface Game {
   // Tail first, head last.
   body: Part[];
   nextId: number;
-  // Grubs of any kind eaten: sets the snake's length and the speed.
+  // Segments grown beyond the first 3: sets the snake's length and the speed.
+  // Regular and sus grubs grow it by one; disco grubs don't; bonus grubs add
+  // one in all, when the frenzy ends, if you caught any.
   eaten: number;
   score: number;
   grub: Cell | null;
@@ -69,6 +80,8 @@ export interface Game {
   // Eating it costs SUS_PENALTY points; eating the regular grub removes it.
   sus: Sus | null;
   frenzyUntil: number;
+  // Whether this frenzy's bonus grubs have earned the end-of-frenzy segment.
+  frenzyCaught: boolean;
   bonuses: Bonus[];
   nextBonusAt: number;
   popups: Popup[];
@@ -84,10 +97,13 @@ export type Action =
   | { type: "reset" };
 
 // Speed: every GRUBS_PER_LEVEL grubs the step interval shrinks by 6%, until it
-// is half the starting interval (twice the speed) at level MAX_LEVEL.
+// reaches MIN_INTERVAL_RATIO of the starting interval at level MAX_LEVEL.
 const GRUBS_PER_LEVEL = 5;
 const SPEED_UP = 0.94;
-const MIN_INTERVAL_RATIO = 0.5;
+// Level 1 is one notch slower than the game's original speed, and the top
+// speed is still twice that original speed.
+export const START_SLOWDOWN = 1 / SPEED_UP;
+const MIN_INTERVAL_RATIO = 0.5 / START_SLOWDOWN;
 export const MAX_LEVEL = Math.ceil(Math.log(MIN_INTERVAL_RATIO) / Math.log(SPEED_UP)) + 1;
 
 const DISCO_AFTER = 3; // regular grubs eaten before a disco grub can appear
@@ -97,13 +113,15 @@ export const SUS_PENALTY = 2;
 // The first tell comes a little sooner than the rest, which are 5-10s apart.
 const SUS_FIRST_TELL_MS = [3000, 6000];
 const SUS_TELL_GAP_MS = [5000, 10000];
-const TELL_MS: Record<Tell, number> = { blink: 140, tint: 450, twitch: 220 };
+const TELL_MS: Record<Tell, number> = { blink: 180, tint: 600, twitch: 320 };
 const TELLS = Object.keys(TELL_MS) as Tell[];
 export const FRENZY_MS = 10000;
 const BONUS_FIRST = 3;
 const BONUS_MAX = 5;
 const BONUS_EVERY_MS = 1500;
 const BONUS_WALK_MS = 250;
+// Chance per move that a bonus grub picks a new heading.
+const BONUS_TURN_CHANCE = 0.15;
 const BONUS_MIN = 2;
 const BONUS_MAX_VALUE = 5;
 
@@ -144,6 +162,7 @@ export function newGame(baseInterval: number, round = 0, cols = 0, rows = 0): Ga
     disco: null,
     sus: null,
     frenzyUntil: 0,
+    frenzyCaught: false,
     bonuses: [],
     nextBonusAt: 0,
     popups: [],
@@ -164,7 +183,10 @@ export const running = (game: Game) => game.started && !game.paused && !game.ove
 
 const same = (a: Cell, b: Cell) => a.x === b.x && a.y === b.y;
 // Bonus grubs are twice as wide, so they also cover the cells around them.
-const touches = (a: Cell, b: Cell) => Math.abs(a.x - b.x) <= 1 && Math.abs(a.y - b.y) <= 1;
+const touches = (bonus: Bonus, cell: Cell) => {
+  const reach = bonusReach(bonus.value);
+  return Math.abs(bonus.x - cell.x) <= reach && Math.abs(bonus.y - cell.y) <= reach;
+};
 
 function taken(game: Game, cell: Cell) {
   return same(cell, game.head) ||
@@ -191,8 +213,9 @@ function tell(clock: number, sus: Sus): Sus {
     return { ...sus, tell: null, nextTellAt: clock + between(SUS_TELL_GAP_MS) };
   }
   if (!sus.tell && clock >= sus.nextTellAt) {
-    const kind = TELLS[randomInt(TELLS.length)];
-    return { ...sus, tell: kind, tellUntil: clock + TELL_MS[kind] };
+    const kinds = TELLS.filter(kind => kind !== sus.lastTell);
+    const kind = kinds[randomInt(kinds.length)];
+    return { ...sus, tell: kind, lastTell: kind, tellUntil: clock + TELL_MS[kind] };
   }
   return sus;
 }
@@ -205,19 +228,37 @@ function newBonus(game: Game): Game {
     id: game.nextId,
     value: BONUS_MIN + randomInt(BONUS_MAX_VALUE - BONUS_MIN + 1),
     nextMoveAt: game.clock + BONUS_WALK_MS,
+    heading: DIRECTIONS[randomInt(DIRECTIONS.length)],
   };
   return { ...game, nextId: game.nextId + 1, bonuses: [...game.bonuses, bonus] };
 }
 
-function walk(game: Game, bonus: Bonus): Bonus {
+const inside = (game: Game, cell: Cell) =>
+  cell.x >= 0 && cell.y >= 0 && cell.x < game.cols && cell.y < game.rows;
+
+// Distance on the board, which wraps around at the edges (for the snake).
+function gap(game: Game, a: Cell, b: Cell) {
+  const dx = Math.abs(a.x - b.x), dy = Math.abs(a.y - b.y);
+  return Math.min(dx, game.cols - dx) + Math.min(dy, game.rows - dy);
+}
+
+// Bonus grubs wander: they mostly keep their heading, now and then pick a new
+// one, and turn when they reach an edge. The one worth the most runs from the
+// snake instead, though not perfectly.
+function walk(game: Game, bonus: Bonus, flees: boolean): Bonus {
   if (game.clock < bonus.nextMoveAt) return bonus;
-  const d = DELTAS[DIRECTIONS[randomInt(DIRECTIONS.length)]];
-  return {
-    ...bonus,
-    x: Math.min(game.cols - 1, Math.max(0, bonus.x + d.x)),
-    y: Math.min(game.rows - 1, Math.max(0, bonus.y + d.y)),
-    nextMoveAt: game.clock + BONUS_WALK_MS,
-  };
+  const moves = DIRECTIONS
+    .map(heading => ({ heading, cell: { x: bonus.x + DELTAS[heading].x, y: bonus.y + DELTAS[heading].y } }))
+    .filter(move => inside(game, move.cell));
+  let move = moves.find(m => m.heading === bonus.heading);
+  if (flees && Math.random() < 0.8) {
+    const far = (m: { cell: Cell }) => gap(game, m.cell, game.head);
+    move = moves.reduce((best, m) => (far(m) > far(best) ? m : best), move ?? moves[0]);
+  } else if (!move || Math.random() < BONUS_TURN_CHANCE) {
+    move = moves[randomInt(moves.length)];
+  }
+  if (!move) return { ...bonus, nextMoveAt: game.clock + BONUS_WALK_MS };
+  return { ...bonus, ...move.cell, heading: move.heading, nextMoveAt: game.clock + BONUS_WALK_MS };
 }
 
 function step(game: Game): Game {
@@ -251,7 +292,7 @@ function step(game: Game): Game {
       next = { ...next, disco: cell };
     } else if (cell) {
       const nextTellAt = next.clock + between(SUS_FIRST_TELL_MS);
-      next = { ...next, sus: { ...cell, tell: null, tellUntil: 0, nextTellAt } };
+      next = { ...next, sus: { ...cell, tell: null, lastTell: null, tellUntil: 0, nextTellAt } };
     }
   }
 
@@ -260,6 +301,7 @@ function step(game: Game): Game {
     const popup = { id: next.nextId, x, y, value: -SUS_PENALTY, from: next.clock, until: next.clock + SUS_PENALTY * 1000 };
     next = {
       ...next,
+      eaten: next.eaten + 1,
       score: Math.max(0, next.score - SUS_PENALTY),
       sus: null,
       nextId: next.nextId + 1,
@@ -273,9 +315,9 @@ function step(game: Game): Game {
   if (next.disco && same(next.disco, head)) {
     next = {
       ...next,
-      eaten: next.eaten + 1,
-      score: next.score + 1,
+      // Worth nothing itself: it only starts the frenzy.
       disco: null,
+      frenzyCaught: false,
       frenzyUntil: next.clock + FRENZY_MS,
       nextBonusAt: next.clock + BONUS_EVERY_MS,
     };
@@ -292,7 +334,7 @@ function step(game: Game): Game {
       const clock = next.clock;
       next = {
         ...next,
-        eaten: next.eaten + caught.length,
+        frenzyCaught: true,
         score: next.score + caught.reduce((sum, bonus) => sum + bonus.value, 0),
         bonuses: next.bonuses.filter(bonus => !caught.includes(bonus)),
         // "+3" stays up for about 3 seconds.
@@ -303,9 +345,12 @@ function step(game: Game): Game {
       };
     }
     const walker = next;
-    next = { ...next, bonuses: next.bonuses.map(bonus => walk(walker, bonus)) };
-  } else if (next.bonuses.length > 0) {
-    next = { ...next, bonuses: [] };
+    const top = Math.max(...next.bonuses.map(bonus => bonus.value));
+    const runner = next.bonuses.find(bonus => bonus.value === top);
+    next = { ...next, bonuses: next.bonuses.map(bonus => walk(walker, bonus, bonus === runner)) };
+  } else if (next.bonuses.length > 0 || next.frenzyCaught) {
+    // The frenzy is over.
+    next = { ...next, bonuses: [], frenzyCaught: false, eaten: next.eaten + (next.frenzyCaught ? 1 : 0) };
   }
 
   if (next.popups.some(popup => popup.until <= next.clock)) {
