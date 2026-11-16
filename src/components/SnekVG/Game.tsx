@@ -3,6 +3,7 @@
 import { useEffect, useReducer, useRef, useState } from "react";
 import Message from "./Message";
 import Scoreboard, { InputMethod } from "./Scoreboard";
+import Skull from "./Skull";
 import {
   Cell,
   Direction,
@@ -14,6 +15,7 @@ import {
   running,
   size,
   stepInterval,
+  Sus,
 } from "./engine";
 
 const half = size / 2;
@@ -36,6 +38,21 @@ const hues = (saturation: number, lightness: number) =>
   [0, 60, 120, 180, 240, 300, 360].map(h => `hsl(${h}, ${saturation}%, ${lightness}%)`).join(";");
 const DISCO_COLORS = hues(100, 65);
 const FRENZY_COLORS = hues(55, 20);
+
+// A grub colour nudged around the wheel: one of the sus grub's tells.
+const tint = (color: string) =>
+  color.replace(/hsl\((\d+)/, (_, hue) => `hsl(${(Number(hue) + 35) % 360}`);
+
+// How the sus grub is drawn while it gives itself away. Otherwise it is drawn
+// exactly like the regular grub.
+function susLook(sus: Sus, color: string) {
+  switch (sus.tell) {
+    case "blink": return { opacity: 0 };
+    case "tint": return { fill: tint(color) };
+    case "twitch": return { transform: "translate(3 -2)" };
+    default: return {};
+  }
+}
 
 // Asks the API for a one-time token for a new game; scores are sent with it.
 function newGameToken(): Promise<string | null> {
@@ -227,7 +244,20 @@ export default function SnekVG() {
             <animate attributeName="fill" values={FRENZY_COLORS} dur="2.4s" repeatCount="indefinite" />
           </rect>
         )}
-        {game.grub && <circle {...px(game.grub)} fill={game.colors.grub} r={half} data-snek="grub" />}
+        {/* Drawn in board order, so the markup doesn't say which one is sus. */}
+        {[game.grub, game.sus]
+          .filter(cell => cell !== null)
+          .sort((a, b) => a.x - b.x || a.y - b.y)
+          .map(cell => (
+            <circle
+              {...px(cell)}
+              fill={game.colors.grub}
+              key={`${cell.x},${cell.y}`}
+              r={half}
+              data-snek="grub"
+              {...(cell === game.sus ? susLook(game.sus, game.colors.grub) : {})}
+            />
+          ))}
         {game.disco && (
           <circle {...px(game.disco)} fill={game.colors.grub} r={half} data-snek="disco">
             <animate attributeName="fill" values={DISCO_COLORS} dur={reducedMotion ? "3s" : "0.6s"} repeatCount="indefinite" />
@@ -246,6 +276,9 @@ export default function SnekVG() {
           const { cx, cy } = px(popup);
           // Drifts up and fades out over its last half second.
           const age = (game.clock - popup.from) / (popup.until - popup.from);
+          const opacity = Math.min(1, (popup.until - game.clock) / 500);
+          // Eating the sus grub leaves a skull and crossbones for 2 seconds.
+          if (popup.value < 0) return <Skull key={popup.id} x={cx} y={cy} opacity={opacity} />;
           return (
             <text
               key={popup.id}
@@ -254,7 +287,7 @@ export default function SnekVG() {
               fill="#fff"
               fontSize={22}
               fontWeight="bold"
-              opacity={Math.min(1, (popup.until - game.clock) / 500)}
+              opacity={opacity}
               paintOrder="stroke"
               stroke="rgba(0, 0, 0, 0.6)"
               strokeWidth={3}

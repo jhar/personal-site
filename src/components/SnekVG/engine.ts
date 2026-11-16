@@ -22,6 +22,17 @@ export interface Bonus extends Part {
   nextMoveAt: number;
 }
 
+export type Tell = "blink" | "tint" | "twitch";
+
+// Looks exactly like the regular grub it drops with, except that every few
+// seconds it gives itself away for a moment.
+export interface Sus extends Cell {
+  tell: Tell | null;
+  // Game-clock times: when the current tell ends, and when the next begins.
+  tellUntil: number;
+  nextTellAt: number;
+}
+
 export interface Popup extends Part {
   value: number;
   from: number;
@@ -54,6 +65,9 @@ export interface Game {
   // Dropped next to a regular grub now and then. It's a choice: eat it for a
   // frenzy, or eat the regular grub and it disappears.
   disco: Cell | null;
+  // Also dropped next to a regular grub now and then, never with a disco grub.
+  // Eating it costs SUS_PENALTY points; eating the regular grub removes it.
+  sus: Sus | null;
   frenzyUntil: number;
   bonuses: Bonus[];
   nextBonusAt: number;
@@ -77,7 +91,14 @@ const MIN_INTERVAL_RATIO = 0.5;
 export const MAX_LEVEL = Math.ceil(Math.log(MIN_INTERVAL_RATIO) / Math.log(SPEED_UP)) + 1;
 
 const DISCO_AFTER = 3; // regular grubs eaten before a disco grub can appear
-const DISCO_CHANCE = 0.15; // per regular grub eaten
+const DISCO_CHANCE = 0.12; // per regular grub eaten
+const SUS_CHANCE = 0.12; // per regular grub eaten, when no disco grub dropped
+export const SUS_PENALTY = 2;
+// The first tell comes a little sooner than the rest, which are 5-10s apart.
+const SUS_FIRST_TELL_MS = [3000, 6000];
+const SUS_TELL_GAP_MS = [5000, 10000];
+const TELL_MS: Record<Tell, number> = { blink: 140, tint: 450, twitch: 220 };
+const TELLS = Object.keys(TELL_MS) as Tell[];
 export const FRENZY_MS = 10000;
 const BONUS_FIRST = 3;
 const BONUS_MAX = 5;
@@ -121,6 +142,7 @@ export function newGame(baseInterval: number, round = 0, cols = 0, rows = 0): Ga
     score: 0,
     grub: null,
     disco: null,
+    sus: null,
     frenzyUntil: 0,
     bonuses: [],
     nextBonusAt: 0,
@@ -148,7 +170,8 @@ function taken(game: Game, cell: Cell) {
   return same(cell, game.head) ||
     game.body.some(part => same(part, cell)) ||
     (game.grub !== null && same(game.grub, cell)) ||
-    (game.disco !== null && same(game.disco, cell));
+    (game.disco !== null && same(game.disco, cell)) ||
+    (game.sus !== null && same(game.sus, cell));
 }
 
 // A random empty cell, or null before the board has a size.
@@ -159,6 +182,19 @@ function freeCell(game: Game): Cell | null {
     cell = { x: randomInt(game.cols), y: randomInt(game.rows) };
   }
   return cell;
+}
+
+const between = ([min, max]: number[]) => min + Math.random() * (max - min);
+
+function tell(clock: number, sus: Sus): Sus {
+  if (sus.tell && clock >= sus.tellUntil) {
+    return { ...sus, tell: null, nextTellAt: clock + between(SUS_TELL_GAP_MS) };
+  }
+  if (!sus.tell && clock >= sus.nextTellAt) {
+    const kind = TELLS[randomInt(TELLS.length)];
+    return { ...sus, tell: kind, tellUntil: clock + TELL_MS[kind] };
+  }
+  return sus;
 }
 
 function newBonus(game: Game): Game {
@@ -204,12 +240,34 @@ function step(game: Game): Game {
   next = { ...next, head, body: [...kept, { ...head, id: next.nextId }], nextId: next.nextId + 1 };
 
   if (next.grub && same(next.grub, head)) {
-    next = { ...next, eaten: next.eaten + 1, score: next.score + 1, colors: randomizeColorSet(), grub: null, disco: null };
+    next = { ...next, eaten: next.eaten + 1, score: next.score + 1, colors: randomizeColorSet(), grub: null, disco: null, sus: null };
     next = { ...next, grub: freeCell(next) };
-    if (!inFrenzy(next) && next.eaten >= DISCO_AFTER && Math.random() < DISCO_CHANCE) {
-      const cell = freeCell(next);
-      if (cell) next = { ...next, disco: cell };
+    // Now and then a second grub drops too: a disco grub or a sus one, never both.
+    const roll = Math.random();
+    const cell = !inFrenzy(next) && next.eaten >= DISCO_AFTER && roll < DISCO_CHANCE + SUS_CHANCE
+      ? freeCell(next)
+      : null;
+    if (cell && roll < DISCO_CHANCE) {
+      next = { ...next, disco: cell };
+    } else if (cell) {
+      const nextTellAt = next.clock + between(SUS_FIRST_TELL_MS);
+      next = { ...next, sus: { ...cell, tell: null, tellUntil: 0, nextTellAt } };
     }
+  }
+
+  if (next.sus && same(next.sus, head)) {
+    const { x, y } = next.sus;
+    const popup = { id: next.nextId, x, y, value: -SUS_PENALTY, from: next.clock, until: next.clock + SUS_PENALTY * 1000 };
+    next = {
+      ...next,
+      score: Math.max(0, next.score - SUS_PENALTY),
+      sus: null,
+      nextId: next.nextId + 1,
+      popups: [...next.popups, popup],
+    };
+  } else if (next.sus) {
+    const sus = tell(next.clock, next.sus);
+    if (sus !== next.sus) next = { ...next, sus };
   }
 
   if (next.disco && same(next.disco, head)) {
@@ -276,6 +334,7 @@ export function reduce(game: Game, action: Action): Game {
         head: clamp(game.head, cols, rows),
         grub: game.grub && clamp(game.grub, cols, rows),
         disco: game.disco && clamp(game.disco, cols, rows),
+        sus: game.sus && clamp(game.sus, cols, rows),
         bonuses: game.bonuses.map(bonus => clamp(bonus, cols, rows)),
       };
       return next.grub ? next : { ...next, grub: freeCell(next) };
