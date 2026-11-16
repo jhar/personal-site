@@ -11,22 +11,7 @@ export default function About() {
       <p className="mb-8">
         I&apos;m a software engineer experienced with cloud infrastructure, dev ops,
         full stack development for web and mobile, E2E and integration testing,
-        data engineering, and creative coding.
-      </p>
-      <p className="mb-8">
-        I recently shipped{" "}
-        <a
-          className="hover:animate-pulse hover:text-link-hover text-link"
-          href="https://opfitness.app"
-          target="_blank"
-        >
-          OP Fitness
-        </a>. I&apos;ve never enjoyed fitness or strength training logging apps because I always
-        felt that they couldn&apos;t adequately model complex training approaches, and that you would
-        end up adjusting around the app instead of the other way around. OP (onus progressivum) is meant to be
-        as flexible as possible in that respect, and also formalizes a variety of novel approaches to PR tracking
-        and progressive overload that I&apos;d previously managed through a scattered collection of scripts, spreadsheets,
-        Discord, and calculator usage.
+        data engineering, and creative coding. I&apos;m based out of Burbank, CA.
       </p>
       <p className="mb-8">
         My academic background is in cognitive science and conceptual art. In a
@@ -61,53 +46,34 @@ export default function About() {
         </li>
       </ul>
 
+      <p className="mb-8">
+        I recently shipped{" "}
+        <a
+          className="hover:animate-pulse hover:text-link-hover text-link"
+          href="https://opfitness.app"
+          target="_blank"
+        >
+          OP Fitness
+        </a>. I&apos;ve never enjoyed fitness or strength training logging apps because I always
+        felt that they couldn&apos;t adequately model complex training approaches, and that you would
+        end up adjusting around the app instead of the other way around. OP (onus progressivum) is meant to be
+        as flexible as possible in that respect, and also formalizes a variety of novel approaches to PR tracking
+        and progressive overload that I&apos;d previously managed through a scattered collection of scripts, spreadsheets,
+        Discord, and calculator usage.
+      </p>
+
       <h3 className="mb-2 text-lg">Gym bests*</h3>
-      <table className="border-separate [border-spacing:1rem] mb-2 table-auto">
-        <thead>
-          <tr>
-            <th className="text-left">Lift</th>
-            <th>PR (lbs)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Bench Press</td>
-            <td>340x1</td>
-          </tr>
-          <tr>
-            <td>Strict Press</td>
-            <td>205x3</td>
-          </tr>
-          <tr>
-            <td className="pr-4">Overhead Pin Press from Nose</td>
-            <td>227.5x1</td>
-          </tr>
-          <tr>
-            <td>Clean</td>
-            <td>235x1</td>
-          </tr>
-          <tr>
-            <td>Power Clean</td>
-            <td>225x1</td>
-          </tr>
-          <tr>
-            <td>Overhead Squat</td>
-            <td>200x1</td>
-          </tr>
-          <tr>
-            <td>Front Squat</td>
-            <td>350x1</td>
-          </tr>
-          <tr>
-            <td>Back Squat</td>
-            <td>405x1</td>
-          </tr>
-          <tr>
-            <td>Deadlift</td>
-            <td>485x1</td>
-          </tr>
-        </tbody>
-      </table>
+      {/* Drawn by OP Fitness from my log (Account → Placard there picks the lifts): the
+          narrow drawing on a phone, the wide one otherwise. */}
+      <picture>
+        <source media="(max-width: 600px)" srcSet="https://opfitness.app/api/public/placard/CzdiC8DPlDH_qiGNB81VU6iH_fFlz_ZS.svg?layout=narrow" />
+        <img
+          className="mb-2 block h-auto w-full max-w-[720px]"
+          src="https://opfitness.app/api/public/placard/CzdiC8DPlDH_qiGNB81VU6iH_fFlz_ZS.svg"
+          alt="My best lifts: the heaviest load and highest estimated max for each"
+          loading="lazy"
+        />
+      </picture>
       <span className="text-xs">
         * I&apos;m working with a lower extremity disability that skews upper/lower
         ratio from what you might expect.
