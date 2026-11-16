@@ -143,7 +143,7 @@ async def _admin_visits(req: Request, deps: Deps) -> Response:
 
 
 async def _snek_scores(req: Request, deps: Deps) -> Response:
-    return _json(200, await deps.store.top_scores(snek.BOARD_SIZE), NO_STORE)
+    return _json(200, await snek.boards(deps.store), NO_STORE)
 
 
 async def _snek_new_game(req: Request, deps: Deps) -> Response:

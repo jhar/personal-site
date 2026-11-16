@@ -18,5 +18,3 @@ export function randomizeColorSet(): ColorSet {
     grub: `hsl(${(hue + 270) % 360}, 100%, ${grubL}%)`,
   };
 }
-
-export const randomizeGrubPosition = (max: number) => Math.floor(Math.random() * Math.floor(max - 8));

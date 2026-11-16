@@ -30,7 +30,7 @@ INSERT_SCORE = (
     f"VALUES ({', '.join('?' for _ in SCORE_FIELDS)})"
 )
 TOP_SCORES = (
-    f"SELECT {', '.join(PUBLIC_SCORE_FIELDS)} FROM snek_scores "
+    f"SELECT {', '.join(PUBLIC_SCORE_FIELDS)} FROM snek_scores WHERE input = ? "
     "ORDER BY score DESC, ts ASC, id ASC LIMIT ?"
 )
 
@@ -52,8 +52,8 @@ class Store(Protocol):
 
     async def has_score(self, score_id: str) -> bool: ...
 
-    async def top_scores(self, limit: int) -> list[Score]:
-        """Highest first; ties go to whoever got there first."""
+    async def top_scores(self, method: str, limit: int) -> list[Score]:
+        """One input method's board, highest first; ties go to whoever got there first."""
         ...
 
     async def count_scores_since(self, ts: str, ip_hash: str | None = None) -> int:
@@ -102,8 +102,8 @@ class D1Store:
         )
         return bool(row)
 
-    async def top_scores(self, limit: int) -> list[Score]:
-        res = _py(await self.db.prepare(TOP_SCORES).bind(limit).all())
+    async def top_scores(self, method: str, limit: int) -> list[Score]:
+        res = _py(await self.db.prepare(TOP_SCORES).bind(method, limit).all())
         return [_score_from_row(row) for row in res["results"]]
 
     async def count_scores_since(self, ts: str, ip_hash: str | None = None) -> int:
@@ -169,8 +169,9 @@ class MemoryStore:
     async def has_score(self, score_id: str) -> bool:
         return any(s["id"] == score_id for s in self.scores)
 
-    async def top_scores(self, limit: int) -> list[Score]:
-        ranked = sorted(self.scores, key=lambda s: (-s["score"], s["ts"], s["id"]))
+    async def top_scores(self, method: str, limit: int) -> list[Score]:
+        mine = [s for s in self.scores if s["input"] == method]
+        ranked = sorted(mine, key=lambda s: (-s["score"], s["ts"], s["id"]))
         return [{f: s[f] for f in PUBLIC_SCORE_FIELDS} for s in ranked[:limit]]
 
     async def count_scores_since(self, ts: str, ip_hash: str | None = None) -> int:

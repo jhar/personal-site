@@ -6,8 +6,9 @@ it keeps the board honest enough for a toy:
 - Initials are 1-3 letters A-Z, nothing else (also enforced by a CHECK in D1).
 - Each game starts with a signed, single-use token from POST /api/snek/games.
   A score must arrive with its token, at most once, and no faster than
-  MIN_SECONDS_PER_GRUB per point since the token was issued.
+  MIN_SECONDS_PER_POINT per point since the token was issued.
 - Submissions are rate limited per IP and overall.
+- Keyboard and touch players get a board each.
 
 The signing key is derived from ADMIN_TOKEN, so no new secret is needed.
 """
@@ -25,9 +26,10 @@ from .store import Score, Store
 
 BOARD_SIZE = 10
 MAX_SCORE = 5000
-# A grub can't be eaten faster than this on average (a tick is 40ms or more and
-# grubs land at random across the board), so a score of N needs N/4 seconds.
-MIN_SECONDS_PER_GRUB = 0.25
+# Nobody scores faster than this on average: at top speed a grub is about a
+# second away, and a frenzy's bonus grubs (2-5 points each) only last 10
+# seconds. So a score of N needs at least N/10 seconds of game.
+MIN_SECONDS_PER_POINT = 0.1
 # Long enough for a paused game left open all day.
 MAX_GAME_SECONDS = 24 * 60 * 60
 PER_IP_PER_HOUR = 10
@@ -114,12 +116,12 @@ async def submit(
     ip: str,
     geo: dict[str, str],
     now: Callable[[], float],
-) -> tuple[str, list[Score]]:
-    """Stores a score; returns (its id, the top of the board). Raises Rejected."""
+) -> tuple[str, dict[str, list[Score]]]:
+    """Stores a score; returns (its id, both boards). Raises Rejected."""
     entry = parse_submission(body)
     t = now()
     nonce, elapsed = check_token(admin_token, entry["token"], t)
-    if elapsed < entry["score"] * MIN_SECONDS_PER_GRUB:
+    if elapsed < entry["score"] * MIN_SECONDS_PER_POINT:
         raise Rejected(422, "score doesn't fit the game's length")
     if await store.has_score(nonce):
         raise Rejected(409, "already submitted")
@@ -144,4 +146,9 @@ async def submit(
             "ip_hash": who,
         }
     )
-    return nonce, await store.top_scores(BOARD_SIZE)
+    return nonce, await boards(store)
+
+
+async def boards(store: Store) -> dict[str, list[Score]]:
+    """The top of each input method's board."""
+    return {method: await store.top_scores(method, BOARD_SIZE) for method in INPUTS}

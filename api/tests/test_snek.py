@@ -81,13 +81,13 @@ def test_submit_and_read_board():
         "city": "Burbank",
         "country": "US",
     }
-    assert body["scores"] == [entry]
+    assert body["scores"] == {"keyboard": [], "touch": [entry]}
     board = call(d, "GET", "/api/snek/scores")
     assert board.status == 200
     assert board.headers["cache-control"] == "no-store"
-    assert json.loads(board.body) == [entry]
+    assert json.loads(board.body) == {"keyboard": [], "touch": [entry]}
     # Neither the IP nor its hash is ever returned.
-    assert "1.2.3.4" not in board.body and "ip" not in json.loads(board.body)[0]
+    assert "1.2.3.4" not in board.body and "ip" not in json.loads(board.body)["touch"][0]
 
 
 def test_board_is_top_ten_highest_first_ties_to_earliest():
@@ -96,7 +96,7 @@ def test_board_is_top_ten_highest_first_ties_to_earliest():
         assert (
             play(d, clock, initials="ABCDEFGHIJKL"[i], score=score, ip=f"10.0.0.{i}").status == 201
         )
-    board = json.loads(call(d, "GET", "/api/snek/scores").body)
+    board = json.loads(call(d, "GET", "/api/snek/scores").body)["keyboard"]
     assert [(s["initials"], s["score"]) for s in board] == [
         ("L", 11),
         ("K", 10),
@@ -163,9 +163,9 @@ def test_rejects_forged_missing_and_reused_tokens():
 
 def test_rejects_scores_too_fast_for_the_game():
     d, clock = make()
-    # 40 points need at least 10 seconds.
-    assert play(d, clock, seconds=9, score=40).status == 422
-    assert play(d, clock, seconds=10, score=40).status == 201
+    # 100 points need at least 10 seconds.
+    assert play(d, clock, seconds=9, score=100).status == 422
+    assert play(d, clock, seconds=10, score=100).status == 201
 
 
 def test_rejects_expired_tokens():
@@ -198,14 +198,29 @@ def test_unavailable_without_admin_token():
     assert call(d, "GET", "/api/snek/scores").status == 200
 
 
+def test_keyboard_and_touch_have_their_own_boards():
+    d, clock = make()
+    for i in range(12):
+        ip = f"10.0.0.{i}"
+        assert play(d, clock, initials="K", score=100 + i, ip=ip).status == 201
+        assert play(d, clock, initials="T", score=1 + i, method="touch", ip=ip).status == 201
+    boards = json.loads(call(d, "GET", "/api/snek/scores").body)
+    assert [s["score"] for s in boards["keyboard"]] == list(range(111, 101, -1))
+    # Touch scores aren't crowded out by the higher keyboard ones.
+    assert [s["score"] for s in boards["touch"]] == list(range(12, 2, -1))
+    assert {s["initials"] for s in boards["touch"]} == {"T"}
+
+
 def test_works_against_d1_schema():
     d, clock = make(store=D1Store(FakeD1()))
     assert play(d, clock, initials="Q", score=3, method="touch").status == 201
     assert play(d, clock, initials="ZZZ", score=4).status == 201
-    board = json.loads(call(d, "GET", "/api/snek/scores").body)
-    assert [(s["initials"], s["score"], s["input"], s["city"]) for s in board] == [
-        ("ZZZ", 4, "keyboard", "Burbank"),
-        ("Q", 3, "touch", "Burbank"),
+    boards = json.loads(call(d, "GET", "/api/snek/scores").body)
+    assert [(s["initials"], s["score"], s["city"]) for s in boards["keyboard"]] == [
+        ("ZZZ", 4, "Burbank")
+    ]
+    assert [(s["initials"], s["score"], s["city"]) for s in boards["touch"]] == [
+        ("Q", 3, "Burbank")
     ]
 
 

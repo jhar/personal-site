@@ -19,7 +19,7 @@ browser ──► Cloudflare Worker ──┬─► static assets      Next.js e
 | `/api/letterboxd`   | Recent movies from Letterboxd RSS, cached 15 minutes in D1.          |
 | `/api/admin/visits` | Newest 500 visits, for `/admin/visits?token=...`.                    |
 | `/api/snek/games`   | POST: a signed one-time token for a new Snek-VG game.               |
-| `/api/snek/scores`  | GET: top 10 Snek-VG scores. POST: save one (see api/src/site_api/snek.py). |
+| `/api/snek/scores`  | GET: top 10 Snek-VG scores each for keyboard and touch. POST: save one (see api/src/site_api/snek.py). |
 
 Visitor country, region and city come from Cloudflare's `request.cf`, and the
 IP from `CF-Connecting-IP`.
