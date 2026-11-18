@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import VisitsTable from "./VisitsTable";
+import AdminDashboard from "./AdminDashboard";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
 export default function Visits() {
-  return <VisitsTable />;
+  return <AdminDashboard />;
 }

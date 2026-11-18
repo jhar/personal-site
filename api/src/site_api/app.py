@@ -23,6 +23,8 @@ NO_STORE = {"cache-control": "no-store"}
 MOVIES_KEY = "letterboxd"
 MOVIES_TTL_SECONDS = 15 * 60
 MAX_FIELD = 1024
+ADMIN_PAGE_SIZE = 100
+MAX_ADMIN_PAGE_SIZE = 500
 
 
 @dataclass
@@ -135,11 +137,45 @@ async def _save_movies(deps: Deps, cached: dict[str, Any]) -> None:
         log.exception("failed to write letterboxd cache")
 
 
-async def _admin_visits(req: Request, deps: Deps) -> Response:
+def _is_admin(req: Request, deps: Deps) -> bool:
     given = req.headers.get("x-admin-token", "")
-    if not deps.admin_token or not hmac.compare_digest(deps.admin_token, given):
+    return bool(deps.admin_token) and hmac.compare_digest(deps.admin_token, given)
+
+
+def _paging(req: Request) -> tuple[int, int]:
+    """(page, per_page) from ?page= (1-based) and ?per=, clamped to sane values."""
+
+    def num(name: str, default: int) -> int:
+        try:
+            return int(req.query.get(name, ""))
+        except ValueError:
+            return default
+
+    per = min(max(num("per", ADMIN_PAGE_SIZE), 1), MAX_ADMIN_PAGE_SIZE)
+    return max(num("page", 1), 1), per
+
+
+async def _admin_visits(req: Request, deps: Deps) -> Response:
+    if not _is_admin(req, deps):
         return _json(401, {"error": "unauthorized"}, NO_STORE)
-    return _json(200, await deps.store.recent_visits(500), NO_STORE)
+    page, per = _paging(req)
+    items = await deps.store.recent_visits(per, (page - 1) * per)
+    total = await deps.store.count_visits()
+    return _json(200, {"items": items, "total": total, "page": page, "per": per}, NO_STORE)
+
+
+async def _admin_snek(req: Request, deps: Deps) -> Response:
+    if not _is_admin(req, deps):
+        return _json(401, {"error": "unauthorized"}, NO_STORE)
+    method = req.query.get("input", "keyboard")
+    if method not in snek.INPUTS:
+        return _json(400, {"error": "input must be keyboard or touch"}, NO_STORE)
+    page, per = _paging(req)
+    offset = (page - 1) * per
+    scores = await deps.store.ranked_scores(method, per, offset)
+    items = [{"rank": offset + i + 1, **s} for i, s in enumerate(scores)]
+    total = await deps.store.count_scores(method)
+    return _json(200, {"items": items, "total": total, "page": page, "per": per}, NO_STORE)
 
 
 async def _snek_scores(req: Request, deps: Deps) -> Response:
@@ -178,6 +214,7 @@ ROUTES: dict[str, dict[str, Handler]] = {
     "/api/visit": {"GET": _log_visit},
     "/api/letterboxd": {"GET": _letterboxd},
     "/api/admin/visits": {"GET": _admin_visits},
+    "/api/admin/snek": {"GET": _admin_snek},
     "/api/snek/scores": {"GET": _snek_scores, "POST": _snek_submit},
     "/api/snek/games": {"POST": _snek_new_game},
 }

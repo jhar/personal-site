@@ -16,7 +16,7 @@ INSERT_VISIT = (
     f"VALUES (?, {', '.join('?' for _ in FIELDS)})"
 )
 RECENT_VISITS = (
-    f"SELECT {', '.join(COLUMNS.values())} FROM visits ORDER BY ts DESC, id DESC LIMIT ?"
+    f"SELECT {', '.join(COLUMNS.values())} FROM visits ORDER BY ts DESC, id DESC LIMIT ? OFFSET ?"
 )
 
 # Snek-VG scoreboard entry, as stored.
@@ -33,14 +33,21 @@ TOP_SCORES = (
     f"SELECT {', '.join(PUBLIC_SCORE_FIELDS)} FROM snek_scores WHERE input = ? "
     "ORDER BY score DESC, ts ASC, id ASC LIMIT ?"
 )
+# The admin view: every score on a board, ip_hash included, same order.
+RANKED_SCORES = (
+    f"SELECT {', '.join(SCORE_FIELDS)} FROM snek_scores WHERE input = ? "
+    "ORDER BY score DESC, ts ASC, id ASC LIMIT ? OFFSET ?"
+)
 
 
 class Store(Protocol):
     async def add_visit(self, visit: Visit, visit_id: str) -> None: ...
 
-    async def recent_visits(self, limit: int) -> list[Visit]:
-        """Newest first."""
+    async def recent_visits(self, limit: int, offset: int = 0) -> list[Visit]:
+        """Newest first, skipping the first offset."""
         ...
+
+    async def count_visits(self) -> int: ...
 
     async def get_cached(self, key: str) -> tuple[str, float] | None:
         """(value, fetched_at) or None."""
@@ -60,6 +67,12 @@ class Store(Protocol):
         """Scores submitted at or after ts, from ip_hash if given."""
         ...
 
+    async def ranked_scores(self, method: str, limit: int, offset: int = 0) -> list[Score]:
+        """Like top_scores, but with every stored field (ip_hash too) and an offset."""
+        ...
+
+    async def count_scores(self, method: str) -> int: ...
+
 
 class D1Store:
     """Takes the Worker's D1 binding (env.DB)."""
@@ -70,9 +83,13 @@ class D1Store:
     async def add_visit(self, visit: Visit, visit_id: str) -> None:
         await self.db.prepare(INSERT_VISIT).bind(*visit_row(visit, visit_id)).run()
 
-    async def recent_visits(self, limit: int) -> list[Visit]:
-        res = _py(await self.db.prepare(RECENT_VISITS).bind(limit).all())
+    async def recent_visits(self, limit: int, offset: int = 0) -> list[Visit]:
+        res = _py(await self.db.prepare(RECENT_VISITS).bind(limit, offset).all())
         return [_from_row(row) for row in res["results"]]
+
+    async def count_visits(self) -> int:
+        row = _py(await self.db.prepare("SELECT COUNT(*) AS n FROM visits").first())
+        return int(row["n"]) if row else 0
 
     async def get_cached(self, key: str) -> tuple[str, float] | None:
         row = _py(
@@ -116,6 +133,18 @@ class D1Store:
         row = _py(await stmt.first())
         return int(row["n"]) if row else 0
 
+    async def ranked_scores(self, method: str, limit: int, offset: int = 0) -> list[Score]:
+        res = _py(await self.db.prepare(RANKED_SCORES).bind(method, limit, offset).all())
+        return [_score_from_row(row, SCORE_FIELDS) for row in res["results"]]
+
+    async def count_scores(self, method: str) -> int:
+        row = _py(
+            await self.db.prepare("SELECT COUNT(*) AS n FROM snek_scores WHERE input = ?")
+            .bind(method)
+            .first()
+        )
+        return int(row["n"]) if row else 0
+
 
 def visit_row(visit: Visit, visit_id: str) -> tuple[str, ...]:
     """Values for INSERT_VISIT, in order."""
@@ -126,8 +155,8 @@ def _from_row(row: dict[str, Any]) -> Visit:
     return {field: str(row.get(column) or "") for field, column in COLUMNS.items()}
 
 
-def _score_from_row(row: dict[str, Any]) -> Score:
-    score = {field: str(row.get(field) or "") for field in PUBLIC_SCORE_FIELDS}
+def _score_from_row(row: dict[str, Any], fields: tuple[str, ...] = PUBLIC_SCORE_FIELDS) -> Score:
+    score = {field: str(row.get(field) or "") for field in fields}
     score["score"] = int(row.get("score") or 0)
     return score
 
@@ -152,8 +181,11 @@ class MemoryStore:
     async def add_visit(self, visit: Visit, visit_id: str) -> None:
         self.visits.append(visit)
 
-    async def recent_visits(self, limit: int) -> list[Visit]:
-        return sorted(self.visits, key=lambda v: v["ts"], reverse=True)[:limit]
+    async def recent_visits(self, limit: int, offset: int = 0) -> list[Visit]:
+        return sorted(self.visits, key=lambda v: v["ts"], reverse=True)[offset : offset + limit]
+
+    async def count_visits(self) -> int:
+        return len(self.visits)
 
     async def get_cached(self, key: str) -> tuple[str, float] | None:
         return self.cache.get(key)
@@ -170,9 +202,17 @@ class MemoryStore:
         return any(s["id"] == score_id for s in self.scores)
 
     async def top_scores(self, method: str, limit: int) -> list[Score]:
+        return [{f: s[f] for f in PUBLIC_SCORE_FIELDS} for s in self._ranked(method)[:limit]]
+
+    async def ranked_scores(self, method: str, limit: int, offset: int = 0) -> list[Score]:
+        return [dict(s) for s in self._ranked(method)[offset : offset + limit]]
+
+    async def count_scores(self, method: str) -> int:
+        return len(self._ranked(method))
+
+    def _ranked(self, method: str) -> list[Score]:
         mine = [s for s in self.scores if s["input"] == method]
-        ranked = sorted(mine, key=lambda s: (-s["score"], s["ts"], s["id"]))
-        return [{f: s[f] for f in PUBLIC_SCORE_FIELDS} for s in ranked[:limit]]
+        return sorted(mine, key=lambda s: (-s["score"], s["ts"], s["id"]))
 
     async def count_scores_since(self, ts: str, ip_hash: str | None = None) -> int:
         return sum(
