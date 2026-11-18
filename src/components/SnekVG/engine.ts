@@ -42,6 +42,14 @@ export interface Sus extends Cell {
   nextTellAt: number;
 }
 
+// Runs from the snake, but every move costs it energy; once it has none left
+// it just sits there, worn out.
+export interface Juke extends Cell {
+  // Moves it has left in it, out of JUKE_ENERGY.
+  energy: number;
+  nextMoveAt: number;
+}
+
 export interface Popup extends Part {
   value: number;
   from: number;
@@ -68,7 +76,7 @@ export interface Game {
   body: Part[];
   nextId: number;
   // Segments grown beyond the first 3: sets the snake's length and the speed.
-  // Regular and sus grubs grow it by one; disco grubs don't; bonus grubs add
+  // Regular, sus and juke grubs grow it by one; disco grubs don't; bonus grubs add
   // one in all, when the frenzy ends, if you caught any.
   eaten: number;
   score: number;
@@ -79,6 +87,9 @@ export interface Game {
   // Also dropped next to a regular grub now and then, never with a disco grub.
   // Eating it costs SUS_PENALTY points; eating the regular grub removes it.
   sus: Sus | null;
+  // Also dropped next to a regular grub now and then, as the only extra. Worth
+  // JUKE_POINTS if you catch it; eating the regular grub removes it.
+  juke: Juke | null;
   frenzyUntil: number;
   // Whether this frenzy's bonus grubs have earned the end-of-frenzy segment.
   frenzyCaught: boolean;
@@ -106,10 +117,28 @@ export const START_SLOWDOWN = 1 / SPEED_UP;
 const MIN_INTERVAL_RATIO = 0.5 / START_SLOWDOWN;
 export const MAX_LEVEL = Math.ceil(Math.log(MIN_INTERVAL_RATIO) / Math.log(SPEED_UP)) + 1;
 
-const DISCO_AFTER = 3; // regular grubs eaten before a disco grub can appear
-const DISCO_CHANCE = 0.12; // per regular grub eaten
-const SUS_CHANCE = 0.12; // per regular grub eaten, when no disco grub dropped
+// Deviant grubs (disco, sus, juke) drop next to a regular grub, at most one
+// at a time. Each kind's chance per regular grub eaten starts at DEVIANT_BASE
+// and rises with the score until it reaches DEVIANT_MAX: 24% for any of them
+// at the start, 60% from a score of 60.
+const DEVIANT_AFTER = 3; // regular grubs eaten before any can appear
+const DEVIANT_BASE = 0.08;
+const DEVIANT_PER_POINT = 0.002;
+const DEVIANT_MAX = 0.2;
+export const deviantChance = (score: number) =>
+  Math.min(DEVIANT_MAX, DEVIANT_BASE + score * DEVIANT_PER_POINT);
 export const SUS_PENALTY = 2;
+export const JUKE_POINTS = 2;
+export const JUKE_ENERGY = 60;
+// It starts running once the snake's head is this close (in steps).
+const JUKE_SIGHT = 7;
+// Snake steps per juke move: a fresh juke is a bit quicker than the snake, so
+// it can only be cornered; as it tires it slows, gently at first and then
+// sharply, to a quarter of the snake's speed.
+const JUKE_FRESH_PACE = 0.75;
+const JUKE_TIRED_PACE = 4;
+// How often it picks the best way out; otherwise it panics and picks any.
+const JUKE_SMARTS = 0.9;
 // The first tell comes a little sooner than the rest, which are 5-10s apart.
 const SUS_FIRST_TELL_MS = [3000, 6000];
 const SUS_TELL_GAP_MS = [5000, 10000];
@@ -161,6 +190,7 @@ export function newGame(baseInterval: number, round = 0, cols = 0, rows = 0): Ga
     grub: null,
     disco: null,
     sus: null,
+    juke: null,
     frenzyUntil: 0,
     frenzyCaught: false,
     bonuses: [],
@@ -193,7 +223,8 @@ function taken(game: Game, cell: Cell) {
     game.body.some(part => same(part, cell)) ||
     (game.grub !== null && same(game.grub, cell)) ||
     (game.disco !== null && same(game.disco, cell)) ||
-    (game.sus !== null && same(game.sus, cell));
+    (game.sus !== null && same(game.sus, cell)) ||
+    (game.juke !== null && same(game.juke, cell));
 }
 
 // A random empty cell, or null before the board has a size.
@@ -261,6 +292,37 @@ function walk(game: Game, bonus: Bonus, flees: boolean): Bonus {
   return { ...bonus, ...move.cell, heading: move.heading, nextMoveAt: game.clock + BONUS_WALK_MS };
 }
 
+// The juke grub keeps away from where the snake's head is and where it's
+// about to be. It only spends energy when it actually moves.
+function juke(game: Game, juke: Juke): Juke {
+  if (juke.energy <= 0 || game.clock < juke.nextMoveAt) return juke;
+  const ahead = { x: game.head.x + DELTAS[game.direction].x, y: game.head.y + DELTAS[game.direction].y };
+  const danger = (cell: Cell) => Math.min(gap(game, cell, game.head), gap(game, cell, ahead));
+  // Between equally safe cells, it heads the way that opens up the most room.
+  const room = (cell: Cell) => {
+    const dx = Math.abs(cell.x - game.head.x), dy = Math.abs(cell.y - game.head.y);
+    return Math.min(dx, game.cols - dx) ** 2 + Math.min(dy, game.rows - dy) ** 2;
+  };
+  const better = (a: Cell, b: Cell) => danger(b) > danger(a) || (danger(b) === danger(a) && room(b) > room(a));
+  // Resting (out of sight, or nowhere better to go) doesn't bank moves for later.
+  const rest = { ...juke, nextMoveAt: game.clock };
+  if (danger(juke) > JUKE_SIGHT) return rest;
+  const moves = DIRECTIONS
+    .map(d => ({ x: juke.x + DELTAS[d].x, y: juke.y + DELTAS[d].y }))
+    .filter(cell => inside(game, cell) && !taken(game, cell));
+  if (moves.length === 0) return rest;
+  const best = moves.reduce((a, b) => (better(a, b) ? b : a));
+  // Staying put is free; it only moves to get further away, unless it panics.
+  const panic = Math.random() > JUKE_SMARTS;
+  if (!panic && !better(juke, best)) return rest;
+  const cell = panic ? moves[randomInt(moves.length)] : best;
+  const energy = juke.energy - 1;
+  const tired = 1 - energy / JUKE_ENERGY;
+  const pace = JUKE_FRESH_PACE + (JUKE_TIRED_PACE - JUKE_FRESH_PACE) * tired ** 3;
+  // Counted from when this move was due, so its pace holds between steps.
+  return { ...cell, energy, nextMoveAt: juke.nextMoveAt + pace * stepInterval(game) };
+}
+
 function step(game: Game): Game {
   const [turn, ...turns] = game.turns;
   const direction = turn ?? game.direction;
@@ -281,15 +343,18 @@ function step(game: Game): Game {
   next = { ...next, head, body: [...kept, { ...head, id: next.nextId }], nextId: next.nextId + 1 };
 
   if (next.grub && same(next.grub, head)) {
-    next = { ...next, eaten: next.eaten + 1, score: next.score + 1, colors: randomizeColorSet(), grub: null, disco: null, sus: null };
+    next = { ...next, eaten: next.eaten + 1, score: next.score + 1, colors: randomizeColorSet(), grub: null, disco: null, sus: null, juke: null };
     next = { ...next, grub: freeCell(next) };
-    // Now and then a second grub drops too: a disco grub or a sus one, never both.
+    // Now and then a second grub drops too: disco, sus or juke, never two.
+    const chance = deviantChance(next.score);
     const roll = Math.random();
-    const cell = !inFrenzy(next) && next.eaten >= DISCO_AFTER && roll < DISCO_CHANCE + SUS_CHANCE
+    const cell = !inFrenzy(next) && next.eaten >= DEVIANT_AFTER && roll < 3 * chance
       ? freeCell(next)
       : null;
-    if (cell && roll < DISCO_CHANCE) {
+    if (cell && roll < chance) {
       next = { ...next, disco: cell };
+    } else if (cell && roll < 2 * chance) {
+      next = { ...next, juke: { ...cell, energy: JUKE_ENERGY, nextMoveAt: next.clock } };
     } else if (cell) {
       const nextTellAt = next.clock + between(SUS_FIRST_TELL_MS);
       next = { ...next, sus: { ...cell, tell: null, lastTell: null, tellUntil: 0, nextTellAt } };
@@ -310,6 +375,21 @@ function step(game: Game): Game {
   } else if (next.sus) {
     const sus = tell(next.clock, next.sus);
     if (sus !== next.sus) next = { ...next, sus };
+  }
+
+  if (next.juke && same(next.juke, head)) {
+    const { x, y } = next.juke;
+    const popup = { id: next.nextId, x, y, value: JUKE_POINTS, from: next.clock, until: next.clock + JUKE_POINTS * 1000 };
+    next = {
+      ...next,
+      eaten: next.eaten + 1,
+      score: next.score + JUKE_POINTS,
+      juke: null,
+      nextId: next.nextId + 1,
+      popups: [...next.popups, popup],
+    };
+  } else if (next.juke) {
+    next = { ...next, juke: juke(next, next.juke) };
   }
 
   if (next.disco && same(next.disco, head)) {
@@ -380,6 +460,7 @@ export function reduce(game: Game, action: Action): Game {
         grub: game.grub && clamp(game.grub, cols, rows),
         disco: game.disco && clamp(game.disco, cols, rows),
         sus: game.sus && clamp(game.sus, cols, rows),
+        juke: game.juke && clamp(game.juke, cols, rows),
         bonuses: game.bonuses.map(bonus => clamp(bonus, cols, rows)),
       };
       return next.grub ? next : { ...next, grub: freeCell(next) };
