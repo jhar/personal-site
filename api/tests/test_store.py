@@ -34,6 +34,53 @@ def test_visits_round_trip_newest_first():
     assert [v["path"] for v in newest] == ["/new-again"]
 
 
+def test_visits_page_and_count():
+    store = D1Store(FakeD1())
+
+    async def run():
+        for i in range(7):
+            await store.add_visit(visit(f"2026-01-01T00:00:0{i}.000Z", f"/{i}"), str(i))
+        return await store.recent_visits(3, 3), await store.count_visits()
+
+    page, total = asyncio.run(run())
+    assert [v["path"] for v in page] == ["/3", "/2", "/1"]
+    assert total == 7
+
+
+def test_ranked_scores_include_ip_hash_and_page():
+    store = D1Store(FakeD1())
+
+    def entry(i, points, method="keyboard"):
+        return {
+            "id": f"id{i}",
+            "ts": f"2026-01-01T00:00:0{i}.000Z",
+            "initials": "JH",
+            "score": points,
+            "input": method,
+            "city": "Burbank",
+            "country": "US",
+            "ip_hash": f"h{i}",
+        }
+
+    async def run():
+        for i, points in enumerate([5, 9, 5, 1]):
+            await store.add_score(entry(i, points))
+        await store.add_score(entry(8, 50, "touch"))
+        return (
+            await store.ranked_scores("keyboard", 2, 1),
+            await store.count_scores("keyboard"),
+            await store.count_scores("touch"),
+        )
+
+    page, keyboard, touch = asyncio.run(run())
+    # Ties go to whoever got there first.
+    assert [(s["id"], s["score"], s["ip_hash"]) for s in page] == [
+        ("id0", 5, "h0"),
+        ("id2", 5, "h2"),
+    ]
+    assert (keyboard, touch) == (4, 1)
+
+
 def test_cache_round_trip():
     store = D1Store(FakeD1())
 

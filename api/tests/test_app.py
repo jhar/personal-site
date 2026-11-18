@@ -91,10 +91,68 @@ def test_admin_lists_newest_first():
     res = get("/api/admin/visits", d, headers={"x-admin-token": "secret"})
     assert res.status == 200
     assert res.headers["cache-control"] == "no-store"
-    assert [v["ts"] for v in json.loads(res.body)] == [
+    body = json.loads(res.body)
+    assert [v["ts"] for v in body["items"]] == [
         "2026-02-01T00:00:00.000Z",
         "2026-01-01T00:00:00.000Z",
     ]
+    assert (body["total"], body["page"], body["per"]) == (2, 1, 100)
+
+
+def test_admin_visits_pages():
+    d = deps()
+    d.store.visits = [{"ts": f"2026-01-01T00:00:{i:02d}.000Z"} for i in range(25)]
+    auth = {"x-admin-token": "secret"}
+    body = json.loads(get("/api/admin/visits", d, {"page": "2", "per": "10"}, auth).body)
+    assert [v["ts"][17:19] for v in body["items"]] == [f"{i:02d}" for i in range(14, 4, -1)]
+    assert body["total"] == 25
+    last = json.loads(get("/api/admin/visits", d, {"page": "3", "per": "10"}, auth).body)
+    assert len(last["items"]) == 5
+    # Junk and out-of-range values fall back to something sensible.
+    junk = json.loads(get("/api/admin/visits", d, {"page": "x", "per": "9999"}, auth).body)
+    assert (junk["page"], junk["per"], len(junk["items"])) == (1, 500, 25)
+    zero = json.loads(get("/api/admin/visits", d, {"page": "-3", "per": "0"}, auth).body)
+    assert (zero["page"], zero["per"]) == (1, 1)
+
+
+def score(i, method="keyboard", points=10):
+    return {
+        "id": f"id{i}",
+        "ts": f"2026-01-01T00:00:{i:02d}.000Z",
+        "initials": "ABC",
+        "score": points,
+        "input": method,
+        "city": "Burbank",
+        "country": "US",
+        "ip_hash": f"hash{i}",
+    }
+
+
+def test_admin_snek_requires_token():
+    assert get("/api/admin/snek", deps()).status == 401
+    assert get("/api/admin/snek", deps(), headers={"x-admin-token": "nope"}).status == 401
+
+
+def test_admin_snek_lists_every_score_ranked_with_details():
+    d = deps()
+    d.store.scores = [score(i, points=i) for i in range(1, 16)] + [score(99, "touch", 7)]
+    auth = {"x-admin-token": "secret"}
+    res = get("/api/admin/snek", d, {"input": "keyboard", "per": "10", "page": "2"}, auth)
+    assert res.status == 200
+    assert res.headers["cache-control"] == "no-store"
+    body = json.loads(res.body)
+    assert body["total"] == 15
+    assert [(s["rank"], s["score"]) for s in body["items"]] == [
+        (11, 5),
+        (12, 4),
+        (13, 3),
+        (14, 2),
+        (15, 1),
+    ]
+    assert body["items"][0]["ip_hash"] == "hash5"
+    touch = json.loads(get("/api/admin/snek", d, {"input": "touch"}, auth).body)
+    assert [s["id"] for s in touch["items"]] == ["id99"]
+    assert get("/api/admin/snek", d, {"input": "mouse"}, auth).status == 400
 
 
 def counting_fetch(calls, movies=({"title": "Heat"},)):
