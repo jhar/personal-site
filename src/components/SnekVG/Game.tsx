@@ -8,7 +8,6 @@ import {
   Cell,
   Direction,
   inFrenzy,
-  JUKE_ENERGY,
   level,
   MAX_LEVEL,
   newGame,
@@ -270,24 +269,12 @@ export default function SnekVG() {
             />
           ))}
         {game.juke && (() => {
-          // A ring around it shows the energy it has left; worn out, it naps.
+          // Drawn like a regular grub; worn out, it naps.
           const { cx, cy } = px(game.juke);
-          const ring = 2 * Math.PI * (half + 3);
-          const energy = game.juke.energy / JUKE_ENERGY;
           return (
             <g data-snek="juke">
               <circle cx={cx} cy={cy} r={half} fill={game.colors.grub} />
-              <circle
-                cx={cx}
-                cy={cy}
-                r={half + 3}
-                fill="none"
-                stroke={game.colors.grub}
-                strokeWidth={2}
-                strokeDasharray={`${ring * energy} ${ring}`}
-                transform={`rotate(-90 ${cx} ${cy})`}
-              />
-              {energy <= 0 && (
+              {game.juke.energy <= 0 && (
                 <text x={cx + half} y={cy - half} fill={game.colors.grub} fontSize={12} fontWeight="bold">z</text>
               )}
             </g>
