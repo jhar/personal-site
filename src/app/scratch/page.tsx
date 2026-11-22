@@ -48,14 +48,14 @@ export default function Scratch() {
           Letterboxd only gets asked a few times an hour.
         </p>
         <p className="text-ink-strong">
-          Now and then I write a{" "}
+          I have a minor history of writing haiku,{" "}
           <Link
             className="hover:animate-pulse hover:text-link-hover text-link"
             href="/scratch/haiku"
           >
-            haiku
-          </Link>
-          . Each one gets a date and a faint drawing of its own.
+            this
+          </Link>{" "}
+          is not all of them.
         </p>
       </div>
     </div>
