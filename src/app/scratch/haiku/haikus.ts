@@ -86,11 +86,6 @@ const haikus: Haiku[] = [
     art: "family",
   },
   {
-    date: "2025-03-07",
-    lines: ["Do I seem insane?", "Or just a sad, lonely man ..", "I want a cookie"],
-    art: "cookie",
-  },
-  {
     date: "2025-10-13",
     lines: ["I smell gas in here", "Not a metaphor for what", "You told me today"],
     art: "gas",
