@@ -1,14 +1,18 @@
-import { Star } from "./parts";
+import { BLACK, Ground, PALE } from "./parts";
 
-const ARCS = [120, 150, 180, 210, 240];
-const STARS = [[300, 150], [420, 90], [700, 120], [820, 220], [160, 260], [600, 190]];
+const BANDS = ["#B54A3F", "#D99A5B", "#E0B45A", "#8FB58A", "#84A9D2", "#A68AD2"];
 
-// A rainbow road rising out of the dark, and the stars you see after a knock.
+// A road of colour swinging up out of the dark.
 export default function Rainbow() {
   return (
-    <g>
-      {ARCS.map((r) => <path key={r} d={`M${500 - r} 700 A${r} ${r} 0 0 1 ${500 + r} 700`} />)}
-      {STARS.map(([x, y], i) => <Star key={`${x}-${y}`} x={x} y={y} r={8 + (i % 3) * 3} />)}
-    </g>
+    <>
+      <Ground fill="#101010" />
+      <g fill="none" strokeWidth="58">
+        {BANDS.map((stroke, i) => <circle key={stroke} cx="-40" cy="800" r={340 + i * 70} stroke={stroke} />)}
+      </g>
+      <circle cx="790" cy="170" r="130" fill={BLACK} />
+      <circle cx="610" cy="70" r="34" fill={BLACK} />
+      <circle cx="900" cy="440" r="14" fill={PALE} />
+    </>
   );
 }

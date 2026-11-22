@@ -33,8 +33,7 @@ export default async function HaikuPage({ params }: Props) {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100dvh-8rem)] pb-28 mx-auto w-[86%]">
-      {/* A haiku with its own picture gets no drawing behind it unless it asks for one. */}
-      {(haiku.art || !haiku.image) && <HaikuArt name={haiku.art} />}
+      <HaikuArt name={haiku.art} />
       <article className="relative">
         {/* A line never wraps, so the type shrinks with a narrow screen instead. */}
         <p className="font-nav leading-[1.9] text-[clamp(1rem,5.2vw,1.5rem)] text-ink-strong whitespace-nowrap sm:text-3xl sm:leading-[1.9] md:text-4xl md:leading-[1.9]">

@@ -1,15 +1,20 @@
-const FLAMES = [420, 452, 484, 516, 548, 580];
+import { BLACK, Ground } from "./parts";
 
-// A lit burner, and something in the air.
+const PETALS = Array.from({ length: 18 }, (_, i) => i * 20);
+
+// A ring of blue flame.
 export default function Gas() {
   return (
-    <g>
-      {[430, 500, 570].map((x) => (
-        <path key={x} d={`M${x} 220 q-16 -22 0 -44 q16 -22 0 -44 q-16 -22 0 -44`} strokeWidth="1.5" />
+    <>
+      <Ground fill="#0E151C" />
+      {PETALS.map((deg) => (
+        <g key={deg} transform={`rotate(${deg} 500 400)`}>
+          <polygon points="456,230 544,230 500,30" fill="#4F8FD9" />
+          <polygon points="474,230 526,230 500,120" fill="#A9CDF2" />
+        </g>
       ))}
-      {FLAMES.map((x) => <path key={x} d={`M${x} 592 q-12 -20 0 -42 q12 22 0 42 Z`} />)}
-      <ellipse cx="500" cy="604" rx="104" ry="20" />
-      <path d="M380 640 H620 M440 640 V660 M560 640 V660" strokeWidth="3" />
-    </g>
+      <circle cx="500" cy="400" r="185" fill={BLACK} />
+      <circle cx="860" cy="110" r="26" fill="#E0B45A" />
+    </>
   );
 }

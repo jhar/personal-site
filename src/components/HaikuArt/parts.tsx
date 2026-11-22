@@ -1,45 +1,41 @@
-// Small pieces the drawings share.
+// Pieces the backgrounds share. Every background is a 1000x700 scene that is
+// scaled to cover the screen, so shapes run past the edges on purpose.
 
-export function Star({ x, y, r = 10 }: { x: number; y: number; r?: number }) {
-  const s = r * 0.3;
+export const PALE = "#D9D9D9";
+export const ROSE = "#D28484";
+export const OCHRE = "#D2B184";
+export const BLACK = "#000000";
+
+export function Ground({ fill }: { fill: string }) {
+  return <rect x="-300" y="-300" width="1600" height="1300" fill={fill} />;
+}
+
+// Full-width bars, like the ones behind /scratch.
+export function Bars({ from, to, step, height, fill, tilt = 0.3 }: {
+  from: number;
+  to: number;
+  step: number;
+  height: number;
+  fill: string;
+  tilt?: number;
+}) {
+  const ys = [];
+  for (let y = from; y <= to; y += step) ys.push(y);
+  return (
+    <g fill={fill} transform={`rotate(${tilt} 500 350)`}>
+      {ys.map((y) => <rect key={y} x="-300" y={y} width="1600" height={height} />)}
+    </g>
+  );
+}
+
+// Everything below a rolling edge.
+export function Swell({ y, rise, length, fill }: { y: number; rise: number; length: number; fill: string }) {
+  const half = length / 2;
+  const waves = Math.ceil(1400 / length);
   return (
     <path
-      d={`M${x} ${y - r} L${x + s} ${y - s} L${x + r} ${y} L${x + s} ${y + s} L${x} ${y + r} L${x - s} ${y + s} L${x - r} ${y} L${x - s} ${y - s} Z`}
+      d={`M-200 ${y} q${half / 2} ${-rise} ${half} 0 ${`t${half} 0 `.repeat(waves * 2)}V900 H-200 Z`}
+      fill={fill}
     />
-  );
-}
-
-// A cloud about 265 wide and 140 tall, with its top left corner near x, y.
-export function Cloud({ x = 375, y = 50 }: { x?: number; y?: number }) {
-  return (
-    <path
-      d="M35 140 H225 a40 40 0 0 0 0 -80 a60 60 0 0 0 -110 -30 a50 50 0 0 0 -80 40 a35 35 0 0 0 0 70 Z"
-      transform={`translate(${x} ${y})`}
-    />
-  );
-}
-
-// Rows of waves across the whole width.
-export function Waves({ rows }: { rows: number[] }) {
-  return (
-    <>
-      {rows.map((y) => <path key={y} d={`M-20 ${y} q40 -22 80 0 ${"t80 0 ".repeat(13)}`} />)}
-    </>
-  );
-}
-
-export function Label({ x, y, size, children }: { x: number; y: number; size: number; children: string }) {
-  return (
-    <text
-      fill="currentColor"
-      fontFamily="Georgia, serif"
-      fontSize={size}
-      stroke="none"
-      textAnchor="middle"
-      x={x}
-      y={y}
-    >
-      {children}
-    </text>
   );
 }

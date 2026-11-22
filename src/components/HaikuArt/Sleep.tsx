@@ -1,17 +1,17 @@
-import { Cloud } from "./parts";
+import { BLACK, Ground } from "./parts";
 
-const ZS = [[680, 170, 30], [728, 126, 22], [762, 92, 14]];
+const DRIFT = [
+  [190, 640, 190, "#2A2440"], [430, 510, 130, "#3A3260"], [615, 385, 90, "#A68AD2"],
+  [745, 272, 60, "#D9D9D9"], [835, 182, 38, "#A68AD2"], [898, 112, 22, "#D9D9D9"], [940, 62, 11, "#A68AD2"],
+] as const;
 
-// A pillow, a few z's, and what other people think drifting off.
+// Thoughts getting smaller as they float off.
 export default function Sleep() {
   return (
-    <g>
-      <Cloud />
-      <circle cx="372" cy="216" r="12" />
-      <circle cx="346" cy="246" r="6" />
-      {ZS.map(([x, y, s]) => <path key={s} d={`M${x} ${y} h${s} l${-s} ${s} h${s}`} />)}
-      <rect x="380" y="560" width="240" height="72" rx="30" />
-      <path d="M420 592 q80 20 160 0" />
-    </g>
+    <>
+      <Ground fill="#17141F" />
+      <circle cx="130" cy="150" r="100" fill={BLACK} />
+      {DRIFT.map(([cx, cy, r, fill]) => <circle key={cx} cx={cx} cy={cy} r={r} fill={fill} />)}
+    </>
   );
 }

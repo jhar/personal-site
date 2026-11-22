@@ -1,76 +1,58 @@
-import Barbell from "./Barbell";
-import Bat from "./Bat";
-import Bowl from "./Bowl";
+import Adrift from "./Adrift";
+import Bar from "./Bar";
 import Cookie from "./Cookie";
-import Counter from "./Counter";
-import Demon from "./Demon";
+import Descent from "./Descent";
+import Desert from "./Desert";
 import Dots from "./Dots";
-import Dunes from "./Dunes";
-import Fish from "./Fish";
+import Drain from "./Drain";
+import Family from "./Family";
 import Gas from "./Gas";
 import Glass from "./Glass";
-import House from "./House";
-import Logs from "./Logs";
+import Increments from "./Increments";
+import Inversion from "./Inversion";
 import Night from "./Night";
 import Noon from "./Noon";
-import Nosferatu from "./Nosferatu";
-import Odometer from "./Odometer";
-import Playbook from "./Playbook";
-import Raft from "./Raft";
 import Rainbow from "./Rainbow";
-import Roll from "./Roll";
-import Sauce from "./Sauce";
-import Shaping from "./Shaping";
 import Sleep from "./Sleep";
+import War from "./War";
 import Winter from "./Winter";
 
 const ART = {
-  barbell: Barbell,
-  bat: Bat,
-  bowl: Bowl,
+  adrift: Adrift,
+  bar: Bar,
   cookie: Cookie,
-  counter: Counter,
-  demon: Demon,
-  dunes: Dunes,
-  fish: Fish,
+  descent: Descent,
+  desert: Desert,
+  drain: Drain,
+  family: Family,
   gas: Gas,
   glass: Glass,
-  house: House,
-  logs: Logs,
+  increments: Increments,
+  inversion: Inversion,
   night: Night,
   noon: Noon,
-  nosferatu: Nosferatu,
-  odometer: Odometer,
-  playbook: Playbook,
-  raft: Raft,
   rainbow: Rainbow,
-  roll: Roll,
-  sauce: Sauce,
-  shaping: Shaping,
   sleep: Sleep,
+  war: War,
   winter: Winter,
 };
 
 export type ArtName = keyof typeof ART;
 
-// A faint drawing that fills the page behind a haiku, like the shapes behind
-// /scratch. Drawn in the text colour, so it follows the theme. Each drawing is
-// a 1000x700 scene; narrow screens crop the sides, so the subject sits near
-// the middle.
+// A full-screen background for a haiku, shown faintly behind the whole page the
+// way frame_1.svg sits behind /scratch: flat fills and colour, suggested by the
+// haiku without illustrating it. Each is a 1000x700 scene scaled to cover the
+// screen, so the sides are cropped on a phone.
 export default function HaikuArt({ name }: { name?: ArtName }) {
-  const Drawing = name ? ART[name] : Dots;
+  const Scene = name ? ART[name] : Dots;
   return (
     <svg
       aria-hidden="true"
-      className="fixed inset-0 h-screen w-screen opacity-[0.17] pointer-events-none text-ink"
-      fill="none"
+      className="fixed inset-0 h-screen w-screen opacity-20 pointer-events-none"
       preserveAspectRatio="xMidYMid slice"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeWidth="2"
       viewBox="0 0 1000 700"
     >
-      <Drawing />
+      <Scene />
     </svg>
   );
 }

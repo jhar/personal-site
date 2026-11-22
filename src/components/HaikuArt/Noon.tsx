@@ -1,19 +1,13 @@
-const RAYS = Array.from({ length: 12 }, (_, i) => (i * Math.PI) / 6);
-const SLATS = Array.from({ length: 7 }, (_, i) => 480 + i * 26);
+import { Bars, Ground } from "./parts";
 
-// The sun already high, over half-open blinds.
+// A hot blue sky and a sun already high, through blinds.
 export default function Noon() {
   return (
-    <g>
-      <circle cx="500" cy="130" r="60" />
-      {RAYS.map((a) => (
-        <path
-          key={a}
-          d={`M${(500 + Math.cos(a) * 80).toFixed(1)} ${(130 + Math.sin(a) * 80).toFixed(1)} L${(500 + Math.cos(a) * 112).toFixed(1)} ${(130 + Math.sin(a) * 112).toFixed(1)}`}
-        />
-      ))}
-      {SLATS.map((y) => <path key={y} d={`M250 ${y} H750`} />)}
-      <path d="M250 466 H750 M720 466 V668" strokeWidth="3" />
-    </g>
+    <>
+      <Ground fill="#6F9FD4" />
+      <circle cx="560" cy="110" r="250" fill="#F0CF86" />
+      <circle cx="560" cy="110" r="160" fill="#FFF1C7" />
+      <Bars from={390} to={720} step={34} height={18} fill="#1B1212" />
+    </>
   );
 }

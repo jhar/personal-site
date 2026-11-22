@@ -5,8 +5,8 @@ export interface Haiku {
   // just "2026".
   date: string;
   lines: [string, string, string];
-  // The drawing behind it, from src/components/HaikuArt. Leave it out for the
-  // plain 5-7-5 dots.
+  // The full-screen background behind it, from src/components/HaikuArt. Leave
+  // it out for the plain 5-7-5 dots.
   art?: ArtName;
   // A picture that belongs to the haiku, shown under the lines at full strength. Some
   // leave a word as ___ for the picture to say, so alt should say it too. The
@@ -15,7 +15,7 @@ export interface Haiku {
 }
 
 // To add a haiku, add an entry here (any order) and, if it should have its own
-// drawing, a component in src/components/HaikuArt. None of them have titles:
+// background, a component in src/components/HaikuArt. None of them have titles:
 // the list shows the date and first line, and the address comes from the first
 // line (/scratch/haiku/what-have-i-lost-by).
 const haikus: Haiku[] = [
@@ -32,7 +32,7 @@ const haikus: Haiku[] = [
   {
     date: "2024-12-13",
     lines: ["A day free from work", "Offers no respite from my", "Existential poops"],
-    art: "roll",
+    art: "drain",
   },
   {
     date: "2024-12-15",
@@ -42,13 +42,14 @@ const haikus: Haiku[] = [
   {
     date: "2024-12-17",
     lines: ["How do I accept", "My vulnerabilities", "When I lust for ___"],
+    art: "war",
     // PLACEHOLDER picture, drawn by Claude, until the real one is in.
     image: { src: "/haiku/placeholder-cap.svg", alt: "A cap that says WAR, and a finger pointing at it" },
   },
   {
     date: "2024-12-19",
     lines: ["Planning my next move", "Adrift in a sea of change", "Grilled cheese sandwiches?"],
-    art: "raft",
+    art: "adrift",
   },
   {
     date: "2024-12-21",
@@ -63,27 +64,27 @@ const haikus: Haiku[] = [
   {
     date: "2024-12-29",
     lines: ["Descending dream space", "Immense, yet no way out from", "Behind your counter"],
-    art: "counter",
+    art: "descent",
   },
   {
     date: "2024-12-31",
     lines: ["New Year is coming ..", "But what the fuck does that mean?", "Number increments"],
-    art: "odometer",
+    art: "increments",
   },
   {
     date: "2025-02-02",
     lines: ["My hands hurt a lot", "I dropped a bar on my head", "Typical Sunday"],
-    art: "barbell",
+    art: "bar",
   },
   {
     date: "2025-02-14",
     lines: ["You struggle softly", "Sands falling into the Spring", "Desert winds racing"],
-    art: "dunes",
+    art: "desert",
   },
   {
     date: "2025-02-16",
     lines: ["Sunday .. sleeping in", "Dreaming of unreal worlds where", "Family matters"],
-    art: "house",
+    art: "family",
   },
   {
     date: "2025-03-07",
@@ -96,9 +97,9 @@ const haikus: Haiku[] = [
     art: "gas",
   },
   {
-    date: "2026",
+    date: "2026-09-19",
     lines: ["Moral inversion", "A half-truth is a whole lie", "Flying monkey sauce"],
-    art: "sauce",
+    art: "inversion",
   },
   {
     date: "2026-11-20",

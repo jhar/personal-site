@@ -1,16 +1,17 @@
-const CHIPS = [[470, 540], [505, 575], [455, 590], [520, 610], [490, 520], [540, 560]];
+import { Ground, ROSE } from "./parts";
 
-// A cookie, one bite in.
+const CHIPS = [[400, 300, 40], [560, 470, 55], [640, 300, 30], [380, 520, 34], [500, 200, 26], [690, 560, 38]];
+
+// Something round and sweet with a couple of bites gone.
 export default function Cookie() {
   return (
-    <g>
-      <path d="M500 490 a70 70 0 1 0 66 46 a24 24 0 0 1 -30 -26 a24 24 0 0 1 -36 -20 Z" />
-      <g fill="currentColor" stroke="none">
-        {CHIPS.map(([x, y]) => <circle key={`${x}-${y}`} cx={x} cy={y} r="5" />)}
-        <circle cx="590" cy="500" r="3" />
-        <circle cx="612" cy="524" r="2" />
-        <circle cx="574" cy="478" r="2" />
-      </g>
-    </g>
+    <>
+      <Ground fill="#1B1612" />
+      <circle cx="520" cy="400" r="310" fill="#C99A5B" />
+      <circle cx="810" cy="170" r="120" fill="#1B1612" />
+      <circle cx="890" cy="340" r="74" fill="#1B1612" />
+      {CHIPS.map(([cx, cy, r]) => <circle key={cx} cx={cx} cy={cy} r={r} fill="#2E1F12" />)}
+      <circle cx="150" cy="140" r="32" fill={ROSE} />
+    </>
   );
 }
