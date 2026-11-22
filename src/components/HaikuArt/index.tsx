@@ -12,6 +12,7 @@ import Inversion from "./Inversion";
 import Night from "./Night";
 import Noon from "./Noon";
 import Rainbow from "./Rainbow";
+import Shaping from "./Shaping";
 import Sleep from "./Sleep";
 import War from "./War";
 import Winter from "./Winter";
@@ -30,6 +31,7 @@ const ART = {
   night: Night,
   noon: Noon,
   rainbow: Rainbow,
+  shaping: Shaping,
   sleep: Sleep,
   war: War,
   winter: Winter,

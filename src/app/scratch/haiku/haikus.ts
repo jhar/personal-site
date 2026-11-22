@@ -30,6 +30,11 @@ const haikus: Haiku[] = [
     art: "night",
   },
   {
+    date: "2024-12-10",
+    lines: ["It’s not lost on me", "Discomfort ability", "Shaping into place"],
+    art: "shaping",
+  },
+  {
     date: "2024-12-13",
     lines: ["A day free from work", "Offers no respite from my", "Existential poops"],
     art: "drain",
