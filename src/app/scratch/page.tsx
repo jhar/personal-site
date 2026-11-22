@@ -35,7 +35,7 @@ export default function Scratch() {
             This is just some nonsense.
           </a>
         </p>
-        <p className="text-ink-strong">
+        <p className="text-ink-strong mb-6">
           Here are the{" "}
           <Link
             className="hover:animate-pulse hover:text-link-hover text-link"
@@ -46,6 +46,16 @@ export default function Scratch() {
           , pulled from my Letterboxd RSS feed by a Python Cloudflare Worker that parses
           it into JSON and caches it for 15 minutes, in memory and in a D1 database, so
           Letterboxd only gets asked a few times an hour.
+        </p>
+        <p className="text-ink-strong">
+          Now and then I write a{" "}
+          <Link
+            className="hover:animate-pulse hover:text-link-hover text-link"
+            href="/scratch/haiku"
+          >
+            haiku
+          </Link>
+          . Each one gets a date and a faint drawing of its own.
         </p>
       </div>
     </div>
