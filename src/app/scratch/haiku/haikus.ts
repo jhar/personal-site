@@ -8,7 +8,7 @@ export interface Haiku {
   // The drawing behind it, from src/components/HaikuArt. Leave it out for the
   // plain 5-7-5 dots.
   art?: ArtName;
-  // A picture that belongs to the haiku, shown above it at full strength. Some
+  // A picture that belongs to the haiku, shown under the lines at full strength. Some
   // leave a word as ___ for the picture to say, so alt should say it too. The
   // file goes in public/haiku.
   image?: { src: string; alt: string };
