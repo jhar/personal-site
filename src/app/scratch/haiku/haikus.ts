@@ -8,6 +8,10 @@ export interface Haiku {
   // The drawing behind it, from src/components/HaikuArt. Leave it out for the
   // plain 5-7-5 dots.
   art?: ArtName;
+  // A picture that belongs to the haiku, shown above it at full strength. Some
+  // leave a word as ___ for the picture to say, so alt should say it too. The
+  // file goes in public/haiku.
+  image?: { src: string; alt: string };
 }
 
 // To add a haiku, add an entry here (any order) and, if it should have its own
@@ -15,13 +19,18 @@ export interface Haiku {
 // the list shows the date and first line, and the address comes from the first
 // line (/scratch/haiku/one-crow-on-the-wire).
 //
-// PLACEHOLDERS: these three are stand-ins written by Claude to show the design.
+// PLACEHOLDERS: these four are stand-ins written by Claude to show the design.
 // Replace them with the real ones before this ships.
 const haikus: Haiku[] = [
   {
     date: "2026-11-08",
     lines: ["One crow on the wire", "the whole grey morning leaning", "toward its small weight"],
     art: "crow",
+  },
+  {
+    date: "2026-10",
+    lines: ["Alarm, cold floor, ___", "the kettle already knows", "what today will be"],
+    image: { src: "/haiku/placeholder-cap.svg", alt: "A cap that says WAR, and a finger pointing at it" },
   },
   {
     date: "2026-09-21",
