@@ -87,8 +87,8 @@ export interface Game {
   // Also dropped next to a regular grub now and then, never with a disco grub.
   // Eating it costs SUS_PENALTY points; eating the regular grub removes it.
   sus: Sus | null;
-  // Also dropped next to a regular grub now and then, as the only extra. Worth
-  // JUKE_POINTS if you catch it; eating the regular grub removes it.
+  // Now and then dropped on its own, instead of a regular grub (never with
+  // another grub). Worth JUKE_POINTS if you catch it.
   juke: Juke | null;
   frenzyUntil: number;
   // Whether this frenzy's bonus grubs have earned the end-of-frenzy segment.
@@ -117,8 +117,8 @@ export const START_SLOWDOWN = 1 / SPEED_UP;
 const MIN_INTERVAL_RATIO = 0.5 / START_SLOWDOWN;
 export const MAX_LEVEL = Math.ceil(Math.log(MIN_INTERVAL_RATIO) / Math.log(SPEED_UP)) + 1;
 
-// Deviant grubs (disco, sus, juke) drop next to a regular grub, at most one
-// at a time. Each kind's chance per regular grub eaten starts at DEVIANT_BASE
+// Deviant grubs: disco and sus drop next to a regular grub, juke drops alone
+// instead of one, and there's at most one at a time. Each kind's chance per regular grub eaten starts at DEVIANT_BASE
 // and rises with the score until it reaches DEVIANT_MAX: 24% for any of them
 // at the start, 60% from a score of 60.
 const DEVIANT_AFTER = 3; // regular grubs eaten before any can appear
@@ -323,6 +323,29 @@ function juke(game: Game, juke: Juke): Juke {
   return { ...cell, energy, nextMoveAt: juke.nextMoveAt + pace * stepInterval(game) };
 }
 
+// After a grub is eaten (a regular one or a juke): clears the board's grubs and
+// drops the next ones. Usually that's a regular grub; now and then a disco or
+// sus grub drops next to it, or a juke drops on its own instead of it.
+function dropGrubs(game: Game): Game {
+  let next: Game = { ...game, colors: randomizeColorSet(), grub: null, disco: null, sus: null, juke: null };
+  const cell = freeCell(next);
+  const chance = deviantChance(next.score);
+  const roll = Math.random();
+  const deviant = cell !== null && !inFrenzy(next) && next.eaten >= DEVIANT_AFTER && roll < 3 * chance;
+  if (cell && deviant && roll < chance) {
+    return { ...next, juke: { ...cell, energy: JUKE_ENERGY, nextMoveAt: next.clock } };
+  }
+  next = { ...next, grub: cell };
+  const second = deviant ? freeCell(next) : null;
+  if (second && roll < 2 * chance) {
+    next = { ...next, disco: second };
+  } else if (second) {
+    const nextTellAt = next.clock + between(SUS_FIRST_TELL_MS);
+    next = { ...next, sus: { ...second, tell: null, lastTell: null, tellUntil: 0, nextTellAt } };
+  }
+  return next;
+}
+
 function step(game: Game): Game {
   const [turn, ...turns] = game.turns;
   const direction = turn ?? game.direction;
@@ -343,22 +366,7 @@ function step(game: Game): Game {
   next = { ...next, head, body: [...kept, { ...head, id: next.nextId }], nextId: next.nextId + 1 };
 
   if (next.grub && same(next.grub, head)) {
-    next = { ...next, eaten: next.eaten + 1, score: next.score + 1, colors: randomizeColorSet(), grub: null, disco: null, sus: null, juke: null };
-    next = { ...next, grub: freeCell(next) };
-    // Now and then a second grub drops too: disco, sus or juke, never two.
-    const chance = deviantChance(next.score);
-    const roll = Math.random();
-    const cell = !inFrenzy(next) && next.eaten >= DEVIANT_AFTER && roll < 3 * chance
-      ? freeCell(next)
-      : null;
-    if (cell && roll < chance) {
-      next = { ...next, disco: cell };
-    } else if (cell && roll < 2 * chance) {
-      next = { ...next, juke: { ...cell, energy: JUKE_ENERGY, nextMoveAt: next.clock } };
-    } else if (cell) {
-      const nextTellAt = next.clock + between(SUS_FIRST_TELL_MS);
-      next = { ...next, sus: { ...cell, tell: null, lastTell: null, tellUntil: 0, nextTellAt } };
-    }
+    next = dropGrubs({ ...next, eaten: next.eaten + 1, score: next.score + 1 });
   }
 
   if (next.sus && same(next.sus, head)) {
@@ -380,14 +388,13 @@ function step(game: Game): Game {
   if (next.juke && same(next.juke, head)) {
     const { x, y } = next.juke;
     const popup = { id: next.nextId, x, y, value: JUKE_POINTS, from: next.clock, until: next.clock + JUKE_POINTS * 1000 };
-    next = {
+    next = dropGrubs({
       ...next,
       eaten: next.eaten + 1,
       score: next.score + JUKE_POINTS,
-      juke: null,
       nextId: next.nextId + 1,
       popups: [...next.popups, popup],
-    };
+    });
   } else if (next.juke) {
     next = { ...next, juke: juke(next, next.juke) };
   }
@@ -463,7 +470,7 @@ export function reduce(game: Game, action: Action): Game {
         juke: game.juke && clamp(game.juke, cols, rows),
         bonuses: game.bonuses.map(bonus => clamp(bonus, cols, rows)),
       };
-      return next.grub ? next : { ...next, grub: freeCell(next) };
+      return next.grub || next.juke ? next : { ...next, grub: freeCell(next) };
     }
     case "steps": {
       if (!running(game) || game.cols < 1 || game.rows < 1) return game;
