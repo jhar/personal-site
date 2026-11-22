@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function HaikuList() {
   return (
     <div className="max-w-5xl pb-20 mx-auto w-[86%]">
-      <div className="max-w-xl mx-auto">
+      <div className="max-w-xl">
         <h1 className="mb-6 text-xs uppercase tracking-[0.25em]">Haiku</h1>
         <ul className="border-t border-rule">
           {entries.map((h) => (
