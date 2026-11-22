@@ -20,6 +20,11 @@ export interface Haiku {
 // line (/scratch/haiku/what-have-i-lost-by).
 const haikus: Haiku[] = [
   {
+    date: "2024-11-30",
+    lines: ["Wish Winter on me", "Spirit you refuse to see", "Soon to enjoy Spring"],
+    art: "winter",
+  },
+  {
     date: "2024-12-05",
     lines: ["No one will read this", "But I must make a haiku", "Watching in the night"],
     art: "night",
@@ -89,6 +94,16 @@ const haikus: Haiku[] = [
     date: "2025-10-13",
     lines: ["I smell gas in here", "Not a metaphor for what", "You told me today"],
     art: "gas",
+  },
+  {
+    date: "2026",
+    lines: ["Moral inversion", "A half-truth is a whole lie", "Flying monkey sauce"],
+    art: "sauce",
+  },
+  {
+    date: "2026-11-20",
+    lines: ["Trauma spirals traced", "in cracked glass. A character", "pattern? Nay, a crime."],
+    art: "glass",
   },
 ];
 

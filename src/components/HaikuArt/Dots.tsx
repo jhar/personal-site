@@ -1,6 +1,6 @@
 const ROWS = [5, 7, 5];
 
-// Five, seven, five, low on the page: the default drawing, also behind the list.
+// Five, seven, five, low on the page: the drawing for a haiku without its own.
 export default function Dots() {
   return (
     <g>

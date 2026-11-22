@@ -8,6 +8,7 @@ import Dots from "./Dots";
 import Dunes from "./Dunes";
 import Fish from "./Fish";
 import Gas from "./Gas";
+import Glass from "./Glass";
 import House from "./House";
 import Logs from "./Logs";
 import Night from "./Night";
@@ -18,6 +19,7 @@ import Playbook from "./Playbook";
 import Raft from "./Raft";
 import Rainbow from "./Rainbow";
 import Roll from "./Roll";
+import Sauce from "./Sauce";
 import Shaping from "./Shaping";
 import Sleep from "./Sleep";
 import Winter from "./Winter";
@@ -32,6 +34,7 @@ const ART = {
   dunes: Dunes,
   fish: Fish,
   gas: Gas,
+  glass: Glass,
   house: House,
   logs: Logs,
   night: Night,
@@ -42,6 +45,7 @@ const ART = {
   raft: Raft,
   rainbow: Rainbow,
   roll: Roll,
+  sauce: Sauce,
   shaping: Shaping,
   sleep: Sleep,
   winter: Winter,
