@@ -97,7 +97,7 @@ const haikus: Haiku[] = [
   },
   {
     date: "2026-11-20",
-    lines: ["Trauma spirals traced", "in cracked glass. A character", "pattern? Nay, a crime."],
+    lines: ["Trauma spirals traced", "in cracked glass. A character", "pattern? No. A crime."],
     art: "glass",
   },
 ];
