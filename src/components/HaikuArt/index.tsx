@@ -1,5 +1,6 @@
 import Adrift from "./Adrift";
 import Bar from "./Bar";
+import Board from "./Board";
 import Descent from "./Descent";
 import Desert from "./Desert";
 import Dots from "./Dots";
@@ -20,6 +21,7 @@ import Winter from "./Winter";
 const ART = {
   adrift: Adrift,
   bar: Bar,
+  board: Board,
   descent: Descent,
   desert: Desert,
   drain: Drain,

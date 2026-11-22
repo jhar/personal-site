@@ -105,6 +105,11 @@ const haikus: Haiku[] = [
     lines: ["Trauma spirals traced", "in cracked glass. A character", "pattern? No. A crime."],
     art: "glass",
   },
+  {
+    date: "2026-11-22",
+    lines: ["“You don’t belong here”", "Why not? You’re playing a game", "You don’t want to win."],
+    art: "board",
+  },
 ];
 
 export interface Entry extends Haiku {
