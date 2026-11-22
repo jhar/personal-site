@@ -1,8 +1,8 @@
-import { BLACK, Ground, ROSE } from "./parts";
+import { Ground, ROSE } from "./parts";
 
 const STEPS = Array.from({ length: 9 }, (_, i) => i);
 
-// Rooms inside rooms, turning as they go down, behind a counter.
+// Rooms inside rooms, turning as they go down, and one long counter across them.
 export default function Descent() {
   return (
     <>
@@ -21,7 +21,7 @@ export default function Descent() {
           />
         );
       })}
-      <rect x="-300" y="596" width="1600" height="400" fill={BLACK} />
+      <rect x="-300" y="560" width="1600" height="26" fill={ROSE} />
     </>
   );
 }
