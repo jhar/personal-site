@@ -43,8 +43,7 @@ const haikus: Haiku[] = [
     date: "2024-12-17",
     lines: ["How do I accept", "My vulnerabilities", "When I lust for ___"],
     art: "war",
-    // PLACEHOLDER picture, drawn by Claude, until the real one is in.
-    image: { src: "/haiku/placeholder-cap.svg", alt: "A cap that says WAR, and a finger pointing at it" },
+    image: { src: "/haiku/war.jpg", alt: "Marvin Hagler pointing at his red cap, which says WAR" },
   },
   {
     date: "2024-12-19",
