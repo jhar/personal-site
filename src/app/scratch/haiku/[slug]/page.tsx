@@ -36,7 +36,8 @@ export default async function HaikuPage({ params }: Props) {
       {/* A haiku with its own picture gets no drawing behind it unless it asks for one. */}
       {(haiku.art || !haiku.image) && <HaikuArt name={haiku.art} />}
       <article className="relative">
-        <p className="font-nav text-2xl leading-[1.9] text-ink-strong sm:text-4xl sm:leading-[1.9]">
+        {/* A line never wraps, so the type shrinks with a narrow screen instead. */}
+        <p className="font-nav leading-[1.9] text-[clamp(1rem,5.2vw,1.5rem)] text-ink-strong whitespace-nowrap sm:text-3xl sm:leading-[1.9] md:text-4xl md:leading-[1.9]">
           {haiku.lines.map((line) => <span key={line} className="block">{line}</span>)}
         </p>
         {haiku.image && (

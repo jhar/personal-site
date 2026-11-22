@@ -1,9 +1,51 @@
-import Crow from "./Crow";
+import Barbell from "./Barbell";
+import Bat from "./Bat";
+import Bowl from "./Bowl";
+import Cookie from "./Cookie";
+import Counter from "./Counter";
+import Demon from "./Demon";
 import Dots from "./Dots";
-import Moon from "./Moon";
-import Rain from "./Rain";
+import Dunes from "./Dunes";
+import Fish from "./Fish";
+import Gas from "./Gas";
+import House from "./House";
+import Logs from "./Logs";
+import Night from "./Night";
+import Noon from "./Noon";
+import Nosferatu from "./Nosferatu";
+import Odometer from "./Odometer";
+import Playbook from "./Playbook";
+import Raft from "./Raft";
+import Rainbow from "./Rainbow";
+import Roll from "./Roll";
+import Shaping from "./Shaping";
+import Sleep from "./Sleep";
+import Winter from "./Winter";
 
-const ART = { crow: Crow, moon: Moon, rain: Rain };
+const ART = {
+  barbell: Barbell,
+  bat: Bat,
+  bowl: Bowl,
+  cookie: Cookie,
+  counter: Counter,
+  demon: Demon,
+  dunes: Dunes,
+  fish: Fish,
+  gas: Gas,
+  house: House,
+  logs: Logs,
+  night: Night,
+  noon: Noon,
+  nosferatu: Nosferatu,
+  odometer: Odometer,
+  playbook: Playbook,
+  raft: Raft,
+  rainbow: Rainbow,
+  roll: Roll,
+  shaping: Shaping,
+  sleep: Sleep,
+  winter: Winter,
+};
 
 export type ArtName = keyof typeof ART;
 
