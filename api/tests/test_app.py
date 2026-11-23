@@ -63,6 +63,13 @@ def test_missing_geo_is_unknown():
     assert (visit["ip"], visit["country"], visit["region"], visit["city"]) == ("unknown",) * 4
 
 
+def test_junk_referrer_is_empty():
+    d = deps()
+    for junk in ("undefined", "null", " "):
+        get("/api/visit", d, {"path": "/", "referrer": junk})
+    assert [v["referrer"] for v in d.store.visits] == ["", "", ""]
+
+
 def test_skips_admin_and_invalid_paths():
     d = deps()
     for path in ("/admin/visits", "about", ""):
