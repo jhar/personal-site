@@ -25,6 +25,8 @@ MOVIES_TTL_SECONDS = 15 * 60
 MAX_FIELD = 1024
 ADMIN_PAGE_SIZE = 100
 MAX_ADMIN_PAGE_SIZE = 500
+# How often visit logging may also prune expired visits, per isolate.
+PRUNE_EVERY_SECONDS = 60 * 60
 
 
 @dataclass
@@ -52,6 +54,8 @@ class Deps:
     store: Store
     fetch_movies: Callable[[], Awaitable[list[Movie]]]
     admin_token: str | None = None
+    # Visits older than this many days are deleted (staging); None keeps them all.
+    visit_retention_days: int | None = None
     now: Callable[[], float] = time.time
 
 
@@ -80,16 +84,27 @@ async def _log_visit(req: Request, deps: Deps) -> Response:
         "path": _clip(path),
         "referrer": _referrer(req.query.get("referrer")),
         "userAgent": _clip(h.get("user-agent")),
-        "ts": datetime.fromtimestamp(deps.now(), UTC)
-        .isoformat(timespec="milliseconds")
-        .replace("+00:00", "Z"),
+        "ts": _iso(deps.now()),
     }
     try:
         await deps.store.add_visit(visit, str(uuid.uuid4()))
+        if deps.now() - _last_prune.get("at", 0.0) >= PRUNE_EVERY_SECONDS:
+            await _prune_visits(deps)
     except Exception:
         # Never let logging break the app
         log.exception("failed to store visit")
     return Response(204, NO_STORE)
+
+
+_last_prune: dict[str, float] = {}
+
+
+async def _prune_visits(deps: Deps) -> None:
+    if not deps.visit_retention_days:
+        return
+    _last_prune["at"] = deps.now()
+    cutoff = deps.now() - deps.visit_retention_days * 86400
+    await deps.store.delete_visits_before(_iso(cutoff))
 
 
 # Per-isolate copy of the feed, in front of the D1 copy every isolate shares.
@@ -158,6 +173,7 @@ def _paging(req: Request) -> tuple[int, int]:
 async def _admin_visits(req: Request, deps: Deps) -> Response:
     if not _is_admin(req, deps):
         return _json(401, {"error": "unauthorized"}, NO_STORE)
+    await _prune_visits(deps)
     page, per = _paging(req)
     items = await deps.store.recent_visits(per, (page - 1) * per)
     total = await deps.store.count_visits()
@@ -218,6 +234,10 @@ ROUTES: dict[str, dict[str, Handler]] = {
     "/api/snek/scores": {"GET": _snek_scores, "POST": _snek_submit},
     "/api/snek/games": {"POST": _snek_new_game},
 }
+
+
+def _iso(ts: float) -> str:
+    return datetime.fromtimestamp(ts, UTC).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
 
 def _clip(value: str | None) -> str:
