@@ -78,7 +78,7 @@ async def _log_visit(req: Request, deps: Deps) -> Response:
         "region": _clip(geo.get("region")) or "unknown",
         "city": _clip(geo.get("city")) or "unknown",
         "path": _clip(path),
-        "referrer": _clip(req.query.get("referrer")),
+        "referrer": _referrer(req.query.get("referrer")),
         "userAgent": _clip(h.get("user-agent")),
         "ts": datetime.fromtimestamp(deps.now(), UTC)
         .isoformat(timespec="milliseconds")
@@ -222,6 +222,12 @@ ROUTES: dict[str, dict[str, Handler]] = {
 
 def _clip(value: str | None) -> str:
     return (value or "")[:MAX_FIELD]
+
+
+def _referrer(value: str | None) -> str:
+    # Some clients send a stringified JS undefined/null instead of nothing.
+    value = (value or "").strip()
+    return "" if value.lower() in ("undefined", "null") else _clip(value)
 
 
 def _json(status: int, body: Any, headers: dict[str, str]) -> Response:
