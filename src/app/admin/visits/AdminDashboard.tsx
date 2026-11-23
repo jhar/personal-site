@@ -292,8 +292,18 @@ function VisitsTable({ visits }: { visits: Visit[] }) {
               <td className="py-1.5 pr-4 whitespace-nowrap">{cells[1]}</td>
               <td className="py-1.5 pr-4 opacity-70">{cells[2]}</td>
               <td className="py-1.5 pr-4 whitespace-nowrap">{cells[3]}</td>
-              <td className="py-1.5 pr-4 max-w-[260px] [overflow-wrap:anywhere] opacity-70">{cells[4]}</td>
-              <td className="py-1.5 min-w-[18rem] break-words opacity-60 text-xs">{cells[5]}</td>
+              <td className="py-1.5 pr-4 opacity-70">
+                {/* One line; the full referrer is in the tooltip and the copied row. */}
+                <div className="max-w-[12rem] truncate" title={cells[4]}>
+                  {cells[4]}
+                </div>
+              </td>
+              <td className="py-1.5 w-full min-w-[12rem] opacity-60 text-xs">
+                {/* Fills the rest of the row on one line; the copy button has the full text. */}
+                <div className="w-0 min-w-full truncate" title={cells[5]}>
+                  {cells[5]}
+                </div>
+              </td>
             </tr>
           );
         })}
