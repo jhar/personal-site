@@ -298,7 +298,12 @@ function VisitsTable({ visits }: { visits: Visit[] }) {
                   {cells[4]}
                 </div>
               </td>
-              <td className="py-1.5 min-w-[14rem] break-words opacity-60 text-xs">{cells[5]}</td>
+              <td className="py-1.5 w-full min-w-[12rem] opacity-60 text-xs">
+                {/* Fills the rest of the row on one line; the copy button has the full text. */}
+                <div className="w-0 min-w-full truncate" title={cells[5]}>
+                  {cells[5]}
+                </div>
+              </td>
             </tr>
           );
         })}
