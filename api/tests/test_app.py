@@ -63,6 +63,46 @@ def test_missing_geo_is_unknown():
     assert (visit["ip"], visit["country"], visit["region"], visit["city"]) == ("unknown",) * 4
 
 
+def test_junk_referrer_is_empty():
+    d = deps()
+    for junk in ("undefined", "null", " "):
+        get("/api/visit", d, {"path": "/", "referrer": junk})
+    assert [v["referrer"] for v in d.store.visits] == ["", "", ""]
+
+
+def test_retention_prunes_old_visits():
+    from site_api import app
+
+    app._last_prune.clear()
+    store = MemoryStore()
+    store.visits = [
+        {"ts": "2025-08-01T00:00:00.000Z", "path": "/old"},
+        {"ts": "2025-10-01T00:00:00.000Z", "path": "/recent"},
+    ]
+    d = deps(store=store, visit_retention_days=30)
+    get("/api/visit", d, {"path": "/new"})
+    assert [v["path"] for v in store.visits] == ["/recent", "/new"]
+
+
+def test_no_retention_keeps_everything():
+    from site_api import app
+
+    app._last_prune.clear()
+    store = MemoryStore()
+    store.visits = [{"ts": "2020-01-01T00:00:00.000Z", "path": "/old"}]
+    get("/api/visit", deps(store=store), {"path": "/new"})
+    res = get("/api/admin/visits", deps(store=store), headers={"x-admin-token": "secret"})
+    assert json.loads(res.body)["total"] == 2
+
+
+def test_admin_view_prunes_on_read():
+    store = MemoryStore()
+    store.visits = [{"ts": "2025-08-01T00:00:00.000Z", "path": "/old"}]
+    d = deps(store=store, visit_retention_days=30)
+    res = get("/api/admin/visits", d, headers={"x-admin-token": "secret"})
+    assert json.loads(res.body)["total"] == 0
+
+
 def test_skips_admin_and_invalid_paths():
     d = deps()
     for path in ("/admin/visits", "about", ""):

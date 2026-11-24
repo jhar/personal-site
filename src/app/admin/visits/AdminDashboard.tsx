@@ -210,11 +210,63 @@ function place(...parts: string[]) {
   return parts.filter((x) => x && x !== "unknown").join(", ") || "—";
 }
 
+// Missing values read "—" everywhere, including old rows logged as "undefined".
+function dash(value: string | null | undefined) {
+  const v = (value ?? "").trim();
+  return v && v !== "undefined" && v !== "null" ? v : "—";
+}
+
+// Copies a whole row as tab-separated text, so it pastes like a selected row.
+function CopyRow({ cells }: { cells: string[] }) {
+  const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
+
+  useEffect(() => {
+    if (state === "idle") return;
+    const t = setTimeout(() => setState("idle"), 1500);
+    return () => clearTimeout(t);
+  }, [state]);
+
+  const copy = () =>
+    navigator.clipboard
+      .writeText(cells.join("\t"))
+      .then(() => setState("copied"))
+      .catch(() => setState("failed"));
+
+  const label = state === "copied" ? "Copied" : state === "failed" ? "Copy failed" : "Copy row";
+  return (
+    <td className="py-1.5 pr-3 align-top w-0">
+      <button
+        type="button"
+        onClick={copy}
+        aria-label={label}
+        title={label}
+        className={`block p-0.5 rounded transition-opacity ${
+          state === "copied" ? "text-green-400" : state === "failed" ? "text-red-400" : "opacity-40 hover:opacity-100"
+        }`}
+      >
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+          {state === "copied" ? (
+            <path d="M3 8.5l3 3 7-7" strokeLinecap="round" strokeLinejoin="round" />
+          ) : (
+            <>
+              <rect x="5.5" y="5.5" width="8" height="8" rx="1.5" />
+              <path d="M10.5 5.5V3.5a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 3.5V9A1.5 1.5 0 0 0 4 10.5h1.5" />
+            </>
+          )}
+        </svg>
+      </button>
+    </td>
+  );
+}
+
 function VisitsTable({ visits }: { visits: Visit[] }) {
   return (
     <table className="w-full text-sm font-mono border-collapse">
       <thead>
         <tr className="text-left border-b border-slate-600">
+          <th className="pb-2 pr-3 w-0">
+            <span className="sr-only">Copy</span>
+          </th>
           <Th>Time</Th>
           <Th>Path</Th>
           <Th>IP</Th>
@@ -224,20 +276,37 @@ function VisitsTable({ visits }: { visits: Visit[] }) {
         </tr>
       </thead>
       <tbody>
-        {visits.map((v, i) => (
-          <tr key={i} className="border-b border-slate-700 hover:bg-slate-800">
-            <td className="py-1.5 pr-4 whitespace-nowrap opacity-70">{new Date(v.ts).toLocaleString()}</td>
-            <td className="py-1.5 pr-4">{v.path}</td>
-            <td className="py-1.5 pr-4 opacity-70">{v.ip}</td>
-            <td className="py-1.5 pr-4 whitespace-nowrap">{place(v.city, v.region, v.country)}</td>
-            <td className="py-1.5 pr-4 max-w-[200px] truncate opacity-70" title={v.referrer || "—"}>
-              {v.referrer || "—"}
-            </td>
-            <td className="py-1.5 max-w-[300px] truncate opacity-50 text-xs" title={v.userAgent}>
-              {v.userAgent}
-            </td>
-          </tr>
-        ))}
+        {visits.map((v, i) => {
+          const cells = [
+            new Date(v.ts).toLocaleString(),
+            v.path,
+            v.ip,
+            place(v.city, v.region, v.country),
+            dash(v.referrer),
+            dash(v.userAgent),
+          ];
+          return (
+            <tr key={i} className="border-b border-slate-700 hover:bg-slate-800 align-top">
+              <CopyRow cells={cells} />
+              <td className="py-1.5 pr-4 whitespace-nowrap opacity-70">{cells[0]}</td>
+              <td className="py-1.5 pr-4 whitespace-nowrap">{cells[1]}</td>
+              <td className="py-1.5 pr-4 opacity-70">{cells[2]}</td>
+              <td className="py-1.5 pr-4 whitespace-nowrap">{cells[3]}</td>
+              <td className="py-1.5 pr-4 opacity-70">
+                {/* One line; the full referrer is in the tooltip and the copied row. */}
+                <div className="max-w-[12rem] truncate" title={cells[4]}>
+                  {cells[4]}
+                </div>
+              </td>
+              <td className="py-1.5 w-full min-w-[12rem] opacity-60 text-xs">
+                {/* Fills the rest of the row on one line; the copy button has the full text. */}
+                <div className="w-0 min-w-full truncate" title={cells[5]}>
+                  {cells[5]}
+                </div>
+              </td>
+            </tr>
+          );
+        })}
       </tbody>
     </table>
   );
@@ -250,6 +319,9 @@ function ScoresTable({ scores }: { scores: AdminScore[] }) {
     <table className="w-full text-sm font-mono border-collapse tabular-nums">
       <thead>
         <tr className="text-left border-b border-slate-600">
+          <th className="pb-2 pr-3 w-0">
+            <span className="sr-only">Copy</span>
+          </th>
           <Th right>#</Th>
           <Th>Who</Th>
           <Th right>Score</Th>
@@ -261,6 +333,16 @@ function ScoresTable({ scores }: { scores: AdminScore[] }) {
       <tbody>
         {scores.map((s) => (
           <tr key={s.id} className="border-b border-slate-700 hover:bg-slate-800">
+            <CopyRow
+              cells={[
+                String(s.rank),
+                s.initials,
+                String(s.score),
+                new Date(s.ts).toLocaleString(),
+                place(s.city, s.country),
+                dash(s.ip_hash),
+              ]}
+            />
             <td className="py-1.5 pr-4 text-right opacity-70">{s.rank}</td>
             <td className="py-1.5 pr-4 font-bold">{s.initials}</td>
             <td className="py-1.5 pr-4 text-right">{s.score.toLocaleString()}</td>

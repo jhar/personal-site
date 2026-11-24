@@ -32,6 +32,8 @@
       "routes": [{ "pattern": "staging.justinharrison.dev", "custom_domain": true }],
       "workers_dev": true,
       "preview_urls": false,
+      // Staging keeps visits for 30 days; production keeps them forever.
+      "vars": { "VISIT_RETENTION_DAYS": "30" },
       "d1_databases": [
         {
           "binding": "DB",

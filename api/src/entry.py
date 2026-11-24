@@ -24,6 +24,10 @@ async def fetch_movies() -> list[Movie]:
     return parse_feed(await res.text())
 
 
+def _int_var(value) -> int | None:
+    return int(value) if value and str(value).isdigit() else None
+
+
 class Default(WorkerEntrypoint):
     async def fetch(self, request):
         url = urlsplit(request.url)
@@ -49,6 +53,7 @@ class Default(WorkerEntrypoint):
                 store=D1Store(self.env.DB),
                 fetch_movies=fetch_movies,
                 admin_token=getattr(self.env, "ADMIN_TOKEN", None),
+                visit_retention_days=_int_var(getattr(self.env, "VISIT_RETENTION_DAYS", None)),
             ),
         )
         # A 204 must not have a body, not even an empty one.

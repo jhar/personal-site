@@ -1,6 +1,7 @@
 """Visit storage, Snek-VG scores and the shared cache, in Cloudflare D1 (SQLite).
 
-Schema is in api/migrations. Visits never expire.
+Schema is in api/migrations. Visits never expire in production; staging deletes
+them after VISIT_RETENTION_DAYS.
 """
 
 from typing import Any, Protocol
@@ -49,6 +50,10 @@ class Store(Protocol):
 
     async def count_visits(self) -> int: ...
 
+    async def delete_visits_before(self, ts: str) -> None:
+        """Deletes visits logged before ts (ISO 8601 UTC)."""
+        ...
+
     async def get_cached(self, key: str) -> tuple[str, float] | None:
         """(value, fetched_at) or None."""
         ...
@@ -90,6 +95,9 @@ class D1Store:
     async def count_visits(self) -> int:
         row = _py(await self.db.prepare("SELECT COUNT(*) AS n FROM visits").first())
         return int(row["n"]) if row else 0
+
+    async def delete_visits_before(self, ts: str) -> None:
+        await self.db.prepare("DELETE FROM visits WHERE ts < ?").bind(ts).run()
 
     async def get_cached(self, key: str) -> tuple[str, float] | None:
         row = _py(
@@ -186,6 +194,9 @@ class MemoryStore:
 
     async def count_visits(self) -> int:
         return len(self.visits)
+
+    async def delete_visits_before(self, ts: str) -> None:
+        self.visits = [v for v in self.visits if v["ts"] >= ts]
 
     async def get_cached(self, key: str) -> tuple[str, float] | None:
         return self.cache.get(key)
