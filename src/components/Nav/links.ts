@@ -1,9 +1,6 @@
 export interface Link {
   href: string;
   text: string;
-  native?: boolean;
-  // Page to use instead of a native PDF link when the browser can't show PDFs.
-  fallback?: string;
 }
 
 export const links: Link[] = [
@@ -16,10 +13,8 @@ export const links: Link[] = [
     text: "about",
   },
   {
-    href: "/resume.pdf",
+    href: "/resume",
     text: "resume",
-    native: true,
-    fallback: "/resume",
   },
   {
     href: "/scratch",

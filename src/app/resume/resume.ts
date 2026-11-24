@@ -1,4 +1,4 @@
-// Text of public/resume.pdf, for browsers that can't show PDFs (iOS Lockdown Mode).
+// Text of public/resume.pdf, shown at /resume.
 // Keep it in step with the PDF when the resume changes.
 
 export interface Job {
