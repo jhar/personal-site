@@ -12,7 +12,8 @@ from site_api.app import Deps, Request, handle_request
 from site_api.letterboxd import RSS_URL, Movie, parse_feed
 from site_api.store import D1Store
 
-GEO_FIELDS = ("country", "region", "city")
+# From request.cf: geolocation plus the network name (e.g. "DigitalOcean").
+GEO_FIELDS = ("country", "region", "city", "asOrganization")
 # Larger bodies are refused before they're read (the app refuses over 1 KB).
 MAX_BODY = 4096
 

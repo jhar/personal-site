@@ -38,7 +38,12 @@ def test_logs_visit_with_cloudflare_geo():
         d,
         {"path": "/about", "referrer": "https://google.com/"},
         {"cf-connecting-ip": "2001:db8::1", "user-agent": "test-agent"},
-        {"country": "US", "region": "California", "city": "San Francisco"},
+        {
+            "country": "US",
+            "region": "California",
+            "city": "San Francisco",
+            "asOrganization": "Comcast Cable Communications, LLC",
+        },
     )
     assert res.status == 204
     assert res.body == ""
@@ -52,6 +57,7 @@ def test_logs_visit_with_cloudflare_geo():
             "referrer": "https://google.com/",
             "userAgent": "test-agent",
             "ts": "2025-10-09T08:53:20.000Z",
+            "network": "Comcast Cable Communications, LLC",
         }
     ]
 
@@ -153,6 +159,25 @@ def test_admin_visits_pages():
     assert (junk["page"], junk["per"], len(junk["items"])) == (1, 500, 25)
     zero = json.loads(get("/api/admin/visits", d, {"page": "-3", "per": "0"}, auth).body)
     assert (zero["page"], zero["per"]) == (1, 1)
+
+
+def test_admin_visits_tag_and_hide_bots():
+    d = deps()
+    chrome = "Mozilla/5.0 (Macintosh) AppleWebKit/537.36 Chrome/131.0 Safari/537.36"
+    google = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
+    d.store.visits = [
+        {"ts": "2026-01-01T00:00:01.000Z", "userAgent": chrome, "network": "Comcast"},
+        {"ts": "2026-01-01T00:00:02.000Z", "userAgent": google},
+        {"ts": "2026-01-01T00:00:03.000Z", "userAgent": chrome, "network": "DigitalOcean, LLC"},
+        {"ts": "2026-01-01T00:00:04.000Z", "userAgent": chrome},
+    ]
+    auth = {"x-admin-token": "secret"}
+    every = json.loads(get("/api/admin/visits", d, {}, auth).body)
+    assert [v["bot"] for v in every["items"]] == ["", "DigitalOcean", "Googlebot", ""]
+    assert every["total"] == 4
+    people = json.loads(get("/api/admin/visits", d, {"bots": "hide"}, auth).body)
+    assert [v["ts"][-6:-5] for v in people["items"]] == ["4", "1"]
+    assert people["total"] == 2
 
 
 def score(i, method="keyboard", points=10):

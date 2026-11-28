@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
-from . import snek
+from . import bots, snek
 from .letterboxd import Movie
 from .store import Store, Visit
 
@@ -36,7 +36,7 @@ class Request:
     query: dict[str, str] = field(default_factory=dict)
     # Lower-cased header names.
     headers: dict[str, str] = field(default_factory=dict)
-    # Cloudflare's request.cf geolocation: country, region, city.
+    # Cloudflare's request.cf: country, region, city, asOrganization.
     geo: dict[str, str] = field(default_factory=dict)
     # Request body, read only for POST.
     body: str = ""
@@ -85,6 +85,8 @@ async def _log_visit(req: Request, deps: Deps) -> Response:
         "referrer": _referrer(req.query.get("referrer")),
         "userAgent": _clip(h.get("user-agent")),
         "ts": _iso(deps.now()),
+        # The network the visit came from, e.g. "Comcast Cable" or "DigitalOcean".
+        "network": _clip(geo.get("asOrganization")),
     }
     try:
         await deps.store.add_visit(visit, str(uuid.uuid4()))
@@ -175,8 +177,14 @@ async def _admin_visits(req: Request, deps: Deps) -> Response:
         return _json(401, {"error": "unauthorized"}, NO_STORE)
     await _prune_visits(deps)
     page, per = _paging(req)
-    items = await deps.store.recent_visits(per, (page - 1) * per)
-    total = await deps.store.count_visits()
+    # ?bots=hide leaves out visits that look automated; either way each visit
+    # carries a "bot" label ("" for people).
+    humans_only = req.query.get("bots") == "hide"
+    visits = await deps.store.recent_visits(per, (page - 1) * per, humans_only)
+    items = [
+        {**v, "bot": bots.classify(v.get("userAgent", ""), v.get("network", ""))} for v in visits
+    ]
+    total = await deps.store.count_visits(humans_only)
     return _json(200, {"items": items, "total": total, "page": page, "per": per}, NO_STORE)
 
 

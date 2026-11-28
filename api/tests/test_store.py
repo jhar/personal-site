@@ -15,6 +15,7 @@ def visit(ts, path="/"):
         "referrer": "",
         "userAgent": "agent",
         "ts": ts,
+        "network": "Comcast Cable Communications, LLC",
     }
 
 
