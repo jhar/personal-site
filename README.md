@@ -82,7 +82,12 @@ Each has its own D1 database and admin token. The domains are Workers custom
 domains (`routes` in `wrangler.jsonc`): Cloudflare creates their DNS records and
 certificates on deploy. Staging also keeps its `workers.dev` URL; prod's is off.
 
-Terraform owns the D1 databases, the admin tokens, the state bucket and the
+`www.justinharrison.dev` 301-redirects to `https://justinharrison.dev` (path
+and query string kept), from a Single Redirect rule and a placeholder DNS
+record in `infra/envs/prod/www.tf`. If a `www` record already exists in the
+dashboard, delete it before applying, or the apply fails on the duplicate name.
+
+Terraform owns the D1 databases, the www redirect, the admin tokens, the state bucket and the
 deploy token. GitHub Actions deploys the Worker code and static files with
 wrangler (from `wrangler.jsonc`) and applies D1 migrations, so code changes
 never need a Terraform run.
@@ -99,7 +104,9 @@ attach a Worker to a hostname that already has one.
 
 1. **Make a token for Terraform** (My Profile → API Tokens → Create Custom
    Token) with these account permissions: *Account API Tokens: Edit*, *D1: Edit*,
-   *Workers R2 Storage: Edit*, plus *Zone: Read* on `justinharrison.dev`. Then:
+   *Workers R2 Storage: Edit*, plus *Zone: Read*, *DNS: Edit* and *Single
+   Redirect: Edit* on `justinharrison.dev` (the last two are for the www
+   redirect in prod). Then:
 
    ```sh
    export CLOUDFLARE_API_TOKEN=...
