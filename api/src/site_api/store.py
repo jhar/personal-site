@@ -54,6 +54,10 @@ class Store(Protocol):
         """Deletes visits logged before ts (ISO 8601 UTC)."""
         ...
 
+    async def count_visits_since(self, ts: str, ip: str | None = None) -> int:
+        """Visits logged at or after ts, from ip if given."""
+        ...
+
     async def get_cached(self, key: str) -> tuple[str, float] | None:
         """(value, fetched_at) or None."""
         ...
@@ -98,6 +102,16 @@ class D1Store:
 
     async def delete_visits_before(self, ts: str) -> None:
         await self.db.prepare("DELETE FROM visits WHERE ts < ?").bind(ts).run()
+
+    async def count_visits_since(self, ts: str, ip: str | None = None) -> int:
+        if ip is None:
+            stmt = self.db.prepare("SELECT COUNT(*) AS n FROM visits WHERE ts >= ?").bind(ts)
+        else:
+            stmt = self.db.prepare(
+                "SELECT COUNT(*) AS n FROM visits WHERE ip = ? AND ts >= ?"
+            ).bind(ip, ts)
+        row = _py(await stmt.first())
+        return int(row["n"]) if row else 0
 
     async def get_cached(self, key: str) -> tuple[str, float] | None:
         row = _py(
@@ -197,6 +211,9 @@ class MemoryStore:
 
     async def delete_visits_before(self, ts: str) -> None:
         self.visits = [v for v in self.visits if v["ts"] >= ts]
+
+    async def count_visits_since(self, ts: str, ip: str | None = None) -> int:
+        return sum(1 for v in self.visits if v["ts"] >= ts and (ip is None or v["ip"] == ip))
 
     async def get_cached(self, key: str) -> tuple[str, float] | None:
         return self.cache.get(key)

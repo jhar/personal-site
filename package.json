@@ -10,7 +10,7 @@
     "dev:web": "next dev",
     "dev:api": "node -e \"fs.mkdirSync('out',{recursive:true})\" && npm run db:migrate && wrangler dev --port 8787",
     "db:migrate": "wrangler d1 migrations apply DB --local",
-    "build": "next build",
+    "build": "next build && node scripts/csp-hashes.mjs",
     "preview": "npm run build && npm run db:migrate && wrangler dev --port 3000",
     "lint": "eslint . && uv run --project api ruff check api scripts",
     "typecheck": "tsc --noEmit",

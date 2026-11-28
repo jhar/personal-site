@@ -27,6 +27,18 @@ ADMIN_PAGE_SIZE = 100
 MAX_ADMIN_PAGE_SIZE = 500
 # How often visit logging may also prune expired visits, per isolate.
 PRUNE_EVERY_SECONDS = 60 * 60
+# /api/visit rate limits. Someone reading the site logs one visit per page, so
+# these only stop scripts from filling the log (and D1's free write quota).
+VISITS_PER_IP_PER_HOUR = 120
+VISITS_PER_HOUR = 1000
+# Once an IP is over its limit, this isolate stops asking D1 about it for a while.
+BLOCK_SECONDS = 5 * 60
+MAX_BLOCKED = 1000
+# On every API response. The API only returns JSON, so it needs nothing loaded.
+API_HEADERS = {
+    "x-content-type-options": "nosniff",
+    "content-security-policy": "default-src 'none'; frame-ancestors 'none'",
+}
 
 
 @dataclass
@@ -60,6 +72,12 @@ class Deps:
 
 
 async def handle_request(req: Request, deps: Deps) -> Response:
+    res = await _route(req, deps)
+    res.headers = {**API_HEADERS, **res.headers}
+    return res
+
+
+async def _route(req: Request, deps: Deps) -> Response:
     route = ROUTES.get(req.path)
     if route is None:
         return _json(404, {"error": "not found"}, NO_STORE)
@@ -87,6 +105,8 @@ async def _log_visit(req: Request, deps: Deps) -> Response:
         "ts": _iso(deps.now()),
     }
     try:
+        if await _visit_limited(visit["ip"], deps):
+            return Response(429, NO_STORE)
         await deps.store.add_visit(visit, str(uuid.uuid4()))
         if deps.now() - _last_prune.get("at", 0.0) >= PRUNE_EVERY_SECONDS:
             await _prune_visits(deps)
@@ -97,6 +117,21 @@ async def _log_visit(req: Request, deps: Deps) -> Response:
 
 
 _last_prune: dict[str, float] = {}
+# IP -> when this isolate may check its limit again.
+_blocked: dict[str, float] = {}
+
+
+async def _visit_limited(ip: str, deps: Deps) -> bool:
+    now = deps.now()
+    if _blocked.get(ip, 0.0) > now:
+        return True
+    hour_ago = _iso(now - 3600)
+    if await deps.store.count_visits_since(hour_ago, ip) >= VISITS_PER_IP_PER_HOUR:
+        if len(_blocked) >= MAX_BLOCKED:
+            _blocked.clear()
+        _blocked[ip] = now + BLOCK_SECONDS
+        return True
+    return await deps.store.count_visits_since(hour_ago) >= VISITS_PER_HOUR
 
 
 async def _prune_visits(deps: Deps) -> None:
@@ -257,3 +292,8 @@ def _json(status: int, body: Any, headers: dict[str, str]) -> Response:
 def reset_movies_cache() -> None:
     """Test hook."""
     _movies_cache.clear()
+
+
+def reset_rate_limits() -> None:
+    """Test hook."""
+    _blocked.clear()

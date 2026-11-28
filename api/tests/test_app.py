@@ -3,7 +3,8 @@ import json
 
 import pytest
 
-from site_api.app import Deps, Request, handle_request, reset_movies_cache
+from site_api import app
+from site_api.app import Deps, Request, handle_request, reset_movies_cache, reset_rate_limits
 from site_api.store import MemoryStore
 
 NOW = 1_760_000_000.0  # 2025-10-09T08:53:20Z
@@ -12,6 +13,7 @@ NOW = 1_760_000_000.0  # 2025-10-09T08:53:20Z
 @pytest.fixture(autouse=True)
 def _reset():
     reset_movies_cache()
+    reset_rate_limits()
 
 
 async def no_movies():
@@ -265,3 +267,55 @@ def test_rejects_other_methods_and_paths():
     assert asyncio.run(handle_request(Request("POST", "/api/visit"), d)).status == 405
     assert get("/api/snek/games", d).status == 405
     assert get("/api/nope", d).status == 404
+
+
+def visit_from(ip, d):
+    return get("/api/visit", d, {"path": "/"}, {"cf-connecting-ip": ip})
+
+
+def test_visits_rate_limited_per_ip():
+    d = deps()
+    for _ in range(app.VISITS_PER_IP_PER_HOUR):
+        assert visit_from("192.0.2.1", d).status == 204
+    assert visit_from("192.0.2.1", d).status == 429
+    assert len(d.store.visits) == app.VISITS_PER_IP_PER_HOUR
+    # Someone else still gets logged.
+    assert visit_from("192.0.2.2", d).status == 204
+
+
+def test_visit_limit_resets_after_an_hour():
+    clock = [NOW]
+    d = deps(now=lambda: clock[0])
+    for _ in range(app.VISITS_PER_IP_PER_HOUR):
+        visit_from("192.0.2.1", d)
+    assert visit_from("192.0.2.1", d).status == 429
+    clock[0] += 3601
+    assert visit_from("192.0.2.1", d).status == 204
+
+
+def test_blocked_ip_skips_the_database(monkeypatch):
+    d = deps()
+    for _ in range(app.VISITS_PER_IP_PER_HOUR):
+        visit_from("192.0.2.1", d)
+    assert visit_from("192.0.2.1", d).status == 429
+
+    async def boom(*args, **kwargs):
+        raise AssertionError("asked D1")
+
+    monkeypatch.setattr(d.store, "count_visits_since", boom)
+    assert visit_from("192.0.2.1", d).status == 429
+
+
+def test_visits_rate_limited_overall(monkeypatch):
+    monkeypatch.setattr(app, "VISITS_PER_HOUR", 3)
+    d = deps()
+    for i in range(3):
+        assert visit_from(f"192.0.2.{i}", d).status == 204
+    assert visit_from("192.0.2.9", d).status == 429
+    assert len(d.store.visits) == 3
+
+
+def test_api_responses_get_security_headers():
+    for res in (get("/api/visit", deps(), {"path": "/"}), get("/api/nope", deps())):
+        assert res.headers["x-content-type-options"] == "nosniff"
+        assert res.headers["content-security-policy"].startswith("default-src 'none'")
