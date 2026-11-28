@@ -5,7 +5,7 @@ import type { Visit } from "@/lib/visits";
 
 // Same URL as before: /admin/visits?token=<ADMIN_TOKEN>. The page is static;
 // the token is checked by the API when data is fetched. ?view= and ?page= keep
-// the current tab and page across reloads.
+// the current tab and page across reloads, and ?bots=hide hides likely bots.
 
 type View = "visits" | "keyboard" | "touch";
 
@@ -41,22 +41,30 @@ type Result<T> =
   | { status: "error" }
   | { status: "ok"; data: Page<T> };
 
-function readUrl(): { token: string; view: View; page: number } {
+interface Nav {
+  token: string;
+  view: View;
+  page: number;
+  hideBots: boolean;
+}
+
+function readUrl(): Nav {
   const q = new URLSearchParams(location.search);
   const view = VIEWS.some((v) => v.id === q.get("view")) ? (q.get("view") as View) : "visits";
   const page = Math.max(1, parseInt(q.get("page") ?? "1", 10) || 1);
-  return { token: q.get("token") ?? "", view, page };
+  return { token: q.get("token") ?? "", view, page, hideBots: q.get("bots") === "hide" };
 }
 
-function apiUrl(view: View, page: number): string {
+function apiUrl({ view, page, hideBots }: Nav): string {
   const q = new URLSearchParams({ page: String(page), per: String(PER_PAGE) });
   if (view !== "visits") q.set("input", view);
+  else if (hideBots) q.set("bots", "hide");
   return `/api/admin/${view === "visits" ? "visits" : "snek"}?${q}`;
 }
 
 export default function AdminDashboard() {
   // null until the URL has been read on the client (the page is static).
-  const [nav, setNav] = useState<{ token: string; view: View; page: number } | null>(null);
+  const [nav, setNav] = useState<Nav | null>(null);
   // The last response, keyed by the URL it came from; anything else is loading.
   const [result, setResult] = useState<{ url: string; result: Result<Visit | AdminScore> } | null>(
     null,
@@ -69,7 +77,7 @@ export default function AdminDashboard() {
     return () => removeEventListener("popstate", read);
   }, []);
 
-  const url = nav && apiUrl(nav.view, nav.page);
+  const url = nav && apiUrl(nav);
   const token = nav?.token;
 
   useEffect(() => {
@@ -91,12 +99,14 @@ export default function AdminDashboard() {
   if (!nav) return null;
   const state = result?.url === url ? result.result : { status: "loading" as const };
 
-  const go = (view: View, page = 1) => {
+  const go = (view: View, page = 1, hideBots = nav.hideBots) => {
     const q = new URLSearchParams(location.search);
     q.set("view", view);
     q.set("page", String(page));
+    if (hideBots) q.set("bots", "hide");
+    else q.delete("bots");
     history.pushState(null, "", `?${q}`);
-    setNav({ ...nav, view, page });
+    setNav({ ...nav, view, page, hideBots });
     scrollTo({ top: 0 });
   };
 
@@ -128,10 +138,23 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      <h1 className="text-2xl mb-6">
-        {label}
-        {data && ` (${data.total.toLocaleString()})`}
-      </h1>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2 mb-6">
+        <h1 className="text-2xl">
+          {label}
+          {data && ` (${data.total.toLocaleString()}${nav.view === "visits" && nav.hideBots ? " without bots" : ""})`}
+        </h1>
+        {nav.view === "visits" && (
+          <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={nav.hideBots}
+              onChange={(e) => go("visits", 1, e.target.checked)}
+              className="accent-current"
+            />
+            Hide bots
+          </label>
+        )}
+      </div>
 
       {state.status === "loading" && <p className="opacity-50">Loading…</p>}
       {state.status === "error" && <p>Couldn&apos;t load {label.toLowerCase()}.</p>}
@@ -151,7 +174,9 @@ export default function AdminDashboard() {
               {data.total > 0
                 ? "Nothing on this page."
                 : nav.view === "visits"
-                  ? "No visits recorded yet."
+                  ? nav.hideBots
+                    ? "No visits from people yet."
+                    : "No visits recorded yet."
                   : `No ${nav.view} scores yet.`}
             </p>
           )}
@@ -268,6 +293,9 @@ function VisitsTable({ visits }: { visits: Visit[] }) {
             <span className="sr-only">Copy</span>
           </th>
           <Th>Time</Th>
+          <th className="pb-2 pr-4 w-0">
+            <span className="sr-only">Bot</span>
+          </th>
           <Th>Path</Th>
           <Th>IP</Th>
           <Th>Location</Th>
@@ -285,12 +313,26 @@ function VisitsTable({ visits }: { visits: Visit[] }) {
             dash(v.referrer),
             dash(v.userAgent),
           ];
+          // The copied row also says what tripped the bot tag and which network it came from.
+          const copied = [...cells, v.bot ? `bot: ${v.bot}` : "", dash(v.network)];
           return (
             <tr key={i} className="border-b border-slate-700 hover:bg-slate-800 align-top">
-              <CopyRow cells={cells} />
+              <CopyRow cells={copied} />
               <td className="py-1.5 pr-4 whitespace-nowrap opacity-70">{cells[0]}</td>
-              <td className="py-1.5 pr-4 whitespace-nowrap">{cells[1]}</td>
-              <td className="py-1.5 pr-4 opacity-70">{cells[2]}</td>
+              <td className="py-1.5 pr-4">
+                {v.bot && (
+                  <span
+                    className="inline-block align-middle max-w-[8rem] truncate rounded border border-amber-500/60 px-1.5 text-xs leading-5 text-amber-400"
+                    title={`Likely bot: ${v.bot}${v.network ? ` · ${v.network}` : ""}`}
+                  >
+                    {v.bot}
+                  </span>
+                )}
+              </td>
+              <td className={`py-1.5 pr-4 whitespace-nowrap ${v.bot ? "opacity-60" : ""}`}>{cells[1]}</td>
+              <td className="py-1.5 pr-4 opacity-70" title={v.network || undefined}>
+                {cells[2]}
+              </td>
               <td className="py-1.5 pr-4 whitespace-nowrap">{cells[3]}</td>
               <td className="py-1.5 pr-4 opacity-70">
                 {/* One line; the full referrer is in the tooltip and the copied row. */}

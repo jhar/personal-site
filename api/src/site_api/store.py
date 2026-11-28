@@ -6,9 +6,13 @@ them after VISIT_RETENTION_DAYS.
 
 from typing import Any, Protocol
 
+from . import bots
+
 Visit = dict[str, str]
 
-FIELDS = ("ip", "country", "region", "city", "path", "referrer", "userAgent", "ts")
+# network is Cloudflare's asOrganization (e.g. "DigitalOcean"), logged since
+# migration 0004; older visits have "".
+FIELDS = ("ip", "country", "region", "city", "path", "referrer", "userAgent", "ts", "network")
 # Visit field -> D1 column
 COLUMNS = {field: "user_agent" if field == "userAgent" else field for field in FIELDS}
 
@@ -16,9 +20,20 @@ INSERT_VISIT = (
     f"INSERT OR REPLACE INTO visits (id, {', '.join(COLUMNS.values())}) "
     f"VALUES (?, {', '.join('?' for _ in FIELDS)})"
 )
-RECENT_VISITS = (
-    f"SELECT {', '.join(COLUMNS.values())} FROM visits ORDER BY ts DESC, id DESC LIMIT ? OFFSET ?"
-)
+HUMANS_ONLY = f"WHERE {bots.human_sql()}"
+
+
+def recent_visits_sql(humans_only: bool = False) -> str:
+    where = HUMANS_ONLY if humans_only else ""
+    return (
+        f"SELECT {', '.join(COLUMNS.values())} FROM visits {where} "
+        "ORDER BY ts DESC, id DESC LIMIT ? OFFSET ?"
+    )
+
+
+def count_visits_sql(humans_only: bool = False) -> str:
+    return f"SELECT COUNT(*) AS n FROM visits {HUMANS_ONLY if humans_only else ''}"
+
 
 # Snek-VG scoreboard entry, as stored.
 Score = dict[str, Any]
@@ -44,11 +59,13 @@ RANKED_SCORES = (
 class Store(Protocol):
     async def add_visit(self, visit: Visit, visit_id: str) -> None: ...
 
-    async def recent_visits(self, limit: int, offset: int = 0) -> list[Visit]:
-        """Newest first, skipping the first offset."""
+    async def recent_visits(
+        self, limit: int, offset: int = 0, humans_only: bool = False
+    ) -> list[Visit]:
+        """Newest first, skipping the first offset; humans_only leaves out bots.classify() hits."""
         ...
 
-    async def count_visits(self) -> int: ...
+    async def count_visits(self, humans_only: bool = False) -> int: ...
 
     async def delete_visits_before(self, ts: str) -> None:
         """Deletes visits logged before ts (ISO 8601 UTC)."""
@@ -88,12 +105,15 @@ class D1Store:
     async def add_visit(self, visit: Visit, visit_id: str) -> None:
         await self.db.prepare(INSERT_VISIT).bind(*visit_row(visit, visit_id)).run()
 
-    async def recent_visits(self, limit: int, offset: int = 0) -> list[Visit]:
-        res = _py(await self.db.prepare(RECENT_VISITS).bind(limit, offset).all())
+    async def recent_visits(
+        self, limit: int, offset: int = 0, humans_only: bool = False
+    ) -> list[Visit]:
+        sql = recent_visits_sql(humans_only)
+        res = _py(await self.db.prepare(sql).bind(limit, offset).all())
         return [_from_row(row) for row in res["results"]]
 
-    async def count_visits(self) -> int:
-        row = _py(await self.db.prepare("SELECT COUNT(*) AS n FROM visits").first())
+    async def count_visits(self, humans_only: bool = False) -> int:
+        row = _py(await self.db.prepare(count_visits_sql(humans_only)).first())
         return int(row["n"]) if row else 0
 
     async def delete_visits_before(self, ts: str) -> None:
@@ -156,7 +176,7 @@ class D1Store:
 
 def visit_row(visit: Visit, visit_id: str) -> tuple[str, ...]:
     """Values for INSERT_VISIT, in order."""
-    return (visit_id, *(visit[f] for f in FIELDS))
+    return (visit_id, *(visit.get(f, "") for f in FIELDS))
 
 
 def _from_row(row: dict[str, Any]) -> Visit:
@@ -189,11 +209,23 @@ class MemoryStore:
     async def add_visit(self, visit: Visit, visit_id: str) -> None:
         self.visits.append(visit)
 
-    async def recent_visits(self, limit: int, offset: int = 0) -> list[Visit]:
-        return sorted(self.visits, key=lambda v: v["ts"], reverse=True)[offset : offset + limit]
+    async def recent_visits(
+        self, limit: int, offset: int = 0, humans_only: bool = False
+    ) -> list[Visit]:
+        mine = self._visits(humans_only)
+        return sorted(mine, key=lambda v: v["ts"], reverse=True)[offset : offset + limit]
 
-    async def count_visits(self) -> int:
-        return len(self.visits)
+    async def count_visits(self, humans_only: bool = False) -> int:
+        return len(self._visits(humans_only))
+
+    def _visits(self, humans_only: bool) -> list[Visit]:
+        if not humans_only:
+            return self.visits
+        return [
+            v
+            for v in self.visits
+            if not bots.classify(v.get("userAgent", ""), v.get("network", ""))
+        ]
 
     async def delete_visits_before(self, ts: str) -> None:
         self.visits = [v for v in self.visits if v["ts"] >= ts]
