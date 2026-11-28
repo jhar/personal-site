@@ -91,3 +91,20 @@ def test_cache_round_trip():
         return missing, await store.get_cached("k")
 
     assert asyncio.run(run()) == (None, ("v2", 2.5))
+
+
+def test_count_visits_since_by_ip():
+    store = D1Store(FakeD1())
+
+    async def run():
+        await store.add_visit(visit("2026-01-01T00:00:00.000Z"), "old")
+        await store.add_visit(visit("2026-01-01T01:00:00.000Z"), "a")
+        await store.add_visit({**visit("2026-01-01T01:30:00.000Z"), "ip": "5.6.7.8"}, "b")
+        since = "2026-01-01T01:00:00.000Z"
+        return (
+            await store.count_visits_since(since),
+            await store.count_visits_since(since, "1.2.3.4"),
+            await store.count_visits_since(since, "9.9.9.9"),
+        )
+
+    assert asyncio.run(run()) == (2, 1, 0)

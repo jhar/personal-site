@@ -1,4 +1,30 @@
-# Workers static assets headers. The Open Graph image is exported without a file
-# extension, so it needs its content type set here.
+# Workers static assets headers (they don't apply to /api/*, which the Python
+# Worker answers with its own headers in api/src/site_api/app.py).
+
+# Security headers for every page and file.
+# - CSP: everything comes from this site except two kinds of images: Letterboxd
+#   posters on /scratch/movies and the OP Fitness placard on /about.
+#   'unsafe-inline' scripts are a fallback only: the build (scripts/csp-hashes.mjs)
+#   adds a <meta> policy to each page that allows just that page's own inline
+#   scripts by hash. Inline styles stay allowed because React renders style=""
+#   attributes. SVG animation (<animate> etc.) isn't covered by CSP, and JSON-LD
+#   isn't run, so neither needs anything here.
+# - HSTS without includeSubDomains, so it can't affect other subdomains.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.ltrbxd.com https://opfitness.app; font-src 'self'; connect-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()
+  Cross-Origin-Opener-Policy: same-origin
+
+# Browsers' built-in PDF viewers can trip over a page CSP; the resume has been
+# hard enough to open on some phones already.
+/resume.pdf
+  ! Content-Security-Policy
+
+# The Open Graph image is exported without a file extension, so it needs its
+# content type set here.
 /opengraph-image
   Content-Type: image/png

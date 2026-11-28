@@ -15,7 +15,7 @@ browser ──► Cloudflare Worker ──┬─► static assets      Next.js e
 
 | Path                | What it does                                                         |
 | ------------------- | -------------------------------------------------------------------- |
-| `/api/visit`        | Records a page view. Called by the site on every page view.          |
+| `/api/visit`        | Records a page view. Called by the site on every page view. At most 120 per IP and 1,000 overall per hour (429 beyond that). |
 | `/api/letterboxd`   | Recent movies from Letterboxd RSS, cached 15 minutes in D1.          |
 | `/api/admin/visits` | Newest 500 visits, for `/admin/visits?token=...`.                    |
 | `/api/snek/games`   | POST: a signed one-time token for a new Snek-VG game.               |
